@@ -15,14 +15,14 @@ const CONTAINER_COLORS: Record<string, string> = {
 export default function TestsPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { activeDepartment } = useDepartment();
+  const { activeDepartment, activeBench } = useDepartment();
   const [search, setSearch] = useState('');
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState(activeBench.name);
 
-  // Reset category when department changes
+  // Reset category when bench changes
   useEffect(() => {
-    setActiveCategory('All');
-  }, [activeDepartment.id]);
+    setActiveCategory(activeBench.name);
+  }, [activeBench.id, activeBench.name]);
 
   // Derive role base so navigation stays in the correct workspace
   const base = location.pathname.startsWith('/supervisor') ? '/supervisor'

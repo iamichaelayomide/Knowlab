@@ -1,22 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { Search, FileText, ChevronRight } from 'lucide-react';
 import { SOPS } from '../../data/mockData';
-
-const CATEGORIES = ['All', 'Hematology', 'Blood Bank', 'Coagulation'];
+import { useDepartment } from '../../context/DepartmentContext';
 
 export default function SOPsPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { activeDepartment } = useDepartment();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+
+  // Reset category when department changes
+  useEffect(() => {
+    setActiveCategory('All');
+  }, [activeDepartment.id]);
 
   // Derive the role base from current path so navigation stays within the right workspace
   const base = location.pathname.startsWith('/supervisor') ? '/supervisor'
     : location.pathname.startsWith('/hod') ? '/hod'
     : '/staff';
 
-  const filtered = SOPS.filter(sop => {
+  const departmentSOPs = SOPS.filter(sop => {
+    return sop.status === 'active' && 
+           (sop.department.toLowerCase().includes(activeDepartment.id.substring(0, 4)) || 
+            sop.department.toLowerCase() === activeDepartment.name.toLowerCase());
+  });
+
+  const CATEGORIES = ['All', ...Array.from(new Set(departmentSOPs.map(s => s.category)))];
+
+  const filtered = departmentSOPs.filter(sop => {
     const matchesSearch =
       sop.title.toLowerCase().includes(search.toLowerCase()) ||
       sop.code.toLowerCase().includes(search.toLowerCase()) ||
@@ -29,7 +42,7 @@ export default function SOPsPage() {
     <div className="p-6 max-w-[1000px]">
       <div className="mb-6">
         <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">Standard Operating Procedures</h1>
-        <p className="text-[#73839f] text-[14px]">{SOPS.length} SOPs available in your department</p>
+        <p className="text-[#73839f] text-[14px]">{departmentSOPs.length} SOPs available in your department</p>
       </div>
 
       {/* Search + Filter */}

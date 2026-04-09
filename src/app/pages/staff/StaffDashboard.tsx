@@ -38,7 +38,7 @@ export default function StaffDashboard() {
   
   const activeTests = LAB_TESTS.filter(t => {
     if (t.status !== 'active') return false;
-    return activeDepartment.benches.some(b => b.name === t.category);
+    return t.category === activeBench.name;
   });
 
   return (
