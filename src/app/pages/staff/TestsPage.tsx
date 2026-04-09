@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { Search, FlaskConical, ChevronRight, Clock } from 'lucide-react';
 import { LAB_TESTS } from '../../data/mockData';
-
-const CATEGORIES = ['All', 'Hematology', 'Blood Bank', 'Coagulation'];
+import { useDepartment } from '../../context/DepartmentContext';
 
 const CONTAINER_COLORS: Record<string, string> = {
   'Purple/Lavender': '#9333ea',
@@ -16,21 +15,34 @@ const CONTAINER_COLORS: Record<string, string> = {
 export default function TestsPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { activeDepartment } = useDepartment();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+
+  // Reset category when department changes
+  useEffect(() => {
+    setActiveCategory('All');
+  }, [activeDepartment.id]);
 
   // Derive role base so navigation stays in the correct workspace
   const base = location.pathname.startsWith('/supervisor') ? '/supervisor'
     : location.pathname.startsWith('/hod') ? '/hod'
     : '/staff';
 
-  const filtered = LAB_TESTS.filter(t => {
+  const departmentTests = LAB_TESTS.filter(t => {
+    if (t.status !== 'active') return false;
+    return activeDepartment.benches.some(b => b.name === t.category);
+  });
+
+  const categories = ['All', ...Array.from(new Set(departmentTests.map(t => t.category)))];
+
+  const filtered = departmentTests.filter(t => {
     const matchSearch =
       t.name.toLowerCase().includes(search.toLowerCase()) ||
       t.code.toLowerCase().includes(search.toLowerCase()) ||
       t.category.toLowerCase().includes(search.toLowerCase());
     const matchCat = activeCategory === 'All' || t.category === activeCategory;
-    return matchSearch && matchCat && t.status === 'active';
+    return matchSearch && matchCat;
   });
 
   return (
@@ -53,7 +65,7 @@ export default function TestsPage() {
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap mb-5">
-        {CATEGORIES.map(cat => (
+        {categories.map(cat => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}

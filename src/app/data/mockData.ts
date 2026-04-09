@@ -750,7 +750,7 @@ export const SOPS: SOP[] = [
 
 export const LAB_TESTS: LabTest[] = [
   {
-    id: 't1', code: 'HEM001', name: 'Full Blood Count (FBC)', category: 'Hematology',
+    id: 't1', code: 'HEM001', name: 'Full Blood Count (FBC)', category: 'FBC & Automated Counts',
     turnaround: '1–2 hours', sampleType: 'Whole Blood (EDTA)', sampleVolume: '2.0 mL',
     container: 'EDTA Tube', containerColor: 'Purple/Lavender', stability: '24 hrs at 18–25°C; 48 hrs at 2–8°C',
     methodology: 'Electrical impedance, light scatter, fluorescent flow cytometry (Sysmex XN-350)',
@@ -775,7 +775,7 @@ export const LAB_TESTS: LabTest[] = [
     status: 'active',
   },
   {
-    id: 't2', code: 'HEM002', name: 'Erythrocyte Sedimentation Rate (ESR)', category: 'Hematology',
+    id: 't2', code: 'HEM002', name: 'Erythrocyte Sedimentation Rate (ESR)', category: 'ESR & Special Haematology',
     turnaround: '1 hour', sampleType: 'Citrated Blood', sampleVolume: '2.0 mL',
     container: 'Citrate ESR Tube', containerColor: 'Black', stability: 'Must be set up within 2 hours of collection',
     methodology: 'Westergren method (manual) or automated',
@@ -787,7 +787,7 @@ export const LAB_TESTS: LabTest[] = [
     status: 'active',
   },
   {
-    id: 't3', code: 'HEM003', name: 'Peripheral Blood Film (PBF)', category: 'Hematology',
+    id: 't3', code: 'HEM003', name: 'Peripheral Blood Film (PBF)', category: 'Blood Film & Morphology',
     turnaround: '4–6 hours', sampleType: 'Whole Blood (EDTA)', sampleVolume: '2.0 mL',
     container: 'EDTA Tube', containerColor: 'Purple/Lavender', stability: 'Smear must be made within 2 hours',
     methodology: 'Manual microscopy — Leishman/May-Grünwald-Giemsa stain',
@@ -799,7 +799,7 @@ export const LAB_TESTS: LabTest[] = [
     status: 'active',
   },
   {
-    id: 't4', code: 'BB001', name: 'ABO & Rhesus (D) Blood Group', category: 'Blood Bank',
+    id: 't4', code: 'BB001', name: 'ABO & Rhesus (D) Blood Group', category: 'Blood Bank & Transfusion',
     turnaround: '30–60 minutes', sampleType: 'Whole Blood (EDTA or Clotted)',
     sampleVolume: '3.0 mL', container: 'EDTA or Plain Tube', containerColor: 'Purple or Red',
     stability: '72 hrs at 2–8°C', methodology: 'Haemagglutination (tile/tube method)',
@@ -841,7 +841,7 @@ export const LAB_TESTS: LabTest[] = [
     status: 'active',
   },
   {
-    id: 't7', code: 'BB002', name: 'Cross-Match (Compatibility Test)', category: 'Blood Bank',
+    id: 't7', code: 'BB002', name: 'Cross-Match (Compatibility Test)', category: 'Blood Bank & Transfusion',
     turnaround: '45–90 minutes (immediate spin/IS); 60–120 minutes (IAT)',
     sampleType: 'Whole Blood (EDTA) + Serum', sampleVolume: '6.0 mL',
     container: 'EDTA + Plain Tube', containerColor: 'Purple + Red',
@@ -855,7 +855,7 @@ export const LAB_TESTS: LabTest[] = [
     status: 'active',
   },
   {
-    id: 't8', code: 'HEM004', name: 'Reticulocyte Count', category: 'Hematology',
+    id: 't8', code: 'HEM004', name: 'Reticulocyte Count', category: 'FBC & Automated Counts',
     turnaround: '2–3 hours', sampleType: 'Whole Blood (EDTA)', sampleVolume: '2.0 mL',
     container: 'EDTA Tube', containerColor: 'Purple/Lavender',
     stability: '24 hrs at 18–25°C', methodology: 'Fluorescent flow cytometry (Sysmex XN-350 RET channel)',
@@ -870,6 +870,111 @@ export const LAB_TESTS: LabTest[] = [
     specialInstructions: 'Same tube as FBC — can be added on to an FBC request if clinical need identified. Neonatal normal ranges differ significantly.',
     status: 'active',
   },
+  {
+    id: 't9', code: 'CHEM001', name: 'Fasting Blood Glucose (FBG)', category: 'Glucose & Diabetes Markers',
+    turnaround: '1–2 hours', sampleType: 'Fluoride Oxalate Plasma', sampleVolume: '2.0 mL',
+    container: 'Fluoride Oxalate Tube', containerColor: 'Grey',
+    stability: 'Stable for 48 hrs at 2-8°C', methodology: 'Hexokinase method (enzymatic UV)',
+    relatedSop: 'CHEM-SOP-011',
+    parameters: [
+      { name: 'Fasting Glucose', unit: 'mmol/L', maleRange: '3.9 – 5.5', femaleRange: '3.9 – 5.5' },
+    ],
+    clinicalSignificance: 'Primary test for diagnosis and monitoring of Diabetes Mellitus and hypoglycemia.',
+    indications: ['Diabetes screening', 'Hypoglycemia evaluation', 'Monitoring glycemic control'],
+    specialInstructions: 'Patient must be fasting for 8-12 hours prior to collection. Draw sample in the morning.',
+    status: 'active',
+  },
+  {
+    id: 't10', code: 'CHEM002', name: 'Liver Function Tests (LFTs)', category: 'Bilirubin & Liver Function Tests',
+    turnaround: '2–4 hours', sampleType: 'Serum or Lithium Heparin Plasma', sampleVolume: '3.0 mL',
+    container: 'SST/Plain Tube', containerColor: 'Yellow/Red',
+    stability: 'Serum stable up to 7 days at 2-8°C', methodology: 'Automated photometry / enzymatic assays',
+    relatedSop: 'CHEM-SOP-015',
+    parameters: [
+      { name: 'Total Bilirubin', unit: 'µmol/L', maleRange: '0 – 21', femaleRange: '0 – 21' },
+      { name: 'Direct Bilirubin', unit: 'µmol/L', maleRange: '0 – 5', femaleRange: '0 – 5' },
+      { name: 'AST', unit: 'U/L', maleRange: '10 – 40', femaleRange: '10 – 35' },
+      { name: 'ALT', unit: 'U/L', maleRange: '10 – 40', femaleRange: '10 – 35' },
+      { name: 'ALP', unit: 'U/L', maleRange: '40 – 129', femaleRange: '35 – 104' },
+      { name: 'Total Protein', unit: 'g/L', maleRange: '66 – 83', femaleRange: '66 – 83' },
+      { name: 'Albumin', unit: 'g/L', maleRange: '35 – 50', femaleRange: '35 – 50' },
+    ],
+    clinicalSignificance: 'Used to diagnose and monitor liver diseases such as hepatitis, cirrhosis, and biliary obstruction.',
+    indications: ['Jaundice', 'Hepatitis evaluation', 'Hepatotoxic drug monitoring'],
+    specialInstructions: 'Avoid hemolysis, which can artificially elevate AST and ALT.',
+    status: 'active',
+  },
+  {
+    id: 't11', code: 'MIC001', name: 'Blood Culture & Sensitivity', category: 'Bacteriology',
+    turnaround: '5-7 days (Preliminary at 48 hrs)', sampleType: 'Whole Blood', sampleVolume: '8-10 mL (Adult) / 1-3 mL (Pediatric)',
+    container: 'Blood Culture Bottle', containerColor: 'Aerobic (Blue) / Anaerobic (Purple)',
+    stability: 'Send immediately at room temp. DO NOT refrigerate.', methodology: 'Automated continuous monitoring (BACTEC)',
+    relatedSop: 'MIC-SOP-001',
+    parameters: [
+      { name: 'Culture Result', unit: '', maleRange: 'No growth', femaleRange: 'No growth' },
+    ],
+    clinicalSignificance: 'Gold standard for diagnosing bacteremia and fungemia, guiding targeted antimicrobial therapy.',
+    indications: ['Suspected sepsis', 'Fever of unknown origin', 'Endocarditis'],
+    specialInstructions: 'Rigorous skin antisepsis (chlorhexidine/alcohol) is required prior to venipuncture to prevent contamination.',
+    status: 'active',
+  },
+  {
+    id: 't12', code: 'MIC002', name: 'Malaria Rapid Diagnostic Test (mRDT)', category: 'Parasitology',
+    turnaround: '30 minutes', sampleType: 'Capillary or EDTA Blood', sampleVolume: '10-20 µL',
+    container: 'Microvette or EDTA Tube', containerColor: 'Purple',
+    stability: 'Stable for 24 hrs at room temp', methodology: 'Immunochromatographic assay (HRP2 / pLDH)',
+    relatedSop: 'MIC-SOP-014',
+    parameters: [
+      { name: 'P. falciparum', unit: '', maleRange: 'Negative', femaleRange: 'Negative' },
+      { name: 'Pan-species', unit: '', maleRange: 'Negative', femaleRange: 'Negative' },
+    ],
+    clinicalSignificance: 'Rapid detection of malaria antigens, primarily Plasmodium falciparum, for urgent treatment decisions.',
+    indications: ['Acute febrile illness in endemic area', 'Suspected malaria'],
+    specialInstructions: 'Positive results should ideally be confirmed with a thick/thin peripheral blood film for parasitemia quantification.',
+    status: 'active',
+  },
+  {
+    id: 't13', code: 'HIS001', name: 'H&E Routine Histology', category: 'Histology',
+    turnaround: '3-5 days', sampleType: 'Tissue Biopsy', sampleVolume: 'Varies',
+    container: 'Formalin Container', containerColor: 'Clear/White',
+    stability: 'Stable indefinitely in 10% NBF', methodology: 'Formalin fixation, paraffin embedding, H&E staining',
+    relatedSop: 'HIS-SOP-001',
+    parameters: [
+      { name: 'Diagnosis', unit: '', maleRange: 'Normal architecture', femaleRange: 'Normal architecture' },
+    ],
+    clinicalSignificance: 'Provides definitive histopathological diagnosis of benign and malignant lesions.',
+    indications: ['Surgical resections', 'Diagnostic biopsies (core, incisional, excisional)', 'Tumor grading'],
+    specialInstructions: 'Specimen must be completely submerged in 10% Neutral Buffered Formalin immediately after excision (10:1 formalin-to-tissue ratio).',
+    status: 'active',
+  },
+  {
+    id: 't14', code: 'HIS002', name: 'Pap Smear (Cervical Cytology)', category: 'Cytology',
+    turnaround: '7-10 days', sampleType: 'Cervical Scrape/Brush', sampleVolume: 'Smear on slide or LBC vial',
+    container: 'Slide + Fixative or LBC Container', containerColor: 'Clear',
+    stability: 'Fixed slides stable indefinitely. LBC vial 4-6 weeks at room temp.', methodology: 'Papanicolaou Stain / Bethesda System reporting',
+    relatedSop: 'HIS-SOP-010',
+    parameters: [
+      { name: 'Cytology Result', unit: '', maleRange: 'N/A', femaleRange: 'Negative for Intraepithelial Lesion or Malignancy (NILM)' },
+    ],
+    clinicalSignificance: 'Screening test for precancerous cervical lesions (CIN) and cervical cancer.',
+    indications: ['Routine cervical cancer screening', 'Follow-up of abnormal Pap or HPV+', 'Post-treatment surveillance'],
+    specialInstructions: 'Avoid sampling during menstruation. Fix slides immediately with 95% ethanol to prevent air-drying artifact.',
+    status: 'active',
+  },
+  {
+    id: 't15', code: 'BGS001', name: 'Antibody Screening & Identification', category: 'Antibody Screening & ID',
+    turnaround: '1-4 hours', sampleType: 'Serum + EDTA Blood', sampleVolume: '6.0 mL',
+    container: 'SST + EDTA', containerColor: 'Yellow + Purple',
+    stability: 'Test within 72 hrs of collection', methodology: 'Indirect Antiglobulin Test (Column Agglutination / Gel Cards)',
+    relatedSop: 'BGS-SOP-004',
+    parameters: [
+      { name: 'Alloantibody Screen', unit: '', maleRange: 'Negative', femaleRange: 'Negative' },
+    ],
+    clinicalSignificance: 'Detects unexpected red cell alloantibodies to prevent hemolytic transfusion reactions and HDFN.',
+    indications: ['Pre-transfusion workup', 'Antenatal booking/follow-up', 'Previous history of transfusion reaction'],
+    specialInstructions: 'Accurate patient history regarding previous transfusions and pregnancies is essential for interpretation.',
+    status: 'active',
+  }
 ];
 
 // ─── Job Aids ─────────────────────────────────────────────────────────────────

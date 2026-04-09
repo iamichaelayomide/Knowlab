@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import { FileText, FlaskConical, BookOpen, GraduationCap, Bell, ArrowRight, CheckCircle2, Clock, AlertTriangle, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useDepartment } from '../../context/DepartmentContext';
 import { SOPS, LAB_TESTS, JOB_AIDS, TRAINING_MODULES, TRAINING_RECORDS, ALERTS } from '../../data/mockData';
 
 function MetricTile({ label, value, sublabel, accent }: { label: string; value: string | number; sublabel: string; accent: string }) {
@@ -16,6 +17,7 @@ function MetricTile({ label, value, sublabel, accent }: { label: string; value: 
 
 export default function StaffDashboard() {
   const { user } = useAuth();
+  const { activeDepartment, activeBench } = useDepartment();
   const navigate = useNavigate();
 
   if (!user) return null;
@@ -26,8 +28,18 @@ export default function StaffDashboard() {
   const inProgressTraining = myTraining.filter(r => r.status === 'in_progress').length;
 
   const myAlerts = ALERTS.filter(a => !a.read && a.targetRoles.includes(user.role));
-  const activeSops = SOPS.filter(s => s.status === 'active');
-  const activeTests = LAB_TESTS.filter(t => t.status === 'active');
+  
+  // Filter by department (case-insensitive fuzzy match)
+  const activeSops = SOPS.filter(s => 
+    s.status === 'active' && 
+    (s.department.toLowerCase().includes(activeDepartment.id.substring(0, 4)) || 
+     s.department.toLowerCase() === activeDepartment.name.toLowerCase())
+  );
+  
+  const activeTests = LAB_TESTS.filter(t => {
+    if (t.status !== 'active') return false;
+    return activeDepartment.benches.some(b => b.name === t.category);
+  });
 
   return (
     <div className="p-6 max-w-[1200px]">
@@ -97,7 +109,7 @@ export default function StaffDashboard() {
             </button>
           </div>
           <div className="space-y-2">
-            {SOPS.slice(0, 4).map(sop => (
+            {activeSops.slice(0, 4).map(sop => (
               <button
                 key={sop.id}
                 onClick={() => navigate(`/staff/sops/${sop.id}`)}
@@ -132,7 +144,7 @@ export default function StaffDashboard() {
             </button>
           </div>
           <div className="space-y-2">
-            {LAB_TESTS.slice(0, 4).map(test => (
+            {activeTests.length > 0 ? activeTests.slice(0, 4).map(test => (
               <button
                 key={test.id}
                 onClick={() => navigate(`/staff/tests/${test.id}`)}
@@ -147,7 +159,11 @@ export default function StaffDashboard() {
                 </div>
                 <div className={`w-3 h-3 rounded-full flex-shrink-0`} style={{ backgroundColor: test.containerColor === 'Purple/Lavender' ? '#9333ea' : test.containerColor === 'Light Blue' ? '#3b82f6' : test.containerColor === 'Black' ? '#374151' : '#ef4444' }} title={test.container} />
               </button>
-            ))}
+            )) : (
+              <div className="py-6 text-center text-[#73839f] text-[13px]">
+                No tests assigned to this bench yet.
+              </div>
+            )}
           </div>
         </div>
       </div>

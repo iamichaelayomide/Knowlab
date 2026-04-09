@@ -1,18 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, FlaskConical, Microscope, Droplets, Stethoscope, TestTube } from 'lucide-react';
+import { ChevronDown, Check, FlaskConical, Microscope, Droplets, Stethoscope, TestTube, ChevronRight, ArrowLeft } from 'lucide-react';
 import { Department, Bench, DEPARTMENTS } from '../../data/mockData';
 import { useDepartment } from '../../context/DepartmentContext';
 
 // Department icons map
 const DEPT_ICONS: Record<string, React.ReactNode> = {
-  haematology: <Droplets size={14} />,
-  chemistry: <FlaskConical size={14} />,
-  microbiology: <Microscope size={14} />,
-  histopathology: <Stethoscope size={14} />,
-  bgs: <TestTube size={14} />,
+  haematology: <Droplets size={16} />,
+  chemistry: <FlaskConical size={16} />,
+  microbiology: <Microscope size={16} />,
+  histopathology: <Stethoscope size={16} />,
+  bgs: <TestTube size={16} />,
 };
 
-function DeptColorDot({ color, size = 8 }: { color: string; size?: number }) {
+function DeptColorDot({ color, size = 10 }: { color: string; size?: number }) {
   return (
     <span
       className="rounded-full flex-shrink-0 inline-block"
@@ -24,14 +24,11 @@ function DeptColorDot({ color, size = 8 }: { color: string; size?: number }) {
 export function DepartmentSwitcher() {
   const { activeDepartment, activeBench, setActiveDepartment, setActiveBench } = useDepartment();
   const [open, setOpen] = useState(false);
+  const [view, setView] = useState<'departments' | 'benches'>('departments');
   const [selectedDept, setSelectedDept] = useState<Department>(activeDepartment);
+  
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-
-  // Sync selectedDept when activeDepartment changes externally
-  useEffect(() => {
-    setSelectedDept(activeDepartment);
-  }, [activeDepartment]);
 
   // Close on outside click
   useEffect(() => {
@@ -42,15 +39,23 @@ export function DepartmentSwitcher() {
         triggerRef.current && !triggerRef.current.contains(e.target as Node)
       ) {
         setOpen(false);
-        setSelectedDept(activeDepartment); // reset preview
       }
     }
     document.addEventListener('mousedown', handle);
     return () => document.removeEventListener('mousedown', handle);
+  }, [open]);
+
+  // Reset view when opening
+  useEffect(() => {
+    if (open) {
+      setView('departments');
+      setSelectedDept(activeDepartment);
+    }
   }, [open, activeDepartment]);
 
   const handleDeptClick = (dept: Department) => {
     setSelectedDept(dept);
+    setView('benches');
   };
 
   const handleBenchClick = (bench: Bench) => {
@@ -59,37 +64,31 @@ export function DepartmentSwitcher() {
     setOpen(false);
   };
 
-  const isActiveDept = (dept: Department) =>
-    activeDepartment.id === dept.id && selectedDept.id === dept.id;
-
   return (
-    <div className="relative px-3 mb-3">
+    <div className="relative px-3 mb-4">
       {/* Trigger Button */}
       <button
         ref={triggerRef}
-        onClick={() => {
-          setSelectedDept(activeDepartment);
-          setOpen(v => !v);
-        }}
-        className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-[14px] border border-[#d3def5] bg-white hover:bg-[#eef4ff] transition-colors group"
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl border border-blue-100 bg-white hover:bg-blue-50 transition-all shadow-sm group"
       >
         <span
-          className="size-[28px] rounded-[9px] flex items-center justify-center text-white flex-shrink-0"
+          className="size-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-sm"
           style={{ backgroundColor: activeDepartment.color }}
         >
           {DEPT_ICONS[activeDepartment.id]}
         </span>
         <div className="flex-1 min-w-0 text-left">
-          <div className="text-[#11203b] text-[11px] font-semibold truncate leading-tight">
+          <div className="text-slate-800 text-sm font-bold truncate tracking-tight">
             {activeDepartment.shortName}
           </div>
-          <div className="text-[#73839f] text-[10px] truncate leading-tight">
+          <div className="text-slate-500 text-xs truncate font-medium mt-0.5">
             {activeBench.shortName} Bench
           </div>
         </div>
         <ChevronDown
-          size={13}
-          className={`text-[#73839f] flex-shrink-0 transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
+          size={16}
+          className={`text-slate-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
@@ -97,106 +96,94 @@ export function DepartmentSwitcher() {
       {open && (
         <div
           ref={panelRef}
-          className="absolute left-3 right-3 top-[calc(100%+6px)] z-50 bg-white border border-[#d3def5] rounded-[18px] shadow-xl overflow-hidden"
-          style={{ minWidth: 240 }}
+          className="absolute left-3 right-3 top-[calc(100%+8px)] z-50 bg-white border border-blue-100 rounded-2xl shadow-xl overflow-hidden origin-top animate-in fade-in zoom-in-95 duration-200"
+          style={{ width: 'calc(100% - 24px)', minWidth: 260 }}
         >
-          {/* Header */}
-          <div className="px-4 pt-3 pb-2 border-b border-[#eef4ff]">
-            <p className="text-[#73839f] text-[10px] font-semibold tracking-[1.5px] uppercase">Switch Department / Bench</p>
-          </div>
-
-          <div className="flex" style={{ maxHeight: 340 }}>
-            {/* Left: Departments */}
-            <div className="w-[130px] flex-shrink-0 border-r border-[#eef4ff] overflow-y-auto py-1.5">
-              {DEPARTMENTS.map(dept => {
-                const isPreview = selectedDept.id === dept.id;
-                const isActive = activeDepartment.id === dept.id;
-                return (
-                  <button
-                    key={dept.id}
-                    onClick={() => handleDeptClick(dept)}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-left transition-colors ${
-                      isPreview
-                        ? 'bg-[#eef4ff]'
-                        : 'hover:bg-[#f7faff]'
-                    }`}
-                  >
-                    <span
-                      className="size-[20px] rounded-[6px] flex items-center justify-center text-white flex-shrink-0"
-                      style={{ backgroundColor: dept.color }}
-                    >
-                      {DEPT_ICONS[dept.id] &&
-                        React.cloneElement(DEPT_ICONS[dept.id] as React.ReactElement, { size: 11 })}
-                    </span>
-                    <span
-                      className={`text-[11px] font-medium leading-tight flex-1 ${
-                        isPreview ? 'text-[#11203b]' : 'text-[#475a7d]'
-                      }`}
-                    >
-                      {dept.shortName}
-                    </span>
-                    {isActive && (
-                      <span className="size-[5px] rounded-full flex-shrink-0" style={{ backgroundColor: dept.color }} />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Right: Benches */}
-            <div className="flex-1 overflow-y-auto py-1.5">
-              <div className="px-3 pb-1 pt-1">
-                <p className="text-[#73839f] text-[10px] font-semibold tracking-wider uppercase truncate">
-                  {selectedDept.name}
-                </p>
+          {view === 'departments' ? (
+            // Departments View
+            <div className="flex flex-col">
+              <div className="px-4 py-3 border-b border-blue-50 bg-slate-50/50">
+                <p className="text-slate-500 text-xs font-bold tracking-wider uppercase">Select Department</p>
               </div>
-              {selectedDept.benches.map(bench => {
-                const isActiveBench =
-                  activeDepartment.id === selectedDept.id && activeBench.id === bench.id;
-                return (
-                  <button
-                    key={bench.id}
-                    onClick={() => handleBenchClick(bench)}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-left transition-colors ${
-                      isActiveBench
-                        ? 'bg-[#e3edff]'
-                        : 'hover:bg-[#f7faff]'
-                    }`}
-                  >
-                    <DeptColorDot color={bench.color} size={7} />
-                    <span
-                      className={`text-[11px] leading-tight flex-1 ${
-                        isActiveBench ? 'text-[#1c5eff] font-semibold' : 'text-[#475a7d] font-medium'
+              <div className="p-2 overflow-y-auto max-h-[380px] flex flex-col gap-1">
+                {DEPARTMENTS.map(dept => {
+                  const isActive = activeDepartment.id === dept.id;
+                  return (
+                    <button
+                      key={dept.id}
+                      onClick={() => handleDeptClick(dept)}
+                      className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-all ${
+                        isActive ? 'bg-blue-50/80 border border-blue-100/50' : 'hover:bg-slate-50 border border-transparent'
                       }`}
                     >
-                      {bench.name}
-                    </span>
-                    {isActiveBench && <Check size={11} className="text-[#1c5eff] flex-shrink-0" />}
-                  </button>
-                );
-              })}
+                      <span
+                        className="size-9 rounded-lg flex items-center justify-center text-white flex-shrink-0 shadow-sm"
+                        style={{ backgroundColor: dept.color }}
+                      >
+                        {DEPT_ICONS[dept.id]}
+                      </span>
+                      <div className="flex-1">
+                        <div className={`text-sm font-semibold ${isActive ? 'text-slate-900' : 'text-slate-700'}`}>
+                          {dept.name}
+                        </div>
+                        <div className="text-slate-400 text-xs mt-0.5 font-medium">
+                          {dept.benches.length} benches
+                        </div>
+                      </div>
+                      <ChevronRight size={16} className="text-slate-300" />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-
-          {/* Footer */}
-          <div className="px-3 py-2 border-t border-[#eef4ff] flex items-center justify-between">
-            <span className="text-[#73839f] text-[10px]">
-              <span className="font-semibold" style={{ color: activeDepartment.color }}>
-                {activeDepartment.shortName}
-              </span>
-              {' · '}
-              {activeBench.shortName}
-            </span>
-            <button
-              onClick={() => {
-                setOpen(false);
-                setSelectedDept(activeDepartment);
-              }}
-              className="text-[#73839f] text-[10px] hover:text-[#1c5eff] font-medium"
-            >
-              Cancel
-            </button>
-          </div>
+          ) : (
+            // Benches View
+            <div className="flex flex-col">
+              <div className="px-3 py-3 border-b border-blue-50 bg-slate-50/50 flex items-center gap-2">
+                <button 
+                  onClick={() => setView('departments')}
+                  className="p-1.5 hover:bg-white rounded-lg text-slate-500 hover:text-slate-800 transition-colors"
+                >
+                  <ArrowLeft size={16} />
+                </button>
+                <div className="flex-1 min-w-0">
+                  <p className="text-slate-800 text-sm font-bold truncate">{selectedDept.name}</p>
+                </div>
+              </div>
+              <div className="p-2 overflow-y-auto max-h-[380px] flex flex-col gap-1">
+                {selectedDept.benches.map(bench => {
+                  const isActiveBench = activeDepartment.id === selectedDept.id && activeBench.id === bench.id;
+                  return (
+                    <button
+                      key={bench.id}
+                      onClick={() => handleBenchClick(bench)}
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all ${
+                        isActiveBench
+                          ? 'bg-blue-50 border border-blue-100/50 shadow-sm'
+                          : 'hover:bg-slate-50 border border-transparent'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center size-6 bg-white rounded-md shadow-sm shrink-0">
+                        <DeptColorDot color={bench.color} size={10} />
+                      </div>
+                      <span
+                        className={`text-sm flex-1 truncate ${
+                          isActiveBench ? 'text-blue-700 font-bold' : 'text-slate-700 font-medium'
+                        }`}
+                      >
+                        {bench.name}
+                      </span>
+                      {isActiveBench && (
+                        <div className="size-6 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+                          <Check size={12} className="text-blue-700" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
