@@ -29,11 +29,10 @@ export default function StaffDashboard() {
 
   const myAlerts = ALERTS.filter(a => !a.read && a.targetRoles.includes(user.role));
   
-  // Filter by department (case-insensitive fuzzy match)
+  // Filter by active bench strictly
   const activeSops = SOPS.filter(s => 
     s.status === 'active' && 
-    (s.department.toLowerCase().includes(activeDepartment.id.substring(0, 4)) || 
-     s.department.toLowerCase() === activeDepartment.name.toLowerCase())
+    s.category === activeBench.name
   );
   
   const activeTests = LAB_TESTS.filter(t => {
@@ -98,7 +97,7 @@ export default function StaffDashboard() {
       {/* Two-column */}
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         {/* Quick access SOPs */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6">
+        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6 flex flex-col h-[420px]">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <FileText size={18} className="text-[#1c5eff]" />
@@ -108,8 +107,8 @@ export default function StaffDashboard() {
               View all <ChevronRight size={14} />
             </button>
           </div>
-          <div className="space-y-2">
-            {activeSops.slice(0, 4).map(sop => (
+          <div className="space-y-2 flex-1 overflow-y-auto">
+            {activeSops.length > 0 ? activeSops.slice(0, 4).map(sop => (
               <button
                 key={sop.id}
                 onClick={() => navigate(`/staff/sops/${sop.id}`)}
@@ -128,12 +127,16 @@ export default function StaffDashboard() {
                   {sop.status === 'active' ? 'Active' : 'Under Review'}
                 </div>
               </button>
-            ))}
+            )) : (
+              <div className="py-6 text-center text-[#73839f] text-[13px]">
+                No SOPs assigned to this bench yet.
+              </div>
+            )}
           </div>
         </div>
 
         {/* Quick access Tests */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6">
+        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6 flex flex-col h-[420px]">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <FlaskConical size={18} className="text-[#1c5eff]" />
@@ -143,7 +146,7 @@ export default function StaffDashboard() {
               View all <ChevronRight size={14} />
             </button>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 flex-1 overflow-y-auto">
             {activeTests.length > 0 ? activeTests.slice(0, 4).map(test => (
               <button
                 key={test.id}
@@ -171,7 +174,7 @@ export default function StaffDashboard() {
       {/* Training status + Alerts */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* My Training */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6">
+        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6 flex flex-col h-[420px]">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <GraduationCap size={18} className="text-[#1c5eff]" />
@@ -181,7 +184,7 @@ export default function StaffDashboard() {
               View all <ChevronRight size={14} />
             </button>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 flex-1 overflow-y-auto">
             {TRAINING_MODULES.slice(0, 4).map(mod => {
               const record = myTraining.find(r => r.moduleId === mod.id);
               const status = record?.status || 'not_started';
@@ -218,7 +221,7 @@ export default function StaffDashboard() {
         </div>
 
         {/* Recent Alerts */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6">
+        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6 flex flex-col h-[420px]">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Bell size={18} className="text-[#1c5eff]" />
@@ -228,7 +231,7 @@ export default function StaffDashboard() {
               View all <ChevronRight size={14} />
             </button>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 flex-1 overflow-y-auto">
             {ALERTS.filter(a => a.targetRoles.includes(user.role)).slice(0, 4).map(alert => (
               <div key={alert.id} className="flex items-start gap-3 p-3 rounded-[14px] hover:bg-[#f4f8ff] transition-colors">
                 <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${

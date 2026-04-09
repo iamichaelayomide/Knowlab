@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Search, BookOpen, CheckSquare, GitBranch, FileText, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { JOB_AIDS, JobAid } from '../../data/mockData';
+import { useDepartment } from '../../context/DepartmentContext';
 
 const TYPE_ICONS: Record<string, React.ReactNode> = {
   checklist: <CheckSquare size={18} className="text-[#1c7b56]" />,
@@ -36,8 +37,8 @@ function JobAidCard({ aid }: { aid: JobAid }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-white rounded-[20px] border border-[#d3def5] shadow-[0px_4px_12px_0px_rgba(15,40,90,0.04)] overflow-hidden">
-      <div className="p-5">
+    <div className="bg-white rounded-[20px] border border-[#d3def5] shadow-[0px_4px_12px_0px_rgba(15,40,90,0.04)] overflow-hidden flex flex-col h-full">
+      <div className="p-5 flex-1 flex flex-col">
         <div className="flex items-start gap-3 mb-3">
           <div className={`rounded-[12px] p-2.5 flex-shrink-0 ${TYPE_BG[aid.type]}`}>
             {TYPE_ICONS[aid.type]}
@@ -52,8 +53,8 @@ function JobAidCard({ aid }: { aid: JobAid }) {
             </div>
           </div>
         </div>
-        <p className="text-[#475a7d] text-[13px] leading-relaxed mb-3">{aid.description}</p>
-        <div className="flex items-center justify-between">
+        <p className="text-[#475a7d] text-[13px] leading-relaxed mb-4 flex-1">{aid.description}</p>
+        <div className="flex items-center justify-between mt-auto">
           <span className="text-[#73839f] text-[11px]">Updated {new Date(aid.lastUpdated).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
           {aid.steps && (
             <button
@@ -87,11 +88,36 @@ function JobAidCard({ aid }: { aid: JobAid }) {
 }
 
 export default function JobAidsPage() {
+  const { activeDepartment } = useDepartment();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeType, setActiveType] = useState('All');
 
-  const filtered = JOB_AIDS.filter(aid => {
+  const departmentAids = JOB_AIDS.filter(aid => {
+    // Check if category matches any bench in this department
+    const isBenchCategory = activeDepartment.benches.some(b => b.name === aid.category);
+    if (isBenchCategory) return true;
+    
+    // Check if tags explicitly name the department
+    const text = (aid.tags.join(' ') + ' ' + aid.category).toLowerCase();
+    const deptName = activeDepartment.name.toLowerCase();
+    const deptShort = activeDepartment.shortName.toLowerCase();
+    if (text.includes(deptName) || text.includes(deptShort)) return true;
+
+    // Fallback mappings for original JOB_AIDS that lack explicit department names
+    const allText = (aid.title + ' ' + aid.description + ' ' + aid.tags.join(' ')).toLowerCase();
+    if (activeDepartment.id === 'haematology' && (allText.includes('sysmex') || allText.includes('fbc') || allText.includes('haematology'))) return true;
+    if (activeDepartment.id === 'chemistry' && (allText.includes('chemistry') || allText.includes('lft') || allText.includes('ise'))) return true;
+    if (activeDepartment.id === 'microbiology' && (allText.includes('microbiology') || allText.includes('bacteria') || allText.includes('malaria') || allText.includes('gram'))) return true;
+    if (activeDepartment.id === 'histopathology' && (allText.includes('histopathology') || allText.includes('cytology') || allText.includes('grossing'))) return true;
+    if (activeDepartment.id === 'bgs' && (allText.includes('blood bank') || allText.includes('bgs') || allText.includes('transfusion') || allText.includes('crossmatch') || allText.includes('abo'))) return true;
+
+    return false;
+  });
+
+  const categories = ['All', ...Array.from(new Set(departmentAids.map(a => a.category)))];
+
+  const filtered = departmentAids.filter(aid => {
     const matchSearch =
       aid.title.toLowerCase().includes(search.toLowerCase()) ||
       aid.description.toLowerCase().includes(search.toLowerCase()) ||
@@ -119,21 +145,38 @@ export default function JobAidsPage() {
         />
       </div>
 
-      {/* Type Filters */}
-      <div className="flex gap-2 flex-wrap mb-5">
-        {['All', 'checklist', 'quick_reference', 'decision_tree', 'protocol'].map(type => (
-          <button
-            key={type}
-            onClick={() => setActiveType(type)}
-            className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors border ${
-              activeType === type
-                ? 'bg-[#e3edff] text-[#1c5eff] border-[#1c5eff]'
-                : 'bg-white text-[#475a7d] border-[#d3def5] hover:border-[#9bb3e5]'
-            }`}
-          >
-            {type === 'All' ? 'All Types' : TYPE_LABELS[type]}
-          </button>
-        ))}
+      {/* Filters */}
+      <div className="flex flex-col gap-3 mb-5">
+        <div className="flex gap-2 flex-wrap">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors border ${
+                activeCategory === cat
+                  ? 'bg-[#e3edff] text-[#1c5eff] border-[#1c5eff]'
+                  : 'bg-white text-[#475a7d] border-[#d3def5] hover:border-[#9bb3e5]'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {['All', 'checklist', 'quick_reference', 'decision_tree', 'protocol'].map(type => (
+            <button
+              key={type}
+              onClick={() => setActiveType(type)}
+              className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors border ${
+                activeType === type
+                  ? 'bg-[#e3edff] text-[#1c5eff] border-[#1c5eff]'
+                  : 'bg-white text-[#475a7d] border-[#d3def5] hover:border-[#9bb3e5]'
+              }`}
+            >
+              {type === 'All' ? 'All Types' : TYPE_LABELS[type]}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Job Aids Grid */}

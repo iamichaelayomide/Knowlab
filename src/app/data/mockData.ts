@@ -1,5 +1,7 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+import { NEW_SOPS, NEW_LAB_TESTS, NEW_JOB_AIDS } from './mockDataEnriched';
+
 export type UserRole = 'staff' | 'supervisor' | 'hod';
 
 // ─── Department & Bench Types ─────────────────────────────────────────────────
@@ -744,6 +746,7 @@ export const SOPS: SOP[] = [
     relatedTests: ['PT/INR', 'APTT', 'Fibrinogen'],
     tags: ['coagulation', 'PT', 'INR', 'warfarin', 'thromboplastin'],
   },
+  ...NEW_SOPS,
 ];
 
 // ─── Lab Tests ────────────────────────────────────────────────────────────────
@@ -974,7 +977,8 @@ export const LAB_TESTS: LabTest[] = [
     indications: ['Pre-transfusion workup', 'Antenatal booking/follow-up', 'Previous history of transfusion reaction'],
     specialInstructions: 'Accurate patient history regarding previous transfusions and pregnancies is essential for interpretation.',
     status: 'active',
-  }
+  },
+  ...NEW_LAB_TESTS
 ];
 
 // ─── Job Aids ─────────────────────────────────────────────────────────────────
@@ -1115,6 +1119,7 @@ export const JOB_AIDS: JobAid[] = [
     ],
     lastUpdated: '2024-02-20', tags: ['reagent', 'storage', 'cold chain', 'temperature'],
   },
+  ...NEW_JOB_AIDS,
 ];
 
 // ─── Training Modules ─────────────────────────────────────────────────────────

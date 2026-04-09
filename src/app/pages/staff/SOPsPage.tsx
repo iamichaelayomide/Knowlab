@@ -7,14 +7,14 @@ import { useDepartment } from '../../context/DepartmentContext';
 export default function SOPsPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { activeDepartment } = useDepartment();
+  const { activeDepartment, activeBench } = useDepartment();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
-  // Reset category when department changes
+  // Reset category when department/bench changes
   useEffect(() => {
     setActiveCategory('All');
-  }, [activeDepartment.id]);
+  }, [activeDepartment.id, activeBench.id]);
 
   // Derive the role base from current path so navigation stays within the right workspace
   const base = location.pathname.startsWith('/supervisor') ? '/supervisor'
@@ -22,9 +22,7 @@ export default function SOPsPage() {
     : '/staff';
 
   const departmentSOPs = SOPS.filter(sop => {
-    return sop.status === 'active' && 
-           (sop.department.toLowerCase().includes(activeDepartment.id.substring(0, 4)) || 
-            sop.department.toLowerCase() === activeDepartment.name.toLowerCase());
+    return sop.status === 'active' && sop.category === activeBench.name;
   });
 
   const CATEGORIES = ['All', ...Array.from(new Set(departmentSOPs.map(s => s.category)))];

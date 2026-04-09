@@ -31,7 +31,7 @@ export default function TestsPage() {
 
   const departmentTests = LAB_TESTS.filter(t => {
     if (t.status !== 'active') return false;
-    return activeDepartment.benches.some(b => b.name === t.category);
+    return t.category === activeBench.name;
   });
 
   const categories = ['All', ...Array.from(new Set(departmentTests.map(t => t.category)))];
@@ -92,9 +92,9 @@ export default function TestsPage() {
           <button
             key={test.id}
             onClick={() => navigate(`${base}/tests/${test.id}`)}
-            className="bg-white rounded-[20px] border border-[#d3def5] p-5 text-left hover:border-[#1c5eff] hover:shadow-[0px_6px_18px_0px_rgba(28,94,255,0.08)] transition-all group"
+            className="bg-white rounded-[20px] border border-[#d3def5] p-5 text-left hover:border-[#1c5eff] hover:shadow-[0px_6px_18px_0px_rgba(28,94,255,0.08)] transition-all group flex flex-col h-full"
           >
-            <div className="flex items-start justify-between mb-3">
+            <div className="flex items-start justify-between mb-3 w-full">
               <div className="flex items-center gap-2">
                 <div
                   className="w-3 h-3 rounded-full flex-shrink-0"
@@ -105,8 +105,8 @@ export default function TestsPage() {
               <ChevronRight size={14} className="text-[#c4d2ef] group-hover:text-[#1c5eff] transition-colors" />
             </div>
             <h3 className="text-[#11203b] font-semibold text-[15px] mb-1 group-hover:text-[#1c5eff] transition-colors leading-snug">{test.name}</h3>
-            <p className="text-[#73839f] text-[12px] mb-3">{test.category}</p>
-            <div className="space-y-1.5">
+            <p className="text-[#73839f] text-[12px] mb-3 flex-1">{test.category}</p>
+            <div className="space-y-1.5 w-full">
               <div className="flex items-center gap-2 text-[12px] text-[#475a7d]">
                 <div className="flex items-center gap-1.5">
                   <div
@@ -123,7 +123,7 @@ export default function TestsPage() {
                 <span>{test.turnaround}</span>
               </div>
             </div>
-            <div className="mt-3 flex gap-2 flex-wrap">
+            <div className="mt-4 flex gap-2 flex-wrap w-full">
               <span className="bg-[#f4f8ff] text-[#475a7d] text-[11px] px-2 py-0.5 rounded-full">{test.parameters.length} parameters</span>
               {test.relatedSop && (
                 <span className="bg-[#e3edff] text-[#1c5eff] text-[11px] px-2 py-0.5 rounded-full">{test.relatedSop}</span>

@@ -66,39 +66,39 @@ export function DepartmentSwitcher() {
 
   return (
     <div className="relative px-3 mb-4">
-      {/* Trigger Button */}
-      <button
-        ref={triggerRef}
-        onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl border border-blue-100 bg-white hover:bg-blue-50 transition-all shadow-sm group"
-      >
-        <span
-          className="size-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-sm"
-          style={{ backgroundColor: activeDepartment.color }}
+      <div className="relative w-full">
+        {/* Trigger Button */}
+        <button
+          ref={triggerRef}
+          onClick={() => setOpen(v => !v)}
+          className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl border border-blue-100 bg-white hover:bg-blue-50 transition-all shadow-sm group"
         >
-          {DEPT_ICONS[activeDepartment.id]}
-        </span>
-        <div className="flex-1 min-w-0 text-left">
-          <div className="text-slate-800 text-sm font-bold truncate tracking-tight">
-            {activeDepartment.shortName}
+          <span
+            className="size-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-sm"
+            style={{ backgroundColor: activeDepartment.color }}
+          >
+            {DEPT_ICONS[activeDepartment.id]}
+          </span>
+          <div className="flex-1 min-w-0 text-left">
+            <div className="text-slate-800 text-sm font-bold truncate tracking-tight">
+              {activeDepartment.shortName}
+            </div>
+            <div className="text-slate-500 text-xs truncate font-medium mt-0.5">
+              {activeBench.shortName} Bench
+            </div>
           </div>
-          <div className="text-slate-500 text-xs truncate font-medium mt-0.5">
-            {activeBench.shortName} Bench
-          </div>
-        </div>
-        <ChevronDown
-          size={16}
-          className={`text-slate-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
+          <ChevronDown
+            size={16}
+            className={`text-slate-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          />
+        </button>
 
-      {/* Dropdown Panel */}
-      {open && (
-        <div
-          ref={panelRef}
-          className="absolute left-3 right-3 top-[calc(100%+8px)] z-50 bg-white border border-blue-100 rounded-2xl shadow-xl overflow-hidden origin-top animate-in fade-in zoom-in-95 duration-200"
-          style={{ width: 'calc(100% - 24px)', minWidth: 260 }}
-        >
+        {/* Dropdown Panel */}
+        {open && (
+          <div
+            ref={panelRef}
+            className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 bg-white border border-blue-100 rounded-2xl shadow-xl overflow-hidden origin-top animate-in fade-in zoom-in-95 duration-200"
+          >
           {view === 'departments' ? (
             // Departments View
             <div className="flex flex-col">
@@ -186,6 +186,7 @@ export function DepartmentSwitcher() {
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }
