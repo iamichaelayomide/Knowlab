@@ -1,6 +1,7 @@
 import { useParams, useNavigate, useLocation } from 'react-router';
 import { ArrowLeft, FileText, AlertTriangle, FlaskConical } from 'lucide-react';
 import { SOPS } from '../../data/mockData';
+import { openFloatingAI } from '../../services/aiWidget';
 
 export default function SOPDetailPage() {
   const { id } = useParams();
@@ -11,40 +12,45 @@ export default function SOPDetailPage() {
   const base = location.pathname.startsWith('/supervisor') ? '/supervisor'
     : location.pathname.startsWith('/hod') ? '/hod'
     : '/staff';
+  const cameFromAi = Boolean((location.state as { fromAi?: boolean } | null)?.fromAi);
 
   if (!sop) {
     return (
       <div className="p-6 text-center">
         <p className="text-[#475a7d]">SOP not found.</p>
-        <button onClick={() => navigate(`${base}/sops`)} className="text-[#1c5eff] text-[14px] mt-2">← Back to SOPs</button>
+        <button onClick={() => navigate(`${base}/sops`)} className="text-[#1c5eff] text-[14px] mt-2">Back to SOPs</button>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-[900px]">
-      {/* Back */}
+    <div className="w-full max-w-[900px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
       <button
-        onClick={() => navigate(`${base}/sops`)}
+        onClick={() => {
+          if (cameFromAi) {
+            openFloatingAI(`Continue explaining ${sop.title} step by step.`);
+            return;
+          }
+          navigate(`${base}/sops`);
+        }}
         className="flex items-center gap-2 text-[#475a7d] text-[13px] font-medium mb-5 hover:text-[#1c5eff] transition-colors"
       >
-        <ArrowLeft size={15} /> Back to SOPs
+        <ArrowLeft size={15} /> {cameFromAi ? 'Back to Knowlab AI' : 'Back to SOPs'}
       </button>
 
-      {/* Header Card */}
-      <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6 mb-5">
+      <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6 mb-5">
         <div className="flex items-start gap-4">
           <div className="bg-[#e3edff] rounded-[16px] p-3.5 flex-shrink-0">
             <FileText size={24} className="text-[#1c5eff]" />
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className="text-[#1c5eff] font-semibold text-[12px] tracking-[1.5px] uppercase">{sop.code}</span>
               <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full ${
                 sop.status === 'active' ? 'bg-[#e8f8f1] text-[#1c7b56]' : 'bg-[#fff0db] text-[#9a6115]'
               }`}>{sop.status === 'active' ? 'Active' : 'Under Review'}</span>
             </div>
-            <h1 className="text-[#11203b] font-bold text-[22px] leading-snug mb-3">{sop.title}</h1>
+            <h1 className="text-[#11203b] font-bold text-[20px] sm:text-[22px] leading-snug mb-3">{sop.title}</h1>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 { label: 'Revision', value: `Rev.${sop.revision}` },
@@ -58,7 +64,7 @@ export default function SOPDetailPage() {
                 </div>
               ))}
             </div>
-            <div className="mt-3 flex gap-4 text-[13px] text-[#475a7d]">
+            <div className="mt-3 flex gap-4 text-[13px] text-[#475a7d] flex-wrap">
               <span>Author: <span className="font-medium text-[#11203b]">{sop.author}</span></span>
               <span>Approved by: <span className="font-medium text-[#11203b]">{sop.approvedBy}</span></span>
             </div>
@@ -66,7 +72,6 @@ export default function SOPDetailPage() {
         </div>
       </div>
 
-      {/* Purpose & Principle */}
       <div className="grid sm:grid-cols-2 gap-4 mb-5">
         <div className="bg-white rounded-[20px] border border-[#d3def5] p-5">
           <h2 className="text-[#11203b] font-semibold text-[15px] mb-2">Purpose</h2>
@@ -78,7 +83,6 @@ export default function SOPDetailPage() {
         </div>
       </div>
 
-      {/* Equipment & Reagents */}
       <div className="grid sm:grid-cols-2 gap-4 mb-5">
         <div className="bg-white rounded-[20px] border border-[#d3def5] p-5">
           <h2 className="text-[#11203b] font-semibold text-[15px] mb-3">Equipment Required</h2>
@@ -104,8 +108,7 @@ export default function SOPDetailPage() {
         </div>
       </div>
 
-      {/* Procedure Steps */}
-      <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6 mb-5">
+      <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6 mb-5">
         <h2 className="text-[#11203b] font-semibold text-[17px] mb-4">Procedure</h2>
         <div className="space-y-4">
           {sop.steps.map(step => (
@@ -122,9 +125,8 @@ export default function SOPDetailPage() {
         </div>
       </div>
 
-      {/* Reference Ranges */}
       {sop.referenceRanges && sop.referenceRanges.length > 0 && (
-        <div className="bg-white rounded-[24px] border border-[#d3def5] p-6 mb-5 overflow-x-auto">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] p-4 sm:p-6 mb-5 overflow-x-auto">
           <h2 className="text-[#11203b] font-semibold text-[17px] mb-4">Reference Ranges</h2>
           <table className="w-full text-left min-w-[500px]">
             <thead>
@@ -146,7 +148,7 @@ export default function SOPDetailPage() {
                   <td className="py-3 pr-4 text-[#475a7d] text-[13px]">{range.maleRange}</td>
                   <td className="py-3 pr-4 text-[#475a7d] text-[13px]">{range.femaleRange}</td>
                   {sop.referenceRanges!.some(r => r.pediatricRange) && (
-                    <td className="py-3 text-[#475a7d] text-[13px]">{range.pediatricRange || '—'}</td>
+                    <td className="py-3 text-[#475a7d] text-[13px]">{range.pediatricRange || '-'} </td>
                   )}
                 </tr>
               ))}
@@ -155,7 +157,6 @@ export default function SOPDetailPage() {
         </div>
       )}
 
-      {/* Safety */}
       <div className="bg-[#fff8ed] border border-[#f5d99a] rounded-[20px] p-5 mb-5">
         <div className="flex items-center gap-2 mb-3">
           <AlertTriangle size={16} className="text-[#9a6115]" />
@@ -171,7 +172,6 @@ export default function SOPDetailPage() {
         </ul>
       </div>
 
-      {/* Related tests */}
       {sop.relatedTests.length > 0 && (
         <div className="bg-white rounded-[20px] border border-[#d3def5] p-5">
           <div className="flex items-center gap-2 mb-3">

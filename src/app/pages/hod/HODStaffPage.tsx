@@ -1,99 +1,345 @@
-import { useState } from 'react';
-import { Search, Users, GraduationCap, AlertTriangle } from 'lucide-react';
-import { getStaffUsers, TRAINING_RECORDS, TRAINING_MODULES } from '../../data/mockData';
+﻿import { useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router";
+import { AppIcon } from "../../components/icons/AppIcon";
+import { useDepartment } from "../../context/DepartmentContext";
+import {
+  TRAINING_MODULES,
+  TRAINING_RECORDS,
+  getStaffUsers,
+  getUserById,
+  type User,
+} from "../../data/mockData";
+import { askKnowledgeAssistant } from "../../services/aiAssistant";
+import { filterStaffByDepartment, groupStaffByBench, resolveStaffBenchContext } from "../../utils/staffScope";
 
-export default function HODStaffPage() {
-  const [search, setSearch] = useState('');
-  const allStaff = getStaffUsers();
-  const filtered = allStaff.filter(s =>
-    s.name.toLowerCase().includes(search.toLowerCase()) ||
-    s.unit.toLowerCase().includes(search.toLowerCase())
-  );
+function competencyColor(score: number) {
+  if (score >= 85) return "text-[#1c7b56]";
+  if (score >= 70) return "text-[#9a6115]";
+  return "text-[#b14343]";
+}
 
-  const units = Array.from(new Set(allStaff.map(s => s.unit)));
+function findBestStaffMatch(query: string, candidates: User[]) {
+  const q = query.trim().toLowerCase();
+  if (!q) return null;
+  const tokens = q.split(/\s+/).filter(Boolean);
+
+  const ranked = candidates
+    .map((candidate) => {
+      const name = candidate.name.toLowerCase();
+      const unit = candidate.unit.toLowerCase();
+      const score = tokens.reduce((acc, token) => {
+        let tokenScore = 0;
+        if (name.includes(token)) tokenScore += 3;
+        if (unit.includes(token)) tokenScore += 2;
+        if (candidate.initials.toLowerCase().includes(token)) tokenScore += 1;
+        return acc + tokenScore;
+      }, 0);
+      return { candidate, score };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  if (!ranked.length || ranked[0].score === 0) return null;
+  return ranked[0].candidate;
+}
+
+function HODStaffDetail({ staffId }: { staffId: string }) {
+  const navigate = useNavigate();
+  const staff = getUserById(staffId);
+
+  if (!staff) {
+    return (
+      <div className="w-full max-w-[920px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+        <p className="text-sm text-[var(--kl-text-muted)]">Staff profile not found.</p>
+      </div>
+    );
+  }
+
+  const records = TRAINING_RECORDS.filter((record) => record.staffId === staff.id);
+  const completed = records.filter((record) => record.status === "completed").length;
+  const overdue = records.filter((record) => record.status === "overdue").length;
+  const competency = staff.competencyScore ?? 0;
+  const context = resolveStaffBenchContext(staff);
 
   return (
-    <div className="p-6 max-w-[1000px]">
-      <div className="mb-6">
-        <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">Department Staff</h1>
-        <p className="text-[#73839f] text-[14px]">{allStaff.length} staff members across {units.length} units</p>
-      </div>
+    <div className="w-full max-w-[920px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      <button
+        onClick={() => navigate("/hod/staff")}
+        className="inline-flex items-center gap-2 text-sm text-[var(--kl-text-muted)] hover:text-[var(--kl-primary)]"
+      >
+        <AppIcon name="arrowRight" size={14} className="rotate-180" />
+        Back to department staff
+      </button>
 
-      {/* Unit Summary */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        {units.map(unit => {
-          const unitStaff = allStaff.filter(s => s.unit === unit);
-          const avg = Math.round(unitStaff.reduce((s, u) => s + (u.competencyScore ?? 75), 0) / unitStaff.length);
-          return (
-            <div key={unit} className="bg-white rounded-[20px] border border-[#d3def5] p-4">
-              <p className="text-[#11203b] font-semibold text-[14px] mb-1 leading-snug">{unit}</p>
-              <p className="text-[#73839f] text-[12px] mb-2">{unitStaff.length} staff</p>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 bg-[#f4f8ff] rounded-full h-1.5">
-                  <div className="h-1.5 rounded-full" style={{ width: `${avg}%`, backgroundColor: avg >= 85 ? '#1c7b56' : avg >= 70 ? '#9a6115' : '#b14343' }} />
-                </div>
-                <span className="font-semibold text-[12px]" style={{ color: avg >= 85 ? '#1c7b56' : avg >= 70 ? '#9a6115' : '#b14343' }}>{avg}%</span>
-              </div>
+      <div className="mt-4 rounded-[20px] border border-[var(--kl-border)] bg-[var(--kl-surface)] p-5 shadow-[var(--kl-shadow)]">
+        <div className="flex items-start gap-4">
+          <div
+            className="size-14 rounded-full flex items-center justify-center text-white font-semibold text-lg"
+            style={{ backgroundColor: staff.color }}
+          >
+            {staff.initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl font-semibold text-[var(--kl-text)] truncate">{staff.name}</h1>
+            <p className="text-sm text-[var(--kl-text-muted)] truncate">{staff.unit}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="rounded-full bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)] px-2.5 py-1 text-xs">
+                {context.department.name}
+              </span>
+              <span className="rounded-full bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)] px-2.5 py-1 text-xs">
+                {context.bench.name}
+              </span>
+              <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${competency >= 85 ? "text-[#1c7b56] bg-[#e8f8f1]" : competency >= 70 ? "text-[#9a6115] bg-[#fff0db]" : "text-[#b14343] bg-[#fde9e9]"}`}>
+                {competency}% competency
+              </span>
             </div>
-          );
-        })}
-      </div>
-
-      {/* Search */}
-      <div className="relative mb-5">
-        <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#73839f]" />
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search staff…"
-          className="w-full bg-white border border-[#d3def5] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[#11203b] placeholder:text-[#73839f] focus:outline-none focus:border-[#1c5eff] transition-colors"
-        />
-      </div>
-
-      {/* Staff Table */}
-      <div className="bg-white rounded-[24px] border border-[#d3def5] overflow-hidden shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)]">
-        <div className="px-5 py-3 border-b border-[#f4f8ff] bg-[#f9fbff] grid grid-cols-[1fr_1fr_auto_auto_auto] gap-4">
-          {['Name', 'Unit', 'Competency', 'Training', 'Status'].map(h => (
-            <span key={h} className="text-[#73839f] font-semibold text-[11px] uppercase tracking-[0.8px]">{h}</span>
-          ))}
+          </div>
         </div>
-        {filtered.map(staff => {
-          const records = TRAINING_RECORDS.filter(r => r.staffId === staff.id);
-          const completed = records.filter(r => r.status === 'completed').length;
-          const overdue = records.filter(r => r.status === 'overdue').length;
-          const competency = staff.competencyScore ?? 75;
-          const needsAttention = competency < 80 || overdue > 0;
-          return (
-            <div key={staff.id} className="px-5 py-4 border-b border-[#f4f8ff] last:border-0 grid grid-cols-[1fr_1fr_auto_auto_auto] gap-4 items-center hover:bg-[#f9fbff] transition-colors">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="size-[32px] rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: staff.color }}>
-                  {staff.initials}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[#11203b] font-medium text-[13px] truncate">{staff.name}</p>
-                  <p className="text-[#73839f] text-[11px]">Since {new Date(staff.joinDate).getFullYear()}</p>
-                </div>
-              </div>
-              <p className="text-[#475a7d] text-[12px] truncate">{staff.unit}</p>
-              <div className="flex flex-col items-center">
-                <span className={`font-semibold text-[14px] ${competency >= 85 ? 'text-[#1c7b56]' : competency >= 70 ? 'text-[#9a6115]' : 'text-[#b14343]'}`}>{competency}%</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <span className="text-[#11203b] font-semibold text-[13px]">{completed}/{TRAINING_MODULES.length}</span>
-                {overdue > 0 && <span className="text-[9px] text-[#b14343]">{overdue} overdue</span>}
-              </div>
-              <div>
-                {needsAttention ? (
-                  <span className="flex items-center gap-1 bg-[#fde9e9] text-[#b14343] text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                    <AlertTriangle size={9} /> Review
-                  </span>
-                ) : (
-                  <span className="bg-[#e8f8f1] text-[#1c7b56] text-[10px] font-semibold px-2 py-0.5 rounded-full">Good</span>
-                )}
-              </div>
+
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
+            <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Training</p>
+            <p className="text-sm text-[var(--kl-text)] font-medium">{completed}/{TRAINING_MODULES.length}</p>
+          </div>
+          <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
+            <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Overdue</p>
+            <p className={`text-sm font-medium ${overdue > 0 ? "text-[#b14343]" : "text-[#1c7b56]"}`}>{overdue}</p>
+          </div>
+          <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
+            <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Joined</p>
+            <p className="text-sm text-[var(--kl-text)] font-medium">
+              {new Date(staff.joinDate).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
+            </p>
+          </div>
+          <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
+            <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Email</p>
+            <p className="text-sm text-[var(--kl-text)] font-medium truncate">{staff.email}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function HODStaffPage() {
+  const { activeDepartment } = useDepartment();
+  const { staffId } = useParams();
+  const navigate = useNavigate();
+  const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [aiQuery, setAiQuery] = useState("");
+  const [aiAnswer, setAiAnswer] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiMatchedStaffId, setAiMatchedStaffId] = useState<string | null>(null);
+
+  const allDepartmentStaff = useMemo(
+    () => filterStaffByDepartment(getStaffUsers(), activeDepartment.id),
+    [activeDepartment.id],
+  );
+
+  const units = useMemo(() => {
+    const map = new Map<string, User[]>();
+    for (const member of allDepartmentStaff) {
+      const list = map.get(member.unit) ?? [];
+      list.push(member);
+      map.set(member.unit, list);
+    }
+
+    return Array.from(map.entries())
+      .map(([unit, staff]) => {
+        const averageCompetency =
+          staff.length > 0 ? Math.round(staff.reduce((sum, item) => sum + (item.competencyScore ?? 0), 0) / staff.length) : 0;
+        return { unit, staff, averageCompetency };
+      })
+      .sort((a, b) => a.unit.localeCompare(b.unit));
+  }, [allDepartmentStaff]);
+
+  const visibleStaff = useMemo(() => {
+    const base = selectedUnit
+      ? allDepartmentStaff.filter((member) => member.unit === selectedUnit)
+      : allDepartmentStaff;
+
+    const q = search.trim().toLowerCase();
+    if (!q) return base;
+
+    return base.filter((member) => member.name.toLowerCase().includes(q) || member.unit.toLowerCase().includes(q));
+  }, [allDepartmentStaff, search, selectedUnit]);
+
+  const benchGroups = useMemo(
+    () => groupStaffByBench(visibleStaff, activeDepartment).filter((entry) => entry.staff.length > 0),
+    [activeDepartment, visibleStaff],
+  );
+
+  if (staffId) {
+    return <HODStaffDetail staffId={staffId} />;
+  }
+
+  const runAiLookup = async () => {
+    const query = aiQuery.trim();
+    if (!query || aiLoading) return;
+    setAiLoading(true);
+
+    const result = await askKnowledgeAssistant({
+      query,
+      role: "hod",
+      department: activeDepartment.name,
+      bench: "All",
+    });
+
+    setAiAnswer(result.answer);
+    const matched = findBestStaffMatch(query, allDepartmentStaff);
+    setAiMatchedStaffId(matched?.id ?? null);
+    setAiLoading(false);
+  };
+
+  return (
+    <div className="w-full max-w-[1080px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      <div className="mb-5">
+        <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">Department Staff</h1>
+        <p className="text-[var(--kl-text-muted)] text-sm">
+          {allDepartmentStaff.length} staff in {activeDepartment.name}. Select any unit card to drill into benches and roster.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
+        {units.map((unitCard) => (
+          <button
+            key={unitCard.unit}
+            onClick={() => setSelectedUnit(unitCard.unit === selectedUnit ? null : unitCard.unit)}
+            className={`rounded-[18px] border p-4 text-left transition-colors ${
+              selectedUnit === unitCard.unit
+                ? "border-[var(--kl-primary)] bg-[var(--kl-surface-tinted)]"
+                : "border-[var(--kl-border)] bg-[var(--kl-surface)] hover:bg-[var(--kl-surface-soft)]"
+            }`}
+          >
+            <p className="text-sm font-semibold text-[var(--kl-text)] leading-snug">{unitCard.unit}</p>
+            <p className="text-xs text-[var(--kl-text-muted)] mt-1">{unitCard.staff.length} staff</p>
+            <div className="mt-2 flex items-center justify-between">
+              <span className={`text-sm font-semibold ${competencyColor(unitCard.averageCompetency)}`}>
+                {unitCard.averageCompetency}% avg competency
+              </span>
+              <AppIcon name="chevronRight" size={14} className="text-[var(--kl-text-muted)]" />
             </div>
-          );
-        })}
+          </button>
+        ))}
+      </div>
+
+      <div className="rounded-[18px] border border-[var(--kl-border)] bg-[var(--kl-surface)] p-4 mb-5">
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <p className="text-sm font-semibold text-[var(--kl-text)]">AI staff lookup</p>
+          <span className="text-xs text-[var(--kl-text-muted)]">Natural language supported</span>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            value={aiQuery}
+            onChange={(event) => setAiQuery(event.target.value)}
+            placeholder="Example: show me the blood bank staff with low competency"
+            className="flex-1 rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface-soft)] px-3 py-2 text-sm text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--kl-primary)]"
+          />
+          <button
+            onClick={() => void runAiLookup()}
+            disabled={!aiQuery.trim() || aiLoading}
+            className="rounded-[10px] bg-[var(--kl-primary)] text-white px-3 py-2 text-sm font-medium disabled:opacity-50"
+          >
+            {aiLoading ? "Searching..." : "Ask AI"}
+          </button>
+        </div>
+        {aiAnswer && (
+          <div className="mt-2 rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface-soft)] px-3 py-2">
+            <p className="text-xs text-[var(--kl-text)] whitespace-pre-wrap leading-relaxed">{aiAnswer}</p>
+          </div>
+        )}
+        <div className="mt-2">
+          {aiMatchedStaffId ? (
+            <button
+              onClick={() => navigate(`/hod/staff/${aiMatchedStaffId}`)}
+              className="inline-flex items-center gap-1.5 text-xs text-[var(--kl-primary)] font-medium hover:underline"
+            >
+              <AppIcon name="arrowRight" size={11} />
+              Open matched profile
+            </button>
+          ) : (
+            aiAnswer && <p className="text-xs text-[var(--kl-text-muted)]">No exact profile match was found from this query.</p>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+        <div className="relative flex-1">
+          <AppIcon name="search" size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--kl-text-muted)]" />
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search by name or unit"
+            className="w-full rounded-[12px] border border-[var(--kl-border)] bg-[var(--kl-surface)] pl-9 pr-3 py-2.5 text-sm text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--kl-primary)]"
+          />
+        </div>
+        {selectedUnit && (
+          <button
+            onClick={() => setSelectedUnit(null)}
+            className="inline-flex items-center gap-1.5 rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-3 py-2 text-xs text-[var(--kl-text-muted)]"
+          >
+            <AppIcon name="close" size={12} />
+            Clear unit filter
+          </button>
+        )}
+      </div>
+
+      <div className="space-y-3">
+        {benchGroups.length === 0 && (
+          <div className="rounded-[16px] border border-[var(--kl-border)] bg-[var(--kl-surface)] p-5 text-sm text-[var(--kl-text-muted)]">
+            No staff match your current filters.
+          </div>
+        )}
+
+        {benchGroups.map(({ bench, staff }) => (
+          <section key={bench.id} className="rounded-[18px] border border-[var(--kl-border)] bg-[var(--kl-surface)] overflow-hidden">
+            <div className="px-4 py-3 border-b border-[var(--kl-border)] bg-[var(--kl-surface-soft)] flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-[var(--kl-text)]">{bench.name}</h2>
+              <span className="text-xs text-[var(--kl-text-muted)]">{staff.length} staff</span>
+            </div>
+            <div>
+              {staff.map((member) => {
+                const completed = TRAINING_RECORDS.filter(
+                  (record) => record.staffId === member.id && record.status === "completed",
+                ).length;
+                const overdue = TRAINING_RECORDS.filter(
+                  (record) => record.staffId === member.id && record.status === "overdue",
+                ).length;
+                const competency = member.competencyScore ?? 0;
+
+                return (
+                  <div
+                    key={member.id}
+                    className="px-4 py-3 border-b border-[var(--kl-border)] last:border-b-0 flex items-center gap-3 hover:bg-[var(--kl-surface-soft)]"
+                  >
+                    <div
+                      className="size-9 rounded-full flex items-center justify-center text-white text-xs font-semibold"
+                      style={{ backgroundColor: member.color }}
+                    >
+                      {member.initials}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-[var(--kl-text)] font-medium truncate">{member.name}</p>
+                      <p className="text-xs text-[var(--kl-text-muted)] truncate">{member.unit}</p>
+                    </div>
+                    <div className="hidden sm:flex items-center gap-2">
+                      <span className={`text-xs font-semibold ${competencyColor(competency)}`}>{competency}%</span>
+                      <span className="text-xs text-[var(--kl-text-muted)]">{completed}/{TRAINING_MODULES.length} complete</span>
+                      {overdue > 0 && <span className="text-xs text-[#b14343] font-medium">{overdue} overdue</span>}
+                    </div>
+                    <button
+                      onClick={() => navigate(`/hod/staff/${member.id}`)}
+                      className="inline-flex items-center gap-1 rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-2.5 py-1.5 text-xs text-[var(--kl-primary)]"
+                    >
+                      Profile
+                      <AppIcon name="chevronRight" size={12} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        ))}
       </div>
     </div>
   );

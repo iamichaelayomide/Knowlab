@@ -1,186 +1,342 @@
-import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, User, RotateCcw } from 'lucide-react';
+﻿import { type ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import { BookOpenCheck, FileImage, FileText, Paperclip, Send, Sparkles, User, X } from 'lucide-react';
+import { JOB_AIDS, LAB_TESTS, SOPS } from '../../data/mockData';
 import { useAuth } from '../../context/AuthContext';
+import { useDepartment } from '../../context/DepartmentContext';
+import { askKnowledgeAssistant, type AssistantSource } from '../../services/aiAssistant';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  confidence?: number;
+  sources?: AssistantSource[];
+  attachments?: UploadedAttachment[];
+}
+
+interface PersistedMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  confidence?: number;
+  sources?: AssistantSource[];
+  attachments?: UploadedAttachment[];
+}
+
+interface UploadedAttachment {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
 }
 
 const QUICK_PROMPTS = [
-  'What are the FBC reference ranges for adult females?',
-  'When should I reject an EDTA sample?',
-  'What are the Westgard rules for QC failure?',
-  'How do I handle a QNS (quantity not sufficient) sample?',
-  'What tube is used for PT/INR testing?',
-  'What are critical values for platelets?',
+  'What is the reference range for glucose?',
+  'What tube and ratio are required for PT and APTT?',
+  'What is the last CAPA incident?',
+  'Who is under 80% competency in this bench?',
 ];
 
-const AI_RESPONSES: Record<string, string> = {
-  default: "I'm here to help with laboratory procedures, test information, and quality guidance. You can ask me about reference ranges, sample requirements, QC procedures, or any lab protocol question.",
-};
+const MAX_ATTACHMENTS = 6;
 
-function getAIResponse(query: string): string {
-  const q = query.toLowerCase();
+function normalizeText(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+}
 
-  if (q.includes('fbc') && (q.includes('range') || q.includes('female') || q.includes('adult'))) {
-    return `**FBC Reference Ranges — Adult Female:**\n\n• WBC: 4.0 – 11.0 ×10⁹/L\n• RBC: 3.8 – 4.8 ×10¹²/L\n• HGB (Haemoglobin): 11.5 – 15.5 g/dL\n• HCT (PCV): 36 – 46%\n• MCV: 80 – 100 fL\n• MCH: 27 – 33 pg\n• MCHC: 31.5 – 35.5 g/dL\n• Platelets: 150 – 400 ×10⁹/L\n• Neutrophils: 1.8 – 7.5 ×10⁹/L\n• Lymphocytes: 1.0 – 4.0 ×10⁹/L\n\n📌 For male ranges or paediatric values, please see **HEM-SOP-001** or the Tests page.`;
-  }
+function confidenceLabel(v?: number) {
+  if (!v) return 'Unscored confidence';
+  if (v >= 0.8) return 'High confidence';
+  if (v >= 0.55) return 'Medium confidence';
+  return 'Low confidence';
+}
 
-  if (q.includes('fbc') && q.includes('male')) {
-    return `**FBC Reference Ranges — Adult Male:**\n\n• WBC: 4.0 – 11.0 ×10⁹/L\n• RBC: 4.5 – 5.5 ×10¹²/L\n• HGB: 13.5 – 17.5 g/dL\n• HCT (PCV): 41 – 53%\n• MCV: 80 – 100 fL\n• MCH: 27 – 33 pg\n• MCHC: 31.5 – 35.5 g/dL\n• Platelets: 150 – 400 ×10⁹/L\n\n📌 Full procedure: **HEM-SOP-001** (Rev.04)`;
-  }
+function formatBytes(size: number) {
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
 
-  if (q.includes('reject') && (q.includes('edta') || q.includes('sample'))) {
-    return `**Sample Rejection Criteria (EDTA):**\n\n🔴 **Always reject:**\n• Clotted sample (feel for resistance on inversion)\n• Unlabelled sample (NEVER label retrospectively)\n• Name/number mismatch on label\n• Underfilled tube (<minimum volume)\n• Sample >24 hours old (MCV/HCT unreliable)\n\n🟡 **Assess before rejecting:**\n• Mild haemolysis — note on report; reject for coagulation\n• Moderate lipaemia — affects HGB reading; flag result\n• QNS — partial testing may be possible for critical patients; document and notify supervisor\n\n📌 See Job Aid: **Sample Rejection Criteria** for full decision guide.`;
-  }
-
-  if (q.includes('westgard') || (q.includes('qc') && q.includes('fail'))) {
-    return `**Westgard Multi-Rules for QC Failure:**\n\n• **1-2s (Warning):** One result >2SD → Repeat QC. If repeat passes, proceed. If not, investigate.\n• **1-3s (Reject):** One result >3SD → REJECT. Systematic error suspected. Do not report patients.\n• **2-2s (Reject):** Two consecutive results >2SD in the same direction → REJECT. Drift suspected.\n• **R-4s (Reject):** Two consecutive results >4SD range → REJECT. Random error.\n• **Trend (6×1s):** 6 consecutive results trending one direction → REJECT. Calibration drift.\n\n**If QC fails:**\n1. Stop patient testing\n2. Check reagents, calibration, maintenance log\n3. Repeat all 3 QC levels\n4. If repeat fails → escalate to Supervisor\n5. Document all actions\n\n📌 See Job Aid: **QC Failure Decision Tree**`;
-  }
-
-  if (q.includes('qns') || q.includes('quantity not sufficient')) {
-    return `**Handling QNS (Quantity Not Sufficient) Samples:**\n\n1. **Do NOT process** without checking adequacy first.\n2. **Minimum volumes:** FBC ≥1.5 mL (EDTA), PT/INR ≥2.5 mL (citrate).\n3. **For critical patients:** consult Supervisor — partial testing may be authorized with documentation.\n4. **Document** QNS on the request form and in the LIS.\n5. **Notify ward** and request recollection if sample is inadequate.\n6. **Never dilute** an EDTA sample to meet volume.\n7. For paediatric micro-samples, use validated micro-methods.\n\n⚠️ Always prioritize patient safety — a QNS result could be more dangerous than no result.`;
-  }
-
-  if ((q.includes('tube') || q.includes('container')) && (q.includes('pt') || q.includes('inr') || q.includes('coag') || q.includes('prothrombin'))) {
-    return `**Sample Tube for PT/INR and Coagulation Tests:**\n\n🔵 **Light Blue Top** — 3.2% Sodium Citrate (0.109 M) vacuum tube\n\n**Critical requirements:**\n• **Fill to the mark** — 9:1 blood:citrate ratio is mandatory\n• Underfilling → falsely prolonged PT and APTT\n• Overfilling → falsely shortened results\n• **NO** glass tubes — plastic sodium citrate only\n• Centrifuge at 2000×g for 10 minutes (within 30 min of collection)\n• Test plasma within **4 hours** of collection\n• If delay: freeze at −20°C\n\n**For APTT:** Avoid IV line collection (heparin contamination → falsely prolonged APTT)\n\n📌 See **COAG-SOP-001** for full procedure.`;
-  }
-
-  if (q.includes('critical') && (q.includes('platelet') || q.includes('plt'))) {
-    return `**Critical Value — Platelet Count:**\n\n🔴 **Critical threshold: PLT < 50 ×10⁹/L**\n\n**Immediate actions required:**\n1. Verify result — check for platelet clumping on the scattergram\n2. If clumping suspected: make a blood film (EDTA clumping → recollect in citrate)\n3. If confirmed critical: **call the requesting clinician immediately**\n4. State: "I am [name] calling from the lab with a critical platelet result for patient [name/ID]: PLT = [value] ×10⁹/L"\n5. Ask for **read-back confirmation**\n6. Document in the **Critical Values Register**: time, person notified, read-back\n\n**Also critical:**\n• PLT >1000 ×10⁹/L (extreme thrombocytosis)\n\n📌 See Job Aid: **Critical Values Notification Guide**`;
-  }
-
-  if (q.includes('esr') && q.includes('range')) {
-    return `**ESR Reference Ranges (Westergren):**\n\n• **Adult Male <50 yrs:** 0 – 15 mm/hr\n• **Adult Male ≥50 yrs:** 0 – 20 mm/hr\n• **Adult Female <50 yrs:** 0 – 20 mm/hr\n• **Adult Female ≥50 yrs:** 0 – 30 mm/hr\n• **Children:** 0 – 10 mm/hr\n\n⚠️ Markedly elevated ESR (>100 mm/hr) should be flagged — possible myeloma, giant cell arteritis, TB, or sepsis.\n\n📌 Procedure: **HEM-SOP-002**`;
-  }
-
-  if (q.includes('blood group') || q.includes('abo') || q.includes('rh')) {
-    return `**ABO & Rhesus Blood Grouping:**\n\n**Tube:** EDTA (purple) or Plain (red) — 3 mL\n\n**Interpretation:**\n• Group A: Anti-A(+), Anti-B(−), A cells(−), B cells(+)\n• Group B: Anti-A(−), Anti-B(+), A cells(+), B cells(−)\n• Group O: Anti-A(−), Anti-B(−), A cells(+), B cells(+)\n• Group AB: Anti-A(+), Anti-B(+), A cells(−), B cells(−)\n\n• Rh D Positive: Anti-D(+)\n• Rh D Negative: Anti-D(−) → confirm with weak D (Du) testing\n\n⚠️ **Any discordance between forward and back grouping → DO NOT REPORT. Investigate and refer to Supervisor.**\n\n📌 Procedure: **BB-SOP-001**`;
-  }
-
-  if (q.includes('cross') && q.includes('match')) {
-    return `**Cross-Match Requirements:**\n\n📦 **Samples needed:**\n• 3 mL EDTA (purple) + 3 mL plain (red) = 6 mL total\n• Both tubes labelled at bedside with: full name, hospital number, DOB, date/time, collector initials\n\n⏱️ **Turnaround:**\n• Immediate spin (IS) cross-match: ~20–30 min\n• Full IAT cross-match: 60–120 min\n• Electronic cross-match: only if 2 concordant historical groups, no antibodies\n\n⚠️ **72-hour rule:** A new cross-match sample is required if transfusion is >72 hours after the group-and-screen sample was taken.\n\n📌 Procedure: **BB-SOP-002**`;
-  }
-
-  if (q.includes('haemovigilance') || q.includes('transfusion reaction')) {
-    return `**Transfusion Reaction — Immediate Steps:**\n\n1. 🛑 **STOP transfusion immediately**\n2. Keep IV line open with **normal saline**\n3. Call **clinician immediately**\n4. Keep: blood bag, administration set, all documentation\n5. Collect: post-transfusion EDTA sample + urine sample\n6. Return remaining unit to Blood Bank\n7. Complete **Haemovigilance Adverse Event Form** within 24 hours\n8. If serious (haemolysis, anaphylaxis, TRALI): mark URGENT\n\n**Types of reactions:**\n• Febrile non-haemolytic (FNHTR) — most common\n• Urticaria (allergic)\n• Anaphylaxis\n• Acute haemolytic reaction (ABO incompatibility)\n• TACO (circulatory overload)\n• TRALI (lung injury)\n\n📌 See Job Aid: **Haemovigilance Adverse Event Reporting**`;
-  }
-
-  if (q.includes('reticulocyte') && q.includes('range')) {
-    return `**Reticulocyte Reference Ranges:**\n\n• **Adult (male & female):**\n  - Reticulocyte %: 0.5 – 2.5%\n  - Absolute count: 25 – 125 ×10⁹/L\n  - IRF (Immature Reticulocyte Fraction): 2.0 – 14.0%\n\n• **Neonates:** Retic % 2.0 – 6.0% (normal range higher)\n\n**Clinical interpretation:**\n• Elevated → Active erythropoiesis (haemolysis, haemorrhage, treatment response)\n• Low relative to anaemia → Hypoproliferative (iron/B12/folate deficiency, aplasia)\n\n📌 Analyzer: Sysmex XN-350 RET channel (HEM-SOP-001)`;
-  }
-
-  return `I can help with that. Based on your question about "${query}", here are some key points:\n\nFor specific procedures, please refer to the relevant SOP in the SOP library. For test reference ranges and sample requirements, visit the Tests page. For quick reminders, check the Job Aids section.\n\nIs there a more specific aspect of this question I can help you with?`;
+function defaultWelcome(name?: string): Message {
+  return {
+    id: 'hello',
+    role: 'assistant',
+    content:
+      `Hi ${name?.split(' ')[0] ?? 'there'} - I am Knowlab AI.\n\n` +
+      'I can answer SOP/test questions and also operations questions (CAPA, competency, staffing scope) for supervisor and HOD roles.',
+    timestamp: new Date(),
+    confidence: 0.97,
+  };
 }
 
 export default function AIAssistantPage() {
   const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '0',
-      role: 'assistant',
-      content: `Hello ${user?.name?.split(' ')[0]}! 👋 I'm the Knowlab AI Assistant. I can help you with:\n\n• Laboratory reference ranges and normal values\n• Sample collection and handling requirements\n• QC procedures and Westgard rules\n• SOP and test procedure guidance\n• Critical value notification steps\n• Transfusion safety protocols\n\nWhat can I help you with today?`,
-      timestamp: new Date(),
-    },
-  ]);
+  const { activeDepartment, activeBench } = useDepartment();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const consumedPrefillRef = useRef<string | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const [queuedAttachments, setQueuedAttachments] = useState<UploadedAttachment[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => [defaultWelcome(user?.name)]);
+
+  const base = useMemo(() => {
+    if (location.pathname.startsWith('/supervisor')) return '/supervisor';
+    if (location.pathname.startsWith('/hod')) return '/hod';
+    return '/staff';
+  }, [location.pathname]);
+
+  const historyKey = useMemo(() => {
+    const userKey = user?.id || 'anon';
+    return `knowlab_ai_history_${userKey}_${base.replace('/', '')}`;
+  }, [base, user?.id]);
+
+  useEffect(() => {
+    const raw = localStorage.getItem(historyKey);
+    if (!raw) {
+      setMessages([defaultWelcome(user?.name)]);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(raw) as PersistedMessage[];
+      if (!parsed.length) {
+        setMessages([defaultWelcome(user?.name)]);
+        return;
+      }
+      setMessages(parsed.map((m) => ({ ...m, timestamp: new Date(m.timestamp) })));
+    } catch {
+      setMessages([defaultWelcome(user?.name)]);
+    }
+  }, [historyKey, user?.name]);
+
+  useEffect(() => {
+    const prefill = (location.state as { prefill?: string } | null)?.prefill?.trim();
+    if (!prefill) return;
+    if (consumedPrefillRef.current === prefill) return;
+    setInput(prefill);
+    consumedPrefillRef.current = prefill;
+  }, [location.state]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  const send = (text: string) => {
-    if (!text.trim()) return;
-    const userMsg: Message = { id: Date.now().toString(), role: 'user', content: text, timestamp: new Date() };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    setIsTyping(true);
-    setTimeout(() => {
-      const response = getAIResponse(text);
-      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: response, timestamp: new Date() }]);
-      setIsTyping(false);
-    }, 900 + Math.random() * 600);
+  useEffect(() => {
+    const payload: PersistedMessage[] = messages.map((m) => ({
+      ...m,
+      timestamp: m.timestamp.toISOString(),
+    }));
+    localStorage.setItem(historyKey, JSON.stringify(payload));
+  }, [historyKey, messages]);
+
+  const resolveSourceTarget = (source: AssistantSource) => {
+    const sourceIdNorm = normalizeText(source.id);
+    const sourceTitleNorm = normalizeText(source.title);
+
+    if (source.type === 'sop') {
+      const sop =
+        SOPS.find((s) => normalizeText(s.code) === sourceIdNorm) ??
+        SOPS.find((s) => normalizeText(s.title).includes(sourceTitleNorm) || sourceTitleNorm.includes(normalizeText(s.title)));
+      if (sop) {
+        return { label: `Open SOP: ${sop.code}`, to: `${base}/sops/${sop.id}` };
+      }
+    }
+
+    if (source.type === 'test') {
+      const test =
+        LAB_TESTS.find((t) => normalizeText(t.code) === sourceIdNorm) ??
+        LAB_TESTS.find((t) => normalizeText(t.name).includes(sourceTitleNorm) || sourceTitleNorm.includes(normalizeText(t.name)));
+      if (test) {
+        return { label: `Open Test: ${test.code}`, to: `${base}/tests/${test.id}` };
+      }
+    }
+
+    if (source.type === 'job_aid') {
+      const aid = JOB_AIDS.find(
+        (j) => normalizeText(j.title).includes(sourceTitleNorm) || sourceTitleNorm.includes(normalizeText(j.title)),
+      );
+      return {
+        label: aid ? `Open Job Aid: ${aid.title}` : `Find Job Aid: ${source.title}`,
+        to: `${base}/job-aids?q=${encodeURIComponent(aid?.title || source.title)}`,
+      };
+    }
+
+    if (source.type === 'ops') {
+      const to = base === '/hod' ? `${base}/reports` : `${base}/capa`;
+      return { label: 'Open Operations View', to };
+    }
+
+    return null;
   };
 
   const reset = () => {
-    setMessages([{
-      id: '0',
-      role: 'assistant',
-      content: `Hello again! How can I assist you with laboratory procedures today?`,
-      timestamp: new Date(),
-    }]);
+    const intro = defaultWelcome(user?.name);
+    intro.content =
+      'New Knowlab AI chat started.\n\n' +
+      'Ask a test/SOP question or operational question and I will return direct answers with clickable sources.';
+    setMessages([intro]);
+    setQueuedAttachments([]);
   };
 
-  const formatContent = (content: string) => {
-    return content.split('\n').map((line, i) => {
-      if (line.startsWith('**') && line.endsWith('**')) {
-        return <p key={i} className="font-semibold text-[#11203b] mt-2 first:mt-0">{line.slice(2, -2)}</p>;
-      }
-      if (line.startsWith('• ') || line.startsWith('🔴 ') || line.startsWith('🟡 ') || line.startsWith('🔵 ') || line.startsWith('⚠️ ') || line.startsWith('📌 ')) {
-        const isBold = line.includes('**');
-        const parts = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        return <p key={i} className="text-[13px] leading-relaxed" dangerouslySetInnerHTML={{ __html: parts }} />;
-      }
-      if (line.trim() === '') return <div key={i} className="h-1" />;
-      return <p key={i} className="text-[13px] leading-relaxed">{line}</p>;
+  const handlePickAttachments = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (!files.length) return;
+
+    const mapped = files.slice(0, MAX_ATTACHMENTS - queuedAttachments.length).map((file) => ({
+      id: `file_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+    }));
+
+    setQueuedAttachments((prev) => [...prev, ...mapped]);
+    event.target.value = '';
+  };
+
+  const removeAttachment = (id: string) => {
+    setQueuedAttachments((prev) => prev.filter((file) => file.id !== id));
+  };
+
+  const send = async (text: string) => {
+    if ((!text.trim() && queuedAttachments.length === 0) || !user) return;
+    const contentText = text.trim() || 'Please review the attached files and summarize relevant SOP/test guidance.';
+
+    const userMsg: Message = {
+      id: `u_${Date.now()}`,
+      role: 'user',
+      content: contentText,
+      timestamp: new Date(),
+      attachments: queuedAttachments.length ? [...queuedAttachments] : undefined,
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setInput('');
+    setQueuedAttachments([]);
+    setIsTyping(true);
+
+    const attachmentHint = userMsg.attachments?.length
+      ? `\n\nAttached materials provided by user: ${userMsg.attachments.map((a) => a.name).join(', ')}.`
+      : '';
+
+    const result = await askKnowledgeAssistant({
+      query: `${contentText}${attachmentHint}`,
+      role: user.role,
+      unit: user.unit,
+      department: activeDepartment.name,
+      bench: activeBench.name,
     });
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `a_${Date.now()}`,
+        role: 'assistant',
+        content: result.answer,
+        timestamp: new Date(),
+        confidence: result.confidence,
+        sources: result.sources,
+      },
+    ]);
+    setIsTyping(false);
   };
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100vh - 68px)' }}>
-      {/* Header */}
-      <div className="p-6 pb-4 flex items-center justify-between border-b border-[#d3def5] bg-white">
-        <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-br from-[#1c5eff] to-[#0f86ff] rounded-[14px] p-2.5">
-            <Sparkles size={18} className="text-white" />
+    <div className="h-[calc(100dvh-68px)] max-h-[calc(100dvh-68px)] flex flex-col overflow-hidden bg-[#f9fbff]">
+      <div className="shrink-0 px-3 sm:px-6 py-4 border-b border-[#d3def5] bg-white">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="bg-gradient-to-br from-[#1c5eff] to-[#0f86ff] rounded-[14px] p-2.5 shrink-0">
+              <Sparkles size={18} className="text-white" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-[#11203b] font-semibold text-[17px] sm:text-[18px] truncate">Knowlab AI</h1>
+              <p className="text-[#73839f] text-[11px] sm:text-[12px] truncate">Knowledge + operations assistant</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-[#11203b] font-semibold text-[18px]">AI Lab Assistant</h1>
-            <p className="text-[#73839f] text-[12px]">Ask about procedures, ranges, and protocols</p>
-          </div>
+          <button
+            onClick={reset}
+            className="text-[#475a7d] text-[12px] font-medium border border-[#d3def5] rounded-[10px] px-3 py-1.5 hover:bg-[#f4f8ff] shrink-0"
+          >
+            New chat
+          </button>
         </div>
-        <button
-          onClick={reset}
-          className="flex items-center gap-1.5 text-[#73839f] text-[12px] hover:text-[#475a7d] transition-colors"
-        >
-          <RotateCcw size={13} /> New chat
-        </button>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#f9fbff]">
-        {messages.map(msg => (
+      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-4">
+        {messages.map((msg) => (
           <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-              msg.role === 'assistant'
-                ? 'bg-gradient-to-br from-[#1c5eff] to-[#0f86ff]'
-                : 'bg-[#11203b]'
-            }`}>
-              {msg.role === 'assistant'
-                ? <Sparkles size={14} className="text-white" />
-                : <User size={14} className="text-white" />
-              }
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                msg.role === 'assistant' ? 'bg-gradient-to-br from-[#1c5eff] to-[#0f86ff]' : 'bg-[#11203b]'
+              }`}
+            >
+              {msg.role === 'assistant' ? <Sparkles size={14} className="text-white" /> : <User size={14} className="text-white" />}
             </div>
-            <div className={`max-w-[85%] rounded-[18px] px-4 py-3 ${
-              msg.role === 'user'
-                ? 'bg-[#1c5eff] text-white rounded-tr-[6px]'
-                : 'bg-white border border-[#d3def5] text-[#475a7d] rounded-tl-[6px]'
-            }`}>
-              {msg.role === 'user'
-                ? <p className="text-[13px] leading-relaxed">{msg.content}</p>
-                : <div className="space-y-0.5">{formatContent(msg.content)}</div>
-              }
-              <p className={`text-[10px] mt-1.5 ${msg.role === 'user' ? 'text-white/60' : 'text-[#73839f]'}`}>
+            <div
+              className={`max-w-[95%] sm:max-w-[86%] rounded-[18px] px-4 py-3 ${
+                msg.role === 'user'
+                  ? 'bg-[#1c5eff] text-white rounded-tr-[6px]'
+                  : 'bg-white border border-[#d3def5] text-[#475a7d] rounded-tl-[6px]'
+              }`}
+            >
+              <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+
+              {msg.role === 'user' && !!msg.attachments?.length && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {msg.attachments.map((file) => (
+                    <span key={file.id} className="inline-flex items-center gap-1.5 bg-[rgba(255,255,255,0.18)] text-white text-[11px] px-2.5 py-1 rounded-full">
+                      {file.type.startsWith('image/') ? <FileImage size={11} /> : <FileText size={11} />}
+                      {file.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {msg.role === 'assistant' && (
+                <div className="mt-3 space-y-2">
+                  <p className="text-[10px] text-[#73839f]">{confidenceLabel(msg.confidence)} · {(msg.confidence ?? 0).toFixed(2)}</p>
+                  {!!msg.sources?.length && (
+                    <div className="flex gap-1.5 flex-wrap">
+                      {msg.sources.map((src) => {
+                        const target = resolveSourceTarget(src);
+                        return (
+                          <button
+                            key={`${msg.id}_${src.id}_${src.title}`}
+                            onClick={() => {
+                              if (!target) return;
+                              navigate(target.to, { state: { fromAi: true, sourceTitle: src.title } });
+                            }}
+                            disabled={!target}
+                            className={`inline-flex items-center gap-1 bg-[#eef5ff] text-[#1c5eff] text-[11px] px-2.5 py-1 rounded-full ${
+                              target ? 'hover:bg-[#dce9ff]' : 'opacity-60 cursor-not-allowed'
+                            }`}
+                            title={target?.label || 'Source route unavailable in current workspace'}
+                          >
+                            <BookOpenCheck size={11} />
+                            {src.title}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <p className={`text-[10px] mt-2 ${msg.role === 'user' ? 'text-white/70' : 'text-[#73839f]'}`}>
                 {msg.timestamp.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
               </p>
             </div>
           </div>
         ))}
+
         {isTyping && (
           <div className="flex gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1c5eff] to-[#0f86ff] flex items-center justify-center flex-shrink-0">
@@ -195,43 +351,76 @@ export default function AIAssistantPage() {
             </div>
           </div>
         )}
+
+        {messages.length < 3 && (
+          <div className="pt-2">
+            <p className="text-[#73839f] text-[11px] font-semibold uppercase tracking-[0.8px] mb-2">Try asking</p>
+            <div className="flex gap-2 flex-wrap">
+              {QUICK_PROMPTS.map((prompt) => (
+                <button
+                  key={prompt}
+                  onClick={() => void send(prompt)}
+                  className="bg-white border border-[#d3def5] text-[#475a7d] text-[12px] px-3 py-1.5 rounded-full hover:bg-[#e3edff] hover:text-[#1c5eff]"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div ref={bottomRef} />
       </div>
 
-      {/* Quick Prompts */}
-      {messages.length < 2 && (
-        <div className="px-6 py-3 bg-white border-t border-[#f4f8ff]">
-          <p className="text-[#73839f] text-[11px] font-semibold uppercase tracking-[0.8px] mb-2">Quick questions</p>
-          <div className="flex gap-2 flex-wrap">
-            {QUICK_PROMPTS.map(prompt => (
-              <button
-                key={prompt}
-                onClick={() => send(prompt)}
-                className="bg-[#f4f8ff] text-[#475a7d] text-[12px] px-3 py-1.5 rounded-full hover:bg-[#e3edff] hover:text-[#1c5eff] transition-colors"
-              >
-                {prompt}
-              </button>
+      <div className="shrink-0 border-t border-[#d3def5] bg-white px-3 sm:px-4 py-3">
+        {!!queuedAttachments.length && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {queuedAttachments.map((file) => (
+              <span key={file.id} className="inline-flex items-center gap-1.5 bg-[#f4f8ff] text-[#475a7d] text-[11px] px-2.5 py-1 rounded-full border border-[#d3def5]">
+                {file.type.startsWith('image/') ? <FileImage size={11} /> : <FileText size={11} />}
+                <span>{file.name}</span>
+                <span className="text-[#73839f]">({formatBytes(file.size)})</span>
+                <button onClick={() => removeAttachment(file.id)} className="text-[#73839f] hover:text-[#b14343]" aria-label={`Remove ${file.name}`}>
+                  <X size={11} />
+                </button>
+              </span>
             ))}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Input */}
-      <div className="p-4 bg-white border-t border-[#d3def5]">
         <form
-          onSubmit={e => { e.preventDefault(); send(input); }}
-          className="flex gap-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void send(input);
+          }}
+          className="flex items-end gap-2"
         >
           <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.doc,.docx,.txt,.csv,.png,.jpg,.jpeg,.webp"
+            multiple
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          <button
+            type="button"
+            onClick={handlePickAttachments}
+            className="h-[44px] w-[44px] rounded-[12px] border border-[#d3def5] text-[#475a7d] hover:bg-[#f4f8ff] inline-flex items-center justify-center"
+            title="Attach image or document"
+          >
+            <Paperclip size={16} />
+          </button>
+          <input
             value={input}
-            onChange={e => setInput(e.target.value)}
-            placeholder="Ask about a test, reference range, or procedure…"
-            className="flex-1 bg-[#f4f8ff] border border-[#d3def5] rounded-[14px] px-4 py-3 text-[14px] text-[#11203b] placeholder:text-[#73839f] focus:outline-none focus:border-[#1c5eff] transition-colors"
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask Knowlab AI about SOPs, tests, CAPA, competency, or staffing insights..."
+            className="flex-1 h-[44px] bg-[#f4f8ff] border border-[#d3def5] rounded-[12px] px-4 text-[14px] text-[#11203b] placeholder:text-[#73839f] focus:outline-none focus:border-[#1c5eff]"
           />
           <button
             type="submit"
-            disabled={!input.trim() || isTyping}
-            className="bg-[#1c5eff] hover:bg-[#1548e8] text-white rounded-[14px] px-4 py-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            disabled={(!input.trim() && queuedAttachments.length === 0) || isTyping}
+            className="h-[44px] min-w-[44px] rounded-[12px] px-4 bg-[#1c5eff] hover:bg-[#1548e8] text-white disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center"
           >
             <Send size={16} />
           </button>
@@ -240,3 +429,6 @@ export default function AIAssistantPage() {
     </div>
   );
 }
+
+
+

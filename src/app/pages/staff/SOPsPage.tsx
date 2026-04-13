@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { Search, FileText, ChevronRight } from 'lucide-react';
+import { Search, FileText, ChevronRight, Plus } from 'lucide-react';
 import { SOPS } from '../../data/mockData';
 import { useDepartment } from '../../context/DepartmentContext';
+import { getStageBadge, getWorkflowState } from '../../services/workflowStore';
 
 export default function SOPsPage() {
   const navigate = useNavigate();
@@ -25,6 +26,8 @@ export default function SOPsPage() {
     return sop.status === 'active' && sop.category === activeBench.name;
   });
 
+  const workflowSops = getWorkflowState().sops.filter(s => s.currentStage === 'validated_published' || s.currentStage === 'in_review' || s.currentStage === 'changes_requested' || s.currentStage === 'awaiting_hod_validation');
+
   const CATEGORIES = ['All', ...Array.from(new Set(departmentSOPs.map(s => s.category)))];
 
   const filtered = departmentSOPs.filter(sop => {
@@ -36,8 +39,16 @@ export default function SOPsPage() {
     return matchesSearch && matchesCategory;
   });
 
+  const filteredWorkflow = workflowSops.filter(s => {
+    const matchesSearch =
+      s.title.toLowerCase().includes(search.toLowerCase()) ||
+      s.code.toLowerCase().includes(search.toLowerCase()) ||
+      s.category.toLowerCase().includes(search.toLowerCase());
+    return matchesSearch;
+  });
+
   return (
-    <div className="p-6 max-w-[1000px]">
+    <div className="w-full max-w-[1000px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
       <div className="mb-6">
         <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">Standard Operating Procedures</h1>
         <p className="text-[#73839f] text-[14px]">{departmentSOPs.length} SOPs available in your department</p>
@@ -54,6 +65,14 @@ export default function SOPsPage() {
             className="w-full bg-white border border-[#d3def5] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[#11203b] placeholder:text-[#73839f] focus:outline-none focus:border-[#1c5eff] transition-colors"
           />
         </div>
+        {base === '/staff' && (
+          <button
+            onClick={() => navigate('/staff/sops/new')}
+            className="inline-flex items-center justify-center gap-1.5 bg-[#1c5eff] text-white rounded-[14px] px-4 py-3 text-[13px] font-medium"
+          >
+            <Plus size={14} /> Create SOP Draft
+          </button>
+        )}
       </div>
 
       {/* Category Filters */}
@@ -75,7 +94,40 @@ export default function SOPsPage() {
 
       {/* SOP List */}
       <div className="space-y-3">
-        {filtered.length === 0 && (
+        {filteredWorkflow.map(sop => {
+          const stage = getStageBadge(sop.currentStage);
+          return (
+            <div
+              key={sop.id}
+              className="w-full bg-white border border-[#d3def5] rounded-[20px] p-5 flex items-start gap-4 text-left"
+            >
+              <div className="bg-[#e3edff] rounded-[14px] p-3 flex-shrink-0">
+                <FileText size={20} className="text-[#1c5eff]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-3 mb-1">
+                  <h3 className="text-[#11203b] font-semibold text-[15px] leading-snug">{sop.title}</h3>
+                  <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full ${
+                    stage.tone === 'success' ? 'bg-[#e8f8f1] text-[#1c7b56]' :
+                    stage.tone === 'warning' ? 'bg-[#fff0db] text-[#9a6115]' :
+                    stage.tone === 'danger' ? 'bg-[#fde9e9] text-[#b14343]' :
+                    'bg-[#eef5ff] text-[#1c5eff]'
+                  }`}>{stage.label}</span>
+                </div>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-[#73839f] text-[12px]">{sop.code}</span>
+                  <span className="text-[#c4d2ef]">·</span>
+                  <span className="text-[#73839f] text-[12px]">v{sop.version}</span>
+                  <span className="text-[#c4d2ef]">·</span>
+                  <span className="text-[#73839f] text-[12px]">Owner: {sop.ownerName}</span>
+                </div>
+                <p className="text-[#475a7d] text-[13px] line-clamp-2 leading-relaxed">{sop.content.purpose}</p>
+              </div>
+            </div>
+          );
+        })}
+
+        {filtered.length === 0 && filteredWorkflow.length === 0 && (
           <div className="bg-white rounded-[20px] border border-[#d3def5] p-8 text-center">
             <FileText size={32} className="text-[#c4d2ef] mx-auto mb-3" />
             <p className="text-[#475a7d] font-medium">No SOPs found</p>

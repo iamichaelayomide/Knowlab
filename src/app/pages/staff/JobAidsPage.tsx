@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
 import { Search, BookOpen, CheckSquare, GitBranch, FileText, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { JOB_AIDS, JobAid } from '../../data/mockData';
 import { useDepartment } from '../../context/DepartmentContext';
@@ -88,10 +89,17 @@ function JobAidCard({ aid }: { aid: JobAid }) {
 }
 
 export default function JobAidsPage() {
+  const location = useLocation();
   const { activeDepartment } = useDepartment();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeType, setActiveType] = useState('All');
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get('q');
+    if (q) setSearch(q);
+  }, [location.search]);
 
   const departmentAids = JOB_AIDS.filter(aid => {
     // Check if category matches any bench in this department

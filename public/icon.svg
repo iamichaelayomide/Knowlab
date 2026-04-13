@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Knowlab">
+  <rect width="256" height="256" rx="56" fill="#1c5eff"/>
+  <path d="M70 64h28v128H70zM112 156l64-92h34l-64 92 66 36h-39l-61-34z" fill="#fff"/>
+</svg>

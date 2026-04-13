@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router';
 import { Users, ShieldAlert, GraduationCap, BarChart2, TrendingUp, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { USERS, CAPA_ITEMS, TRAINING_RECORDS, TRAINING_MODULES, ALERTS, getStaffUsers, QC_LOGS } from '../../data/mockData';
+import { getWorkflowState } from '../../services/workflowStore';
+import { openFloatingAI } from '../../services/aiWidget';
 
 export default function HODDashboard() {
   const { user } = useAuth();
@@ -17,22 +19,25 @@ export default function HODDashboard() {
   const qcTotal = QC_LOGS.length;
   const qcRate = Math.round((qcPassed / qcTotal) * 100);
   const hodAlerts = ALERTS.filter(a => !a.read && a.targetRoles.includes('hod'));
+  const workflow = getWorkflowState();
+  const pendingValidations = workflow.validationTasks.filter(v => v.assignedHodId === user?.id && v.decision === 'pending').length;
+  const pendingUserApprovals = workflow.userRequests.filter(r => r.decision === 'pending').length;
 
   const lowCompetency = allStaff.filter(s => (s.competencyScore ?? 75) < 80);
 
   return (
-    <div className="p-6 max-w-[1200px]">
+    <div className="w-full max-w-[1200px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
       {/* Hero */}
       <div
-        className="rounded-[24px] overflow-hidden mb-6"
+        className="rounded-[18px] sm:rounded-[24px] overflow-hidden mb-4 sm:mb-6"
         style={{ background: 'linear-gradient(151deg, rgb(7,20,43) 11%, rgb(15,31,68) 53%, rgb(28,94,255) 89%)' }}
       >
-        <div className="p-8 flex flex-col lg:flex-row gap-6">
+        <div className="p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-4 sm:gap-6">
           <div className="flex-1">
             <div className="inline-flex items-center bg-[rgba(255,255,255,0.10)] border border-[rgba(255,255,255,0.14)] rounded-full px-4 py-2 mb-4">
               <span className="text-[#dbe7ff] text-[11px] font-semibold tracking-[1.98px] uppercase">Head of Department</span>
             </div>
-            <h1 className="text-white font-bold text-[28px] leading-[1.2] mb-2">
+            <h1 className="text-white font-bold text-[24px] sm:text-[28px] leading-[1.2] mb-2">
               Department Overview
             </h1>
             <p className="text-[#ebf3ff] text-[14px] leading-relaxed max-w-[480px]">
@@ -45,14 +50,21 @@ export default function HODDashboard() {
               <button onClick={() => navigate('/hod/reports')} className="bg-[rgba(40,70,111,0.8)] border border-[rgba(124,147,183,0.8)] text-white font-medium text-[13px] px-4 py-2.5 rounded-[13px]">
                 View reports
               </button>
+              <button
+                onClick={() => openFloatingAI('Who are the people in haematology bench who have under 80% competency level?')}
+                className="bg-[rgba(40,70,111,0.8)] border border-[rgba(124,147,183,0.8)] text-white font-medium text-[13px] px-4 py-2.5 rounded-[13px]"
+              >
+                Ask AI insights
+              </button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 lg:w-[320px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:w-[320px]">
             {[
               { label: 'TRAINING COMPLIANCE', value: `${trainingCompliance}%`, sub: `${completedTraining}/${totalTraining} modules completed` },
               { label: 'QC PASS RATE', value: `${qcRate}%`, sub: `${qcPassed}/${qcTotal} entries passed` },
               { label: 'OPEN CAPAS', value: openCAPAs.length, sub: `${criticalCAPAs.length} critical` },
               { label: 'UNREAD ALERTS', value: hodAlerts.length, sub: `Require your attention` },
+              { label: 'SOP VALIDATION', value: pendingValidations, sub: `${pendingUserApprovals} user approvals pending` },
             ].map(item => (
               <div key={item.label} className="bg-[rgba(39,70,111,0.7)] border border-[rgba(124,147,183,0.4)] rounded-[18px] px-4 py-3">
                 <p className="text-[#dce6ff] font-semibold text-[9px] tracking-[1.5px] uppercase mb-1">{item.label}</p>
@@ -65,7 +77,7 @@ export default function HODDashboard() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         {[
           { label: 'Total Staff', value: allStaff.length, sub: `Across ${new Set(allStaff.map(s => s.unit)).size} units`, color: '#1c5eff', icon: <Users size={16} />, path: '/hod/staff' },
           { label: 'Training Compliance', value: `${trainingCompliance}%`, sub: `Team-wide average`, color: trainingCompliance >= 80 ? '#1c7b56' : '#9a6115', icon: <GraduationCap size={16} />, path: '/hod/training' },
@@ -91,9 +103,9 @@ export default function HODDashboard() {
       </div>
 
       {/* Two column */}
-      <div className="grid lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
         {/* Staff by unit */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Users size={18} className="text-[#1c5eff]" />
@@ -137,7 +149,7 @@ export default function HODDashboard() {
         </div>
 
         {/* CAPA Summary */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <ShieldAlert size={18} className="text-[#1c5eff]" />
@@ -170,7 +182,7 @@ export default function HODDashboard() {
       </div>
 
       {/* Alerts */}
-      <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6">
+      <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <AlertTriangle size={18} className="text-[#1c5eff]" />

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router';
 import { Users, ClipboardList, ShieldAlert, GraduationCap, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { USERS, QC_LOGS, CAPA_ITEMS, TRAINING_RECORDS, TRAINING_MODULES, ALERTS, getStaffUsers } from '../../data/mockData';
+import { getWorkflowState } from '../../services/workflowStore';
+import { openFloatingAI } from '../../services/aiWidget';
 
 function MetricCard({ label, value, sublabel, accent, icon, onClick }: {
   label: string; value: string | number; sublabel: string; accent: string; icon: React.ReactNode; onClick?: () => void;
@@ -43,20 +45,23 @@ export default function SupervisorDashboard() {
   const trainingCompliance = Math.round((completedTraining / allTraining) * 100);
 
   const myAlerts = ALERTS.filter(a => !a.read && a.targetRoles.includes('supervisor'));
+  const workflow = getWorkflowState();
+  const pendingSopReviews = workflow.reviewTasks.filter(t => t.assignedReviewerId === user?.id && t.decision === 'pending').length;
+  const pendingUserRequests = workflow.userRequests.filter(r => r.requesterId === user?.id && r.decision === 'pending').length;
 
   return (
-    <div className="p-6 max-w-[1200px]">
+    <div className="w-full max-w-[1200px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
       {/* Hero */}
       <div
-        className="rounded-[24px] overflow-hidden mb-6 relative"
+        className="rounded-[18px] sm:rounded-[24px] overflow-hidden mb-4 sm:mb-6 relative"
         style={{ background: 'linear-gradient(151deg, rgb(15,31,68) 11%, rgb(18,59,108) 53%, rgb(28,94,255) 89%)' }}
       >
-        <div className="p-8 flex flex-col lg:flex-row gap-6">
+        <div className="p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-4 sm:gap-6">
           <div className="flex-1">
             <div className="inline-flex items-center bg-[rgba(255,255,255,0.10)] border border-[rgba(255,255,255,0.14)] rounded-full px-4 py-2 mb-4">
               <span className="text-[#dbe7ff] text-[11px] font-semibold tracking-[1.98px] uppercase">Unit command center</span>
             </div>
-            <h1 className="text-white font-bold text-[28px] leading-[1.2] mb-2">
+            <h1 className="text-white font-bold text-[24px] sm:text-[28px] leading-[1.2] mb-2">
               Good morning, {user?.name?.split(' ')[0]}.
             </h1>
             <p className="text-[#ebf3ff] text-[15px] leading-relaxed max-w-[500px]">
@@ -75,6 +80,12 @@ export default function SupervisorDashboard() {
               >
                 Open QC log
               </button>
+              <button
+                onClick={() => openFloatingAI('What is the last CAPA incident in my scope?')}
+                className="bg-[rgba(40,70,111,0.8)] border border-[rgba(124,147,183,0.8)] text-white font-medium text-[13px] px-4 py-2.5 rounded-[13px] hover:bg-[rgba(40,70,111,0.9)] transition-colors"
+              >
+                Ask AI insights
+              </button>
             </div>
           </div>
           <div className="flex flex-col gap-3 lg:w-[300px]">
@@ -82,6 +93,7 @@ export default function SupervisorDashboard() {
               { label: 'REVIEW QUEUE', value: `${qcPending} QC log${qcPending !== 1 ? 's' : ''} pending review.` },
               { label: 'OPEN CAPAS', value: `${openCAPAs} corrective actions in progress.` },
               { label: 'TRAINING COMPLIANCE', value: `${trainingCompliance}% team compliance rate.` },
+              { label: 'SOP WORKFLOW', value: `${pendingSopReviews} SOP review tasks · ${pendingUserRequests} user request(s).` },
             ].map(item => (
               <div key={item.label} className="bg-[rgba(39,70,111,0.7)] border border-[rgba(124,147,183,0.4)] rounded-[20px] px-4 py-3">
                 <p className="text-[#dce6ff] font-semibold text-[10px] tracking-[1.98px] uppercase mb-0.5">{item.label}</p>
@@ -93,7 +105,7 @@ export default function SupervisorDashboard() {
       </div>
 
       {/* Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <MetricCard label="Staff Members" value={allStaff.length} sublabel="In your department" accent="#1c5eff" icon={<Users size={16} />} onClick={() => navigate('/supervisor/staff')} />
         <MetricCard label="QC Pending Review" value={qcPending} sublabel={`${qcWarning} warnings this week`} accent="#9a6115" icon={<ClipboardList size={16} />} onClick={() => navigate('/supervisor/qc-log')} />
         <MetricCard label="Open CAPAs" value={openCAPAs} sublabel={`${criticalCAPAs} critical priority`} accent={criticalCAPAs > 0 ? '#b14343' : '#9a6115'} icon={<ShieldAlert size={16} />} onClick={() => navigate('/supervisor/capa')} />
@@ -101,9 +113,9 @@ export default function SupervisorDashboard() {
       </div>
 
       {/* Two Column */}
-      <div className="grid lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
         {/* Staff Overview */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Users size={18} className="text-[#1c5eff]" />
@@ -160,7 +172,7 @@ export default function SupervisorDashboard() {
         </div>
 
         {/* Recent QC Log */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <ClipboardList size={18} className="text-[#1c5eff]" />
@@ -207,9 +219,9 @@ export default function SupervisorDashboard() {
       </div>
 
       {/* CAPA + Alerts */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Open CAPAs */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <ShieldAlert size={18} className="text-[#1c5eff]" />
@@ -243,7 +255,7 @@ export default function SupervisorDashboard() {
         </div>
 
         {/* Recent Alerts */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <AlertTriangle size={18} className="text-[#1c5eff]" />

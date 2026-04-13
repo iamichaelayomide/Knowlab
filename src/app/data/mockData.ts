@@ -138,6 +138,7 @@ export interface User {
   color: string;
   joinDate: string;
   competencyScore?: number;
+  mustResetPassword?: boolean;
 }
 
 export interface SOPStep {
@@ -453,7 +454,7 @@ export const USERS: User[] = [
   },
   {
     id: 'sup2',
-    name: 'Dr. Seun Adebayo',
+    name: 'Seun Adebayo',
     email: 'seun@knowlab.ng',
     password: 'super123',
     role: 'supervisor',
@@ -465,7 +466,7 @@ export const USERS: User[] = [
   },
   {
     id: 'sup3',
-    name: 'Dr. Halima Garba',
+    name: 'Halima Garba',
     email: 'halima@knowlab.ng',
     password: 'super123',
     role: 'supervisor',
@@ -477,7 +478,7 @@ export const USERS: User[] = [
   },
   {
     id: 'hod1',
-    name: 'Dr. Ngozi Adeyemi',
+    name: 'Ngozi Adeyemi',
     email: 'ngozi@knowlab.ng',
     password: 'hod123',
     role: 'hod',
@@ -486,6 +487,46 @@ export const USERS: User[] = [
     initials: 'NA',
     color: '#dc2626',
     joinDate: '2015-03-01',
+  },
+  // Dedicated demo logins for role-based routing
+  {
+    id: 'demo_staff',
+    name: 'Staff Demo',
+    email: 'staff123@knowlab.com',
+    password: 'staff123',
+    role: 'staff',
+    department: 'Laboratory',
+    unit: 'Haematology & Blood Transfusion',
+    initials: 'SD',
+    color: '#1c5eff',
+    joinDate: '2026-01-01',
+    mustResetPassword: false,
+  },
+  {
+    id: 'demo_supervisor',
+    name: 'Supervisor Demo',
+    email: 'supervisor123@knowlab.com',
+    password: 'supervisor123',
+    role: 'supervisor',
+    department: 'Haematology',
+    unit: 'Haematology',
+    initials: 'SV',
+    color: '#0f86ff',
+    joinDate: '2026-01-01',
+    mustResetPassword: false,
+  },
+  {
+    id: 'demo_hod',
+    name: 'HOD Demo',
+    email: 'hod123@knowlab.com',
+    password: 'hod123',
+    role: 'hod',
+    department: 'Laboratory',
+    unit: 'Laboratory Services',
+    initials: 'HD',
+    color: '#dc2626',
+    joinDate: '2026-01-01',
+    mustResetPassword: false,
   },
 ];
 
@@ -502,7 +543,7 @@ export const SOPS: SOP[] = [
     effectiveDate: '15 Jan 2024',
     reviewDate: '14 Jan 2025',
     author: 'Fatima Bello',
-    approvedBy: 'Dr. Ngozi Adeyemi',
+    approvedBy: 'Ngozi Adeyemi',
     status: 'active',
     purpose:
       'To provide a standardized procedure for performing Full Blood Count analysis using the Sysmex XN-350 automated hematology analyzer to ensure accurate, reproducible, and clinically meaningful results.',
@@ -751,7 +792,7 @@ export const SOPS: SOP[] = [
 
 // ─── Lab Tests ────────────────────────────────────────────────────────────────
 
-export const LAB_TESTS: LabTest[] = [
+const RAW_LAB_TESTS: LabTest[] = [
   {
     id: 't1', code: 'HEM001', name: 'Full Blood Count (FBC)', category: 'FBC & Automated Counts',
     turnaround: '1–2 hours', sampleType: 'Whole Blood (EDTA)', sampleVolume: '2.0 mL',
@@ -980,6 +1021,36 @@ export const LAB_TESTS: LabTest[] = [
   },
   ...NEW_LAB_TESTS
 ];
+
+const SOP_CODE_SET = new Set(SOPS.map(s => s.code));
+
+const SOP_BY_CATEGORY = SOPS.reduce<Record<string, string>>((acc, sop) => {
+  if (!acc[sop.category]) acc[sop.category] = sop.code;
+  return acc;
+}, {});
+
+const SOP_BY_DEPARTMENT = SOPS.reduce<Record<string, string>>((acc, sop) => {
+  if (!acc[sop.department]) acc[sop.department] = sop.code;
+  return acc;
+}, {});
+
+function inferDepartmentFromTest(test: LabTest): string {
+  const text = `${test.code} ${test.category} ${test.name}`.toLowerCase();
+  if (text.startsWith('hem') || text.includes('haemat') || text.includes('coag') || text.includes('blood film') || text.includes('esr')) return 'Haematology';
+  if (text.startsWith('che') || text.includes('chem') || text.includes('glucose') || text.includes('lipid') || text.includes('electrolyte') || text.includes('liver') || text.includes('kidney')) return 'Chemistry';
+  if (text.startsWith('mic') || text.includes('micro') || text.includes('bacter') || text.includes('virol') || text.includes('mycol') || text.includes('parasite')) return 'Microbiology & Parasitology';
+  if (text.startsWith('his') || text.includes('histo') || text.includes('cytolog') || text.includes('immunohistochem') || text.includes('autopsy')) return 'Histopathology';
+  if (text.startsWith('bgs') || text.includes('serology') || text.includes('crossmatch') || text.includes('antibody') || text.includes('abo')) return 'Blood Group & Serology';
+  return 'Haematology';
+}
+
+export const LAB_TESTS: LabTest[] = RAW_LAB_TESTS.map(test => {
+  if (test.relatedSop && SOP_CODE_SET.has(test.relatedSop)) return test;
+  const categoryMatch = SOP_BY_CATEGORY[test.category];
+  if (categoryMatch) return { ...test, relatedSop: categoryMatch };
+  const deptMatch = SOP_BY_DEPARTMENT[inferDepartmentFromTest(test)];
+  return { ...test, relatedSop: deptMatch || SOPS[0].code };
+});
 
 // ─── Job Aids ─────────────────────────────────────────────────────────────────
 
@@ -1288,13 +1359,13 @@ export const CAPA_ITEMS: CAPAItem[] = [
 // ─── Alerts ───────────────────────────────────────────────────────────────────
 
 export const ALERTS: Alert[] = [
-  { id: 'al1', type: 'danger', title: 'Critical Value — Platelet Count', message: 'Patient ID: HN-204567. PLT = 32 ×10⁹/L. Notification call made to Dr. Eze (Haematology ward) at 08:42. Read-back confirmed.', date: '2024-04-09T08:42:00', read: false, targetRoles: ['staff', 'supervisor'], category: 'Critical Values' },
+  { id: 'al1', type: 'danger', title: 'Critical Value — Platelet Count', message: 'Patient ID: HN-204567. PLT = 32 ×10⁹/L. Notification call made to Unit Clinician Eze (Haematology ward) at 08:42. Read-back confirmed.', date: '2024-04-09T08:42:00', read: false, targetRoles: ['staff', 'supervisor'], category: 'Critical Values' },
   { id: 'al2', type: 'warning', title: 'QC Warning — WBC Channel', message: 'Sysmex XN-350: Level 2 WBC result at +2.2 SD (warning limit). Re-run initiated. Supervisor notified. Patient testing on hold pending QC resolution.', date: '2024-04-09T07:55:00', read: false, targetRoles: ['staff', 'supervisor'], category: 'QC' },
   { id: 'al3', type: 'info', title: 'Training Reminder — Haemovigilance Module', message: 'Your completion deadline for the "Haemovigilance & Transfusion Safety" module is 30 June 2024. You have 82 days remaining.', date: '2024-04-08T09:00:00', read: true, targetRoles: ['staff'], category: 'Training' },
   { id: 'al4', type: 'danger', title: 'CAPA Overdue — Staff Review Required', message: 'CAPA-2024-007 (Sysmex WBC QC Failures) is due for update by 20 April 2024. Corrective action steps pending documentation.', date: '2024-04-08T14:00:00', read: false, targetRoles: ['supervisor'], category: 'CAPA' },
-  { id: 'al5', type: 'warning', title: 'Reagent Expiry Alert — Anti-D Antiserum', message: 'Anti-D (Lot BB2402-33) expires in 7 days (16 Apr 2024). Reorder requested. Confirm stock with Dr. Ngozi Adeyemi.', date: '2024-04-09T08:00:00', read: false, targetRoles: ['staff', 'supervisor', 'hod'], category: 'Reagents' },
+  { id: 'al5', type: 'warning', title: 'Reagent Expiry Alert — Anti-D Antiserum', message: 'Anti-D (Lot BB2402-33) expires in 7 days (16 Apr 2024). Reorder requested. Confirm stock with Ngozi Adeyemi.', date: '2024-04-09T08:00:00', read: false, targetRoles: ['staff', 'supervisor', 'hod'], category: 'Reagents' },
   { id: 'al6', type: 'danger', title: 'Haemovigilance — Near Miss Investigation', message: 'CAPA-2024-009 opened for unlabelled FFP near-miss event (07 April). Mandatory staff meeting scheduled for 10 April at 14:00.', date: '2024-04-07T16:30:00', read: false, targetRoles: ['hod', 'supervisor'], category: 'Haemovigilance' },
-  { id: 'al7', type: 'success', title: 'SOP Approved — FBC Procedure Rev.04', message: 'HEM-SOP-001 Rev.04 has been approved by Dr. Ngozi Adeyemi and is now the active version in the document management system.', date: '2024-04-05T11:00:00', read: true, targetRoles: ['staff', 'supervisor', 'hod'], category: 'Documents' },
+  { id: 'al7', type: 'success', title: 'SOP Approved — FBC Procedure Rev.04', message: 'HEM-SOP-001 Rev.04 has been approved by Ngozi Adeyemi and is now the active version in the document management system.', date: '2024-04-05T11:00:00', read: true, targetRoles: ['staff', 'supervisor', 'hod'], category: 'Documents' },
   { id: 'al8', type: 'info', title: 'New SOP Under Review — Haemoglobin Electrophoresis', message: 'HEM-SOP-009 (Haemoglobin Electrophoresis) is currently under review. Please submit your comments to Fatima Bello by 20 April 2024.', date: '2024-04-04T10:00:00', read: true, targetRoles: ['staff', 'supervisor'], category: 'Documents' },
   { id: 'al9', type: 'warning', title: 'Overdue Training — Emeka Okafor', message: 'Staff member Emeka Okafor has 2 overdue training modules (Sysmex XN-350 Operation, QMS Awareness). Escalation required.', date: '2024-04-03T09:00:00', read: false, targetRoles: ['supervisor', 'hod'], category: 'Training' },
   { id: 'al10', type: 'info', title: 'Monthly TAT Report Available', message: 'March 2024 Turnaround Time performance report is available. Overall FBC TAT compliance: 94.2%. Coagulation TAT compliance: 89.1%.', date: '2024-04-01T08:00:00', read: true, targetRoles: ['hod', 'supervisor'], category: 'Reports' },

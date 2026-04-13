@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+﻿import { useNavigate } from 'react-router';
 import { FileText, FlaskConical, BookOpen, GraduationCap, Bell, ArrowRight, CheckCircle2, Clock, AlertTriangle, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDepartment } from '../../context/DepartmentContext';
@@ -41,18 +41,18 @@ export default function StaffDashboard() {
   });
 
   return (
-    <div className="p-6 max-w-[1200px]">
+    <div className="w-full max-w-[1200px] mx-auto px-3 sm:px-6 py-4 sm:py-6 min-h-full">
       {/* Hero Banner */}
       <div
-        className="rounded-[24px] overflow-hidden mb-6 relative"
+        className="rounded-[18px] sm:rounded-[24px] overflow-hidden mb-4 sm:mb-6 relative"
         style={{ background: 'linear-gradient(151deg, rgb(15,31,68) 11%, rgb(18,59,108) 53%, rgb(28,94,255) 89%)' }}
       >
-        <div className="p-8 flex flex-col lg:flex-row gap-6">
+        <div className="p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-4 sm:gap-6">
           <div className="flex-1">
             <div className="inline-flex items-center bg-[rgba(255,255,255,0.10)] border border-[rgba(255,255,255,0.14)] rounded-full px-4 py-2 mb-4">
               <span className="text-[#dbe7ff] text-[11px] font-semibold tracking-[1.98px] uppercase">Bench workspace</span>
             </div>
-            <h1 className="text-white font-bold text-[32px] leading-[1.15] mb-3">
+            <h1 className="text-white font-bold text-[24px] sm:text-[32px] leading-[1.15] mb-3">
               Start with the exact unit<br />knowledge you need.
             </h1>
             <p className="text-[#ebf3ff] text-[15px] leading-[1.7] max-w-[560px]">
@@ -68,7 +68,7 @@ export default function StaffDashboard() {
           <div className="flex flex-col gap-3 lg:w-[300px]">
             {[
               { label: 'ASSIGNED BENCHES', value: '3 active bench views ready now.' },
-              { label: 'PRIMARY SOP', value: 'Full Blood Count – Sysmex XN-350' },
+              { label: 'PRIMARY SOP', value: 'Full Blood Count - Sysmex XN-350' },
               { label: 'PRIMARY TEST', value: 'Full Blood Count (FBC)' },
             ].map(item => (
               <div
@@ -84,7 +84,7 @@ export default function StaffDashboard() {
       </div>
 
       {/* Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <MetricTile label="Active SOPs" value={activeSops.length} sublabel="In your department" accent="#1c5eff" />
         <MetricTile label="Lab Tests" value={activeTests.length} sublabel="With full reference ranges" accent="#0f86ff" />
         <MetricTile label="Training Completed" value={completedTraining} sublabel={`${inProgressTraining} in progress`} accent="#1c7b56" />
@@ -95,9 +95,9 @@ export default function StaffDashboard() {
       </div>
 
       {/* Two-column */}
-      <div className="grid lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
         {/* Quick access SOPs */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6 flex flex-col h-[420px]">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <FileText size={18} className="text-[#1c5eff]" />
@@ -107,7 +107,7 @@ export default function StaffDashboard() {
               View all <ChevronRight size={14} />
             </button>
           </div>
-          <div className="space-y-2 flex-1 overflow-y-auto">
+          <div className="space-y-2 flex-1">
             {activeSops.length > 0 ? activeSops.slice(0, 4).map(sop => (
               <button
                 key={sop.id}
@@ -136,7 +136,7 @@ export default function StaffDashboard() {
         </div>
 
         {/* Quick access Tests */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6 flex flex-col h-[420px]">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <FlaskConical size={18} className="text-[#1c5eff]" />
@@ -146,7 +146,7 @@ export default function StaffDashboard() {
               View all <ChevronRight size={14} />
             </button>
           </div>
-          <div className="space-y-2 flex-1 overflow-y-auto">
+          <div className="space-y-2 flex-1">
             {activeTests.length > 0 ? activeTests.slice(0, 4).map(test => (
               <button
                 key={test.id}
@@ -172,9 +172,9 @@ export default function StaffDashboard() {
       </div>
 
       {/* Training status + Alerts */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         {/* My Training */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6 flex flex-col h-[420px]">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <GraduationCap size={18} className="text-[#1c5eff]" />
@@ -184,7 +184,7 @@ export default function StaffDashboard() {
               View all <ChevronRight size={14} />
             </button>
           </div>
-          <div className="space-y-2 flex-1 overflow-y-auto">
+          <div className="space-y-2 flex-1">
             {TRAINING_MODULES.slice(0, 4).map(mod => {
               const record = myTraining.find(r => r.moduleId === mod.id);
               const status = record?.status || 'not_started';
@@ -221,7 +221,7 @@ export default function StaffDashboard() {
         </div>
 
         {/* Recent Alerts */}
-        <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6 flex flex-col h-[420px]">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Bell size={18} className="text-[#1c5eff]" />
@@ -231,7 +231,7 @@ export default function StaffDashboard() {
               View all <ChevronRight size={14} />
             </button>
           </div>
-          <div className="space-y-2 flex-1 overflow-y-auto">
+          <div className="space-y-2 flex-1">
             {ALERTS.filter(a => a.targetRoles.includes(user.role)).slice(0, 4).map(alert => (
               <div key={alert.id} className="flex items-start gap-3 p-3 rounded-[14px] hover:bg-[#f4f8ff] transition-colors">
                 <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
@@ -252,3 +252,5 @@ export default function StaffDashboard() {
     </div>
   );
 }
+
+

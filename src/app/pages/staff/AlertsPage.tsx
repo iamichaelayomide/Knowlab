@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Bell, AlertTriangle, Info, CheckCircle2, X, Filter } from 'lucide-react';
+import { Bell, AlertTriangle, Info, CheckCircle2, X } from 'lucide-react';
 import { ALERTS, Alert } from '../../data/mockData';
 import { useAuth } from '../../context/AuthContext';
+import { getWorkflowState, markNotificationRead } from '../../services/workflowStore';
 
 const TYPE_CONFIG = {
   danger: { icon: <AlertTriangle size={15} />, color: 'text-[#b14343]', bg: 'bg-[#fde9e9]', border: 'border-[#f5c0c0]' },
@@ -17,7 +18,21 @@ export default function AlertsPage() {
 
   if (!user) return null;
 
-  const myAlerts = ALERTS.filter(a => a.targetRoles.includes(user.role));
+  const workflow = getWorkflowState();
+  const workflowAlerts: Alert[] = workflow.notifications
+    .filter(n => n.roleTargets.includes(user.role))
+    .map(n => ({
+      id: n.id,
+      type: n.level,
+      title: n.title,
+      message: n.message,
+      date: n.createdAt,
+      read: n.readBy.includes(user.id),
+      targetRoles: n.roleTargets,
+      category: 'Workflow',
+    }));
+  const myAlerts = [...workflowAlerts, ...ALERTS.filter(a => a.targetRoles.includes(user.role))]
+    .sort((a, b) => +new Date(b.date) - +new Date(a.date));
   const unreadCount = myAlerts.filter(a => !readIds.has(a.id)).length;
 
   const filtered = myAlerts.filter(a => {
@@ -26,11 +41,17 @@ export default function AlertsPage() {
     return true;
   });
 
-  const markRead = (id: string) => setReadIds(prev => new Set([...prev, id]));
-  const markAllRead = () => setReadIds(new Set(myAlerts.map(a => a.id)));
+  const markRead = (id: string) => {
+    setReadIds(prev => new Set([...prev, id]));
+    markNotificationRead(id, user.id);
+  };
+  const markAllRead = () => {
+    setReadIds(new Set(myAlerts.map(a => a.id)));
+    myAlerts.forEach(a => markNotificationRead(a.id, user.id));
+  };
 
   return (
-    <div className="p-6 max-w-[800px]">
+    <div className="p-4 sm:p-6 max-w-[800px]">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">Alerts</h1>
