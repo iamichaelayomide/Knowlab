@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { AppIcon } from "../../components/icons/AppIcon";
 import { useDepartment } from "../../context/DepartmentContext";
@@ -35,9 +35,13 @@ function StaffDetailView({ staffId }: { staffId: string }) {
   const inProgress = records.filter((record) => record.status === "in_progress").length;
   const overdue = records.filter((record) => record.status === "overdue").length;
   const competency = staff.competencyScore ?? 0;
+  const completedModules = records
+    .filter((record) => record.status === "completed")
+    .map((record) => TRAINING_MODULES.find((module) => module.id === record.moduleId))
+    .filter((module): module is (typeof TRAINING_MODULES)[number] => Boolean(module));
 
   return (
-    <div className="w-full max-w-[920px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <div className="kl-page">
       <button
         onClick={() => navigate("/supervisor/staff")}
         className="inline-flex items-center gap-2 text-sm text-[var(--kl-text-muted)] hover:text-[var(--kl-primary)] transition-colors"
@@ -160,6 +164,27 @@ function StaffDetailView({ staffId }: { staffId: string }) {
           })}
         </div>
       </div>
+
+      <div className="mt-4 rounded-[20px] border border-[var(--kl-border)] bg-[var(--kl-surface)] p-5">
+        <h2 className="text-[var(--kl-text)] text-base font-semibold inline-flex items-center gap-2 mb-3">
+          <AppIcon name="training" size={16} className="text-[var(--kl-primary)]" />
+          Courses completed
+        </h2>
+        {completedModules.length === 0 ? (
+          <p className="text-xs text-[var(--kl-text-muted)]">No completed courses yet.</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {completedModules.map((module) => (
+              <span
+                key={module.id}
+                className="rounded-full bg-[var(--kl-surface-tinted)] text-[var(--kl-text)] text-[11px] px-2.5 py-1"
+              >
+                {module.title}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -200,7 +225,7 @@ export default function MyStaffPage() {
   const overdueCount = countOverdueByStaff(allDepartmentStaff);
 
   return (
-    <div className="w-full max-w-[980px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <div className="kl-page">
       <div className="mb-5">
         <h1 className="text-[var(--kl-text)] text-[24px] font-semibold mb-1">My Staff</h1>
         <p className="text-[var(--kl-text-muted)] text-sm">
@@ -286,7 +311,7 @@ export default function MyStaffPage() {
                 return (
                   <div
                     key={member.id}
-                    className="px-4 py-3 border-b border-[var(--kl-border)] last:border-b-0 flex items-center gap-3 hover:bg-[var(--kl-surface-soft)] transition-colors"
+                    className="px-4 py-3 border-b border-[var(--kl-border)] last:border-b-0 flex items-center gap-3 hover:bg-[var(--kl-surface-soft)] active:bg-[var(--kl-surface-tinted)] active:scale-[0.995] transition-all"
                   >
                     <div
                       className="size-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
@@ -313,7 +338,7 @@ export default function MyStaffPage() {
                     </div>
                     <button
                       onClick={() => navigate(`/supervisor/staff/${member.id}`)}
-                      className="inline-flex items-center gap-1 rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-2.5 py-1.5 text-xs text-[var(--kl-primary)] hover:bg-[var(--kl-surface-tinted)]"
+                      className="inline-flex items-center gap-1 rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-2.5 py-1.5 text-xs text-[var(--kl-primary)] hover:bg-[var(--kl-surface-tinted)] active:scale-[0.98] transition-all"
                     >
                       View
                       <AppIcon name="chevronRight" size={12} />
@@ -328,3 +353,4 @@ export default function MyStaffPage() {
     </div>
   );
 }
+

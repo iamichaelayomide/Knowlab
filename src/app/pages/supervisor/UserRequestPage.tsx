@@ -36,7 +36,7 @@ export default function UserRequestPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-[920px]">
+    <div className="kl-page">
       <div className="mb-5">
         <h1 className="text-[#11203b] text-[24px] font-semibold mb-1">Supervisor User Requests</h1>
         <p className="text-[#73839f] text-[13px]">Supervisors can request account creation. HOD approval is required.</p>
@@ -77,4 +77,5 @@ export default function UserRequestPage() {
     </div>
   );
 }
+
 

@@ -1,6 +1,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  color-scheme: light;
   --font-size: 16px;
   --kl-bg: #eef4ff;
   --kl-surface: #ffffff;
@@ -52,6 +53,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --kl-bg: #0b1222;
   --kl-surface: #101a31;
   --kl-surface-soft: #16233f;
@@ -203,4 +205,25 @@
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
+}
+
+@layer components {
+  .kl-page {
+    @apply w-full max-w-[1200px] mx-auto px-3 sm:px-6 py-4 sm:py-6;
+  }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--kl-text);
+  caret-color: var(--kl-text);
+  box-shadow: 0 0 0px 1000px var(--kl-surface) inset;
+  transition: background-color 9999s ease-out 0s;
 }

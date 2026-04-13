@@ -51,7 +51,7 @@ export default function UserManagementPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1080px]">
+    <div className="kl-page">
       <div className="mb-5">
         <h1 className="text-[#11203b] text-[24px] font-semibold mb-1">HOD User Management</h1>
         <p className="text-[#73839f] text-[13px]">
@@ -137,4 +137,5 @@ export default function UserManagementPage() {
     </div>
   );
 }
+
 

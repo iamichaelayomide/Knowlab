@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AppIcon } from "../../components/icons/AppIcon";
 import { useAuth } from "../../context/AuthContext";
 import { USERS } from "../../data/mockData";
@@ -64,7 +64,7 @@ export default function SOPReviewQueuePage() {
   const awaitingHod = state.validationTasks.filter((task) => task.decision === "pending").length;
 
   return (
-    <div className="w-full max-w-[1080px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <div className="kl-page">
       <div className="mb-5">
         <h1 className="text-[var(--kl-text)] text-[24px] font-semibold mb-1">SOP Review Queue</h1>
         <p className="text-[var(--kl-text-muted)] text-sm">
@@ -203,3 +203,4 @@ export default function SOPReviewQueuePage() {
     </div>
   );
 }
+

@@ -26,7 +26,7 @@ export default function HODDashboard() {
   const lowCompetency = allStaff.filter(s => (s.competencyScore ?? 75) < 80);
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <div className="kl-page">
       {/* Hero */}
       <div
         className="rounded-[18px] sm:rounded-[24px] overflow-hidden mb-4 sm:mb-6"
@@ -218,3 +218,4 @@ export default function HODDashboard() {
     </div>
   );
 }
+

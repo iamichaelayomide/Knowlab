@@ -80,7 +80,7 @@ export default function SOPCreatePage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-[980px]">
+    <div className="kl-page">
       <button
         onClick={() => navigate('/staff/sops')}
         className="flex items-center gap-2 text-[#475a7d] text-[13px] font-medium mb-4 hover:text-[#1c5eff]"
@@ -209,3 +209,4 @@ export default function SOPCreatePage() {
     </div>
   );
 }
+

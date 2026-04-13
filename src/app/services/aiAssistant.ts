@@ -1,4 +1,13 @@
-import { CAPA_ITEMS, getDepartmentForUser, getStaffUsers, JOB_AIDS, LAB_TESTS, SOPS } from "../data/mockData";
+import {
+  CAPA_ITEMS,
+  JOB_AIDS,
+  LAB_TESTS,
+  SOPS,
+  TRAINING_MODULES,
+  TRAINING_RECORDS,
+  getDepartmentForUser,
+  getStaffUsers,
+} from "../data/mockData";
 
 export interface AssistantSource {
   id: string;
@@ -57,21 +66,62 @@ function buildAlternativeSuggestions(query: string) {
   return rankedTests.map((entry) => `${entry.test.code} - ${entry.test.name}`);
 }
 
+function matchesLocalIntent(query: string) {
+  const q = query.toLowerCase().trim();
+  if (!q) return false;
+  const exactDefinitions = ["glucose", "capa", "qc", "sop"];
+  if (exactDefinitions.some((term) => q === term || q.includes(term))) return true;
+
+  const testHit = LAB_TESTS.some((test) => {
+    const name = test.name.toLowerCase();
+    return name.includes(q) || q.includes(name) || test.code.toLowerCase() === q;
+  });
+  if (testHit) return true;
+
+  const sopHit = SOPS.some((sop) => {
+    const title = sop.title.toLowerCase();
+    return title.includes(q) || q.includes(title) || sop.code.toLowerCase() === q;
+  });
+  if (sopHit) return true;
+
+  const aidHit = JOB_AIDS.some((aid) => {
+    const title = aid.title.toLowerCase();
+    return title.includes(q) || q.includes(title);
+  });
+  return aidHit;
+}
+
 function shouldClarify(query: string) {
   const q = query.trim().toLowerCase();
   const tokens = tokenize(q);
-  if (tokens.length < 3) return true;
-  const tooGeneric = ["help", "hi", "hello", "teach me", "question", "random", "any idea"].some((fragment) =>
-    q === fragment || q.startsWith(`${fragment} `),
+  if (matchesLocalIntent(q)) return false;
+  if (tokens.length <= 1) return true;
+  const tooGeneric = ["help", "hi", "hello", "question", "random", "any idea", "teach me"].some(
+    (fragment) => q === fragment,
   );
-  return tooGeneric;
+  const vagueFlag = q.includes("random") || q.includes("anything") || q.includes("not sure");
+  return tooGeneric || vagueFlag;
+}
+
+function wantsTeaching(query: string) {
+  const q = query.toLowerCase();
+  return (
+    q.includes("teach") ||
+    q.includes("explain") ||
+    q.includes("step by step") ||
+    q.includes("step-by-step") ||
+    q.includes("breakdown") ||
+    q.includes("walk me") ||
+    q.includes("how do i") ||
+    q.includes("how to")
+  );
 }
 
 function deniedAnswer(role: "staff" | "supervisor" | "hod"): AssistantAnswer {
   if (role !== "staff") {
     return {
       answer:
-        "I can support this request, but I need a little more context first. Tell me the unit, timeframe, and what decision you need to make.",
+        "I can help with that, just need a little context first. Which unit, what timeframe, and what decision are you trying to make?",
       confidence: 0.4,
       sources: [],
       mode: "clarify",
@@ -120,7 +170,7 @@ function staffAskingRestrictedScope(query: string) {
 function clarificationAnswer(): AssistantAnswer {
   return {
     answer:
-      "I can help with that. Could you clarify one thing first?\n\n1. What exact test/SOP/process do you mean?\n2. Do you want a quick answer or a step-by-step teaching breakdown?\n3. Should I focus on your current bench only?",
+      "I can help. Could you clarify a quick detail:\n1) Which test/SOP/process?\n2) Do you want a quick answer or a step-by-step walkthrough?\n3) Should I keep it to your current bench?",
     confidence: 0.44,
     sources: [],
     mode: "clarify",
@@ -180,7 +230,7 @@ function tryGeneralDefinition(query: string): AssistantAnswer | null {
   if (!hit) {
     return {
       answer:
-        "I can give a conceptual explanation, but exact lab values and procedures must come from verified SOP/test sources.\n\nTry a specific term like: define glucose, define CAPA, define QC, or define SOP.",
+        "I can give a quick concept explanation, but exact lab values and procedures must come from verified SOP/test sources.\n\nTry a specific term like: define glucose, define CAPA, define QC, or define SOP.",
       confidence: 0.38,
       sources: [],
       mode: "teaching",
@@ -189,8 +239,8 @@ function tryGeneralDefinition(query: string): AssistantAnswer | null {
 
   return {
     answer:
-      `Direct explanation:\n${hit.text}\n\n` +
-      "Important:\n- Concept explanation is general context.\n- Numeric values and workflow steps must come from your verified SOP/test source.\n\n" +
+      `${hit.text}\n\n` +
+      "Important:\n- This is general context.\n- Numeric values and workflow steps must come from your verified SOP/test source.\n\n" +
       "Helpful follow-ups:\n" +
       hit.follow.map((item, idx) => `${idx + 1}. ${item}`).join("\n"),
     confidence: 0.5,
@@ -219,6 +269,108 @@ function tryOperationalAnswer(input: {
       ? scopedByDepartment.filter((entry) => entry.unit.toLowerCase().includes(input.bench!.toLowerCase()))
       : scopedByDepartment;
 
+  const unitStats = unique(scopedByDepartment.map((entry) => entry.unit)).map((unit) => {
+    const unitStaff = scopedByDepartment.filter((entry) => entry.unit === unit);
+    const ids = new Set(unitStaff.map((entry) => entry.id));
+    const unitRecords = TRAINING_RECORDS.filter((record) => ids.has(record.staffId));
+    const completed = unitRecords.filter((record) => record.status === "completed").length;
+    const overdue = unitRecords.filter((record) => record.status === "overdue").length;
+    const totalExpected = Math.max(1, unitStaff.length * TRAINING_MODULES.length);
+    const completionPct = Math.round((completed / totalExpected) * 100);
+    const avgCompetency = Math.round(
+      unitStaff.reduce((sum, entry) => sum + (entry.competencyScore ?? 0), 0) / Math.max(1, unitStaff.length),
+    );
+    return { unit, unitStaff, overdue, completionPct, avgCompetency };
+  });
+
+  if (
+    q.includes("training escalation") ||
+    (q.includes("unit") && q.includes("training") && (q.includes("immediate") || q.includes("need")))
+  ) {
+    const ranked = [...unitStats].sort(
+      (a, b) => b.overdue - a.overdue || a.completionPct - b.completionPct || a.avgCompetency - b.avgCompetency,
+    );
+    const top = ranked.slice(0, 3);
+
+    if (!top.length) {
+      return {
+        answer: "No unit-level training data is available for escalation analysis in the current scope.",
+        confidence: 0.71,
+        sources: [{ id: "ops-training-empty", type: "ops", title: "Training Compliance Register" }],
+        mode: "direct",
+      };
+    }
+
+    const teaching = wantsTeaching(input.query);
+    return {
+      answer:
+        "Here are the units that need the most escalation attention right now:\n" +
+        top
+          .map(
+            (entry, idx) =>
+              `${idx + 1}. ${entry.unit} - ${entry.overdue} overdue, ${entry.completionPct}% completion, ${entry.avgCompetency}% avg competency`,
+          )
+          .join("\n") +
+        (teaching
+          ? "\n\nIf you want a quick plan:\n1) Prioritize overdue mandatory modules.\n2) Assign focused remediation by gap.\n3) Recheck in 7 days."
+          : ""),
+      confidence: 0.9,
+      sources: [{ id: "ops-training", type: "ops", title: "Training Compliance Register" }],
+      mode: teaching ? "teaching" : "direct",
+      quickActions: [{ label: "Open training board", path: "training" }, { label: "Open staff view", path: "staff" }],
+    };
+  }
+
+  if (q.includes("risk signal") || (q.includes("risk") && q.includes("intervention"))) {
+    const criticalOpen = CAPA_ITEMS.filter((item) => item.priority === "critical" && item.status !== "completed").length;
+    const overdueTraining = TRAINING_RECORDS.filter((record) => record.status === "overdue").length;
+    const below80 = scopedByDepartment.filter((entry) => (entry.competencyScore ?? 0) < 80).length;
+
+    const teaching = wantsTeaching(input.query);
+    return {
+      answer:
+        "Here are the key risk signals right now:\n" +
+        `1) Critical open CAPAs: ${criticalOpen}\n` +
+        `2) Overdue training records: ${overdueTraining}\n` +
+        `3) Staff below 80% competency: ${below80}\n` +
+        (teaching
+          ? "\nQuick actions:\n- Triage critical CAPAs by due date/owner.\n- Schedule catch-up training for overdue cohorts.\n- Run targeted coaching for low-competency units."
+          : ""),
+      confidence: 0.88,
+      sources: [
+        { id: "ops-capa", type: "ops", title: "CAPA Operations Log" },
+        { id: "ops-training", type: "ops", title: "Training Compliance Register" },
+        { id: "ops-competency", type: "ops", title: "Staff Competency Register" },
+      ],
+      mode: teaching ? "teaching" : "direct",
+      quickActions: [{ label: "Open CAPA board", path: "capa" }, { label: "Open training board", path: "training" }],
+    };
+  }
+
+  if ((q.includes("executive") || q.includes("narrative")) && (q.includes("sop") || q.includes("capa"))) {
+    const activeSops = SOPS.filter((sop) => sop.status === "active").length;
+    const openCapas = CAPA_ITEMS.filter((item) => item.status !== "completed").length;
+    const completedCapas = CAPA_ITEMS.filter((item) => item.status === "completed").length;
+    const overdueTraining = TRAINING_RECORDS.filter((record) => record.status === "overdue").length;
+
+    return {
+      answer:
+        "Here’s a clean executive summary you can reuse:\n\n" +
+        `SOPs: ${activeSops} active SOPs in scope with review controls in place.\n` +
+        `CAPA: ${openCapas} open items, ${completedCapas} closed.\n` +
+        `Readiness: ${overdueTraining} overdue training items.\n\n` +
+        "Priority message: keep CAPA closure velocity high while reducing overdue training to protect SOP execution.",
+      confidence: 0.86,
+      sources: [
+        { id: "ops-sop", type: "ops", title: "SOP Register" },
+        { id: "ops-capa", type: "ops", title: "CAPA Operations Log" },
+        { id: "ops-training", type: "ops", title: "Training Compliance Register" },
+      ],
+      mode: "direct",
+      quickActions: [{ label: "Open reports", path: "reports" }, { label: "Open CAPA board", path: "capa" }],
+    };
+  }
+
   if (q.includes("last capa") || q.includes("latest capa") || (q.includes("capa") && q.includes("last"))) {
     const last = [...CAPA_ITEMS].sort((a, b) => new Date(b.openedDate).getTime() - new Date(a.openedDate).getTime())[0];
     if (!last) {
@@ -229,18 +381,19 @@ function tryOperationalAnswer(input: {
         mode: "direct",
       };
     }
+    const teaching = wantsTeaching(input.query);
     return {
       answer:
-        "CAPA summary:\n" +
+        "Latest CAPA:\n" +
         `- Code: ${last.code}\n` +
         `- Title: ${last.title}\n` +
         `- Priority: ${last.priority}\n` +
         `- Status: ${last.status}\n` +
-        `- Opened: ${new Date(last.openedDate).toLocaleDateString("en-GB")}\n\n` +
-        "Next step:\n1. Open CAPA details.\n2. Confirm root cause completeness.\n3. Validate preventive ownership and due date.",
+        `- Opened: ${new Date(last.openedDate).toLocaleDateString("en-GB")}\n` +
+        (teaching ? "\nNext steps: open details, confirm root cause, validate preventive ownership/due date." : ""),
       confidence: 0.93,
       sources: [{ id: last.id, type: "ops", title: `CAPA ${last.code}` }],
-      mode: "teaching",
+      mode: teaching ? "teaching" : "direct",
       quickActions: [{ label: "Open CAPA board", path: "capa" }],
     };
   }
@@ -261,6 +414,7 @@ function tryOperationalAnswer(input: {
       };
     }
 
+    const teaching = wantsTeaching(input.query);
     return {
       answer:
         `People below ${threshold}% competency in ${heading}:\n` +
@@ -268,10 +422,10 @@ function tryOperationalAnswer(input: {
           .sort((a, b) => (a.competencyScore ?? 0) - (b.competencyScore ?? 0))
           .map((entry, idx) => `${idx + 1}. ${entry.name} (${entry.unit}) - ${entry.competencyScore ?? 0}%`)
           .join("\n") +
-        "\n\nCoaching plan:\n1. Prioritize lowest scores first.\n2. Assign focused retraining.\n3. Reassess with a dated competency check.",
+        (teaching ? "\n\nCoaching plan: prioritize lowest scores, assign focused retraining, then reassess with a dated check." : ""),
       confidence: 0.92,
       sources: [{ id: "ops-staff-competency", type: "ops", title: "Staff Competency Register" }],
-      mode: "teaching",
+      mode: teaching ? "teaching" : "direct",
       quickActions: [{ label: "Open My Staff", path: "staff" }],
     };
   }
@@ -411,7 +565,7 @@ function localKnowledgeRag(query: string): AssistantAnswer {
     if (definition) return definition;
     return {
       answer:
-        `I could not find a verified source in the current knowledge bank for "${query}".\n\n` +
+        `I couldn't find a verified source for "${query}" in the current knowledge bank.\n\n` +
         "Closest alternatives you can open now:\n" +
         buildAlternativeSuggestions(query)
           .map((suggestion, idx) => `${idx + 1}. ${suggestion}`)
@@ -441,67 +595,69 @@ function localKnowledgeRag(query: string): AssistantAnswer {
         parameter.pediatricRange ? `; Paediatric ${parameter.pediatricRange}` : ""
       }`;
     });
+    const teaching = wantsTeaching(query);
 
     return {
       answer:
-        `Direct answer:\n${test.name} (${test.code}) is a ${test.category} test.\n\n` +
-        "Step-by-step usage:\n" +
-        `1. Confirm sample and container: ${test.sampleType}, ${test.container}, ${test.sampleVolume}.\n` +
-        `2. Run with method: ${test.methodology}.\n` +
-        `3. Validate against SOP and QC flags before release.\n\n` +
-        "Reference range from available source:\n" +
-        `${parameterLines.length ? parameterLines.join("\n") : "- No numeric range is documented in this source."}\n\n` +
-        "Follow-up suggestions:\n" +
+        `${test.name} (${test.code}) is a ${test.category} test.\n` +
+        `Specimen: ${test.sampleType}, ${test.container}, ${test.sampleVolume}.\n` +
+        `Method: ${test.methodology}.\n\n` +
+        "Reference ranges available:\n" +
+        `${parameterLines.length ? parameterLines.join("\n") : "- No numeric range is documented in this source."}` +
+        (teaching
+          ? "\n\nIf you want a walkthrough:\n1) Confirm sample and container.\n2) Run with the stated method.\n3) Validate against SOP/QC before release."
+          : "") +
+        "\n\nIf you want more:\n" +
         (topSuggestions.length
           ? topSuggestions.map((item, idx) => `${idx + 1}. Ask about ${item}.`).join("\n")
-          : "1. Ask for collection and rejection criteria.\n2. Ask for critical threshold escalation.\n3. Ask for interpretation caveats."),
+          : "1. Ask for collection and rejection criteria.\n2. Ask for critical thresholds.\n3. Ask for interpretation caveats."),
       confidence,
       sources,
-      mode: "teaching",
+      mode: teaching ? "teaching" : "direct",
       quickActions: test.relatedSop ? [{ label: `Open ${test.relatedSop}`, source: sources[0] }] : [],
     };
   }
 
   if (top.type === "sop") {
     const sop = top.meta;
+    const teaching = wantsTeaching(query);
     return {
       answer:
-        `Direct answer:\n${sop.title} (${sop.code}) defines the approved workflow for ${sop.category} in ${sop.department}.\n\n` +
-        "Step-by-step learning path:\n" +
-        "1. Understand purpose and principle first.\n" +
-        "2. Confirm equipment and reagents before execution.\n" +
-        "3. Follow procedural steps and verify QC checkpoints.\n\n" +
+        `${sop.title} (${sop.code}) is the approved workflow for ${sop.category} in ${sop.department}.\n\n` +
         `Core notes:\n- Purpose: ${sentence(sop.purpose, "Standardized bench process")}\n- Principle: ${sentence(
           sop.principle,
           "Validated laboratory method and controls",
         )}\n- Equipment: ${sop.equipment.slice(0, 4).join(", ") || "Not specified"}\n- Reagents: ${
           sop.reagents.slice(0, 4).join(", ") || "Not specified"
         }\n\n` +
-        "Follow-up suggestions:\n" +
+        (teaching
+          ? "If you want a quick walkthrough:\n1) Review purpose/principle.\n2) Confirm equipment/reagents.\n3) Follow steps and verify QC checkpoints.\n\n"
+          : "") +
+        "If you want more:\n" +
         (topSuggestions.length
           ? topSuggestions.map((item, idx) => `${idx + 1}. Ask about ${item}.`).join("\n")
           : "1. Ask for exact execution steps.\n2. Ask for escalation checkpoints.\n3. Ask for mapped tests."),
       confidence,
       sources,
-      mode: "teaching",
+      mode: teaching ? "teaching" : "direct",
       quickActions: [{ label: "Open SOP", source: sources[0] }],
     };
   }
 
+  const teaching = wantsTeaching(query);
   return {
     answer:
-      `Direct answer:\n${top.title} is the closest verified match.\n\n` +
-      "How to use this safely:\n" +
-      "1. Confirm the question scope.\n" +
-      "2. Cross-check values with linked SOP/test sources.\n" +
-      "3. Escalate if uncertainty remains.\n\n" +
-      "Follow-up suggestions:\n" +
+      `${top.title} is the closest verified match.\n\n` +
+      (teaching
+        ? "Safe use reminder:\n1) Confirm the exact scope.\n2) Cross-check values with linked SOP/test sources.\n3) Escalate if uncertainty remains.\n\n"
+        : "") +
+      "If you want more:\n" +
       (topSuggestions.length
         ? topSuggestions.map((item, idx) => `${idx + 1}. Ask about ${item}.`).join("\n")
         : "1. Ask for SOP-linked details.\n2. Ask for interpretation context.\n3. Ask for decision checkpoints."),
     confidence,
     sources,
-    mode: "teaching",
+    mode: teaching ? "teaching" : "direct",
   };
 }
 
@@ -532,9 +688,16 @@ export async function askKnowledgeAssistant(input: {
     return localKnowledgeRag(normalizedQuery);
   }
 
+  const localRanked = rankLocalDocs(normalizedQuery);
+  if (localRanked.length > 0) {
+    return localKnowledgeRag(normalizedQuery);
+  }
+
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-  const useRemote = Boolean(supabaseUrl && supabaseAnonKey && import.meta.env.VITE_USE_REMOTE_AI === "true");
+  const remoteFlag = import.meta.env.VITE_USE_REMOTE_AI;
+  const allowRemote = remoteFlag === undefined || remoteFlag === "true";
+  const useRemote = Boolean(supabaseUrl && supabaseAnonKey && allowRemote);
 
   if (!useRemote) {
     return localKnowledgeRag(normalizedQuery);

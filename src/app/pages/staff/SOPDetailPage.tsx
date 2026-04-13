@@ -24,7 +24,7 @@ export default function SOPDetailPage() {
   }
 
   return (
-    <div className="w-full max-w-[900px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <div className="kl-page">
       <button
         onClick={() => {
           if (cameFromAi) {
@@ -190,3 +190,4 @@ export default function SOPDetailPage() {
     </div>
   );
 }
+

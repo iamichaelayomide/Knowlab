@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { AppIcon } from "../../components/icons/AppIcon";
 import { useDepartment } from "../../context/DepartmentContext";
@@ -16,6 +16,29 @@ function competencyColor(score: number) {
   if (score >= 85) return "text-[#1c7b56]";
   if (score >= 70) return "text-[#9a6115]";
   return "text-[#b14343]";
+}
+
+const UNIT_ICON_CLASS: Record<string, string> = {
+  "FBC & Automated Counts": "las la-heartbeat",
+  "Blood Film & Morphology": "las la-search-plus",
+  "Coagulation": "las la-shield-alt",
+  "Blood Bank & Transfusion": "las la-tint",
+  "ESR & Special Haematology": "las la-dna",
+  "Glucose & Diabetes Markers": "las la-chart-line",
+  "Bilirubin & Liver Function Tests": "las la-wave-square",
+  "Kidney Function Tests": "las la-kidneys",
+  "Lipid Profile": "las la-chart-area",
+  "Electrolytes & Minerals": "las la-bolt",
+  "Bacteriology": "las la-bacteria",
+  "Mycology": "las la-spa",
+  "Virology": "las la-virus",
+  "Parasitology": "las la-bug",
+  "Molecular Microbiology": "las la-dna",
+};
+
+function UnitIcon({ unit }: { unit: string }) {
+  const icon = UNIT_ICON_CLASS[unit] ?? "las la-layer-group";
+  return <i className={`${icon} la-fw`} />;
 }
 
 function findBestStaffMatch(query: string, candidates: User[]) {
@@ -48,7 +71,7 @@ function HODStaffDetail({ staffId }: { staffId: string }) {
 
   if (!staff) {
     return (
-      <div className="w-full max-w-[920px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      <div className="kl-page">
         <p className="text-sm text-[var(--kl-text-muted)]">Staff profile not found.</p>
       </div>
     );
@@ -59,9 +82,13 @@ function HODStaffDetail({ staffId }: { staffId: string }) {
   const overdue = records.filter((record) => record.status === "overdue").length;
   const competency = staff.competencyScore ?? 0;
   const context = resolveStaffBenchContext(staff);
+  const completedModules = records
+    .filter((record) => record.status === "completed")
+    .map((record) => TRAINING_MODULES.find((module) => module.id === record.moduleId))
+    .filter((module): module is (typeof TRAINING_MODULES)[number] => Boolean(module));
 
   return (
-    <div className="w-full max-w-[920px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <div className="kl-page">
       <button
         onClick={() => navigate("/hod/staff")}
         className="inline-flex items-center gap-2 text-sm text-[var(--kl-text-muted)] hover:text-[var(--kl-primary)]"
@@ -95,11 +122,11 @@ function HODStaffDetail({ staffId }: { staffId: string }) {
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
-            <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Training</p>
-            <p className="text-sm text-[var(--kl-text)] font-medium">{completed}/{TRAINING_MODULES.length}</p>
-          </div>
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
+          <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Training</p>
+          <p className="text-sm text-[var(--kl-text)] font-medium">{completed}/{TRAINING_MODULES.length}</p>
+        </div>
           <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
             <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Overdue</p>
             <p className={`text-sm font-medium ${overdue > 0 ? "text-[#b14343]" : "text-[#1c7b56]"}`}>{overdue}</p>
@@ -115,6 +142,27 @@ function HODStaffDetail({ staffId }: { staffId: string }) {
             <p className="text-sm text-[var(--kl-text)] font-medium truncate">{staff.email}</p>
           </div>
         </div>
+      </div>
+
+      <div className="mt-4 rounded-[16px] border border-[var(--kl-border)] bg-[var(--kl-surface)] p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <AppIcon name="training" size={16} className="text-[var(--kl-primary)]" />
+          <p className="text-sm font-semibold text-[var(--kl-text)]">Courses completed</p>
+        </div>
+        {completedModules.length === 0 ? (
+          <p className="text-xs text-[var(--kl-text-muted)]">No completed courses yet.</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {completedModules.map((module) => (
+              <span
+                key={module.id}
+                className="rounded-full bg-[var(--kl-surface-tinted)] text-[var(--kl-text)] text-[11px] px-2.5 py-1"
+              >
+                {module.title}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -192,7 +240,7 @@ export default function HODStaffPage() {
   };
 
   return (
-    <div className="w-full max-w-[1080px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <div className="kl-page">
       <div className="mb-5">
         <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">Department Staff</h1>
         <p className="text-[var(--kl-text-muted)] text-sm">
@@ -205,13 +253,18 @@ export default function HODStaffPage() {
           <button
             key={unitCard.unit}
             onClick={() => setSelectedUnit(unitCard.unit === selectedUnit ? null : unitCard.unit)}
-            className={`rounded-[18px] border p-4 text-left transition-colors ${
+            className={`rounded-[18px] border p-4 text-left transition-all active:scale-[0.995] ${
               selectedUnit === unitCard.unit
-                ? "border-[var(--kl-primary)] bg-[var(--kl-surface-tinted)]"
-                : "border-[var(--kl-border)] bg-[var(--kl-surface)] hover:bg-[var(--kl-surface-soft)]"
+                ? "border-[var(--kl-primary)] bg-[var(--kl-surface-tinted)] shadow-[0_0_0_2px_rgba(28,94,255,0.08)]"
+                : "border-[var(--kl-border)] bg-[var(--kl-surface)] hover:bg-[var(--kl-surface-soft)] hover:border-[var(--kl-primary)]"
             }`}
           >
-            <p className="text-sm font-semibold text-[var(--kl-text)] leading-snug">{unitCard.unit}</p>
+            <div className="flex items-center gap-3 mb-1">
+              <span className="size-9 rounded-[12px] bg-[var(--kl-surface-tinted)] text-[var(--kl-primary)] flex items-center justify-center border border-[var(--kl-border)]">
+                <UnitIcon unit={unitCard.unit} />
+              </span>
+              <p className="text-sm font-semibold text-[var(--kl-text)] leading-snug">{unitCard.unit}</p>
+            </div>
             <p className="text-xs text-[var(--kl-text-muted)] mt-1">{unitCard.staff.length} staff</p>
             <div className="mt-2 flex items-center justify-between">
               <span className={`text-sm font-semibold ${competencyColor(unitCard.averageCompetency)}`}>
@@ -310,7 +363,7 @@ export default function HODStaffPage() {
                 return (
                   <div
                     key={member.id}
-                    className="px-4 py-3 border-b border-[var(--kl-border)] last:border-b-0 flex items-center gap-3 hover:bg-[var(--kl-surface-soft)]"
+                    className="px-4 py-3 border-b border-[var(--kl-border)] last:border-b-0 flex items-center gap-3 hover:bg-[var(--kl-surface-soft)] active:bg-[var(--kl-surface-tinted)] active:scale-[0.995] transition-all"
                   >
                     <div
                       className="size-9 rounded-full flex items-center justify-center text-white text-xs font-semibold"
@@ -329,7 +382,7 @@ export default function HODStaffPage() {
                     </div>
                     <button
                       onClick={() => navigate(`/hod/staff/${member.id}`)}
-                      className="inline-flex items-center gap-1 rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-2.5 py-1.5 text-xs text-[var(--kl-primary)]"
+                      className="inline-flex items-center gap-1 rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-2.5 py-1.5 text-xs text-[var(--kl-primary)] hover:bg-[var(--kl-surface-tinted)] active:scale-[0.98] transition-all"
                     >
                       Profile
                       <AppIcon name="chevronRight" size={12} />
@@ -344,3 +397,4 @@ export default function HODStaffPage() {
     </div>
   );
 }
+

@@ -26,7 +26,7 @@ export default function HODReportsPage() {
   ];
 
   return (
-    <div className="p-6 max-w-[900px]">
+    <div className="kl-page">
       <div className="mb-6">
         <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">Department Reports</h1>
         <p className="text-[#73839f] text-[14px]">Performance metrics for {new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</p>
@@ -168,3 +168,4 @@ export default function HODReportsPage() {
     </div>
   );
 }
+

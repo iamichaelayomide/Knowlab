@@ -52,7 +52,8 @@ function shouldClarify(query: string) {
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
     .filter(Boolean);
-  return tokens.length < 3 || q === "help" || q === "hi" || q === "hello";
+  const tooGeneric = q === "help" || q === "hi" || q === "hello" || q === "question";
+  return tokens.length <= 1 || tooGeneric;
 }
 
 function deniedByRole(payload: AskPayload) {
@@ -142,13 +143,13 @@ async function callGemini(query: string, context: string) {
               {
                 text:
                   "You are Knowlab AI.\n" +
-                  "Tone: clear, human, professional, and practical.\n" +
+                  "Tone: human, warm, professional, and practical.\n" +
                   "Hard rules:\n" +
                   "- Numeric values, ranges, specimen requirements, procedural steps, and QC rules must come only from retrieved context.\n" +
                   "- If missing in context, explicitly say it is not verified in current sources.\n" +
-                  "- Ask a concise clarifying question if the user prompt is ambiguous.\n" +
-                  "Response format:\n" +
-                  "1) Direct answer.\n2) Step-by-step explanation.\n3) Practical notes.\n4) 2-3 follow-up suggestions.\n5) Source citations.\n\n" +
+                  "- Ask one concise clarifying question if the prompt is ambiguous.\n" +
+                  "- Do not sound like an AI. Avoid robotic headers.\n" +
+                  "- Use steps only if the user asked to be taught or asked for step-by-step.\n\n" +
                   `Context:\n${context}\n\nQuestion:\n${query}`,
               },
             ],

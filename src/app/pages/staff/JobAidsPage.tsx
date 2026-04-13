@@ -136,7 +136,7 @@ export default function JobAidsPage() {
   });
 
   return (
-    <div className="p-6 max-w-[1000px]">
+    <div className="kl-page">
       <div className="mb-6">
         <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">Quick Job Aids</h1>
         <p className="text-[#73839f] text-[14px]">Checklists, decision trees, and quick reference guides for bench use</p>
@@ -202,3 +202,4 @@ export default function JobAidsPage() {
     </div>
   );
 }
+

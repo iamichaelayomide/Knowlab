@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { GraduationCap, CheckCircle2, Clock, AlertTriangle, Play, Award } from 'lucide-react';
 import { TRAINING_MODULES, TRAINING_RECORDS, TrainingModule, StaffTrainingRecord } from '../../data/mockData';
+import { TEXT_TOKENS, joinWithSeparator } from '../../utils/textTokens';
 import { useAuth } from '../../context/AuthContext';
 
 const STATUS_CONFIG = {
@@ -54,7 +55,7 @@ export default function TrainingPage() {
   const selectedModule = activeModule ? TRAINING_MODULES.find(m => m.id === activeModule) : null;
 
   return (
-    <div className="p-6 max-w-[1000px]">
+    <div className="kl-page">
       <div className="mb-6">
         <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">My Training</h1>
         <p className="text-[#73839f] text-[14px]">Mandatory and optional development modules</p>
@@ -90,8 +91,10 @@ export default function TrainingPage() {
         </div>
         <ProgressBar value={stats.completed} max={TRAINING_MODULES.length} />
         <p className="text-[#73839f] text-[12px] mt-1.5">
-          {Math.round((stats.completed / TRAINING_MODULES.length) * 100)}% complete
-          {stats.overdue > 0 && ` · ${stats.overdue} overdue`}
+          {joinWithSeparator([
+            `${Math.round((stats.completed / TRAINING_MODULES.length) * 100)}% complete`,
+            stats.overdue > 0 ? `${stats.overdue} overdue` : null,
+          ])}
         </p>
       </div>
 
@@ -119,7 +122,9 @@ export default function TrainingPage() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <h3 className="text-[#11203b] font-semibold text-[14px] leading-snug">{mod.title}</h3>
-                      <p className="text-[#73839f] text-[12px] mt-0.5">{mod.category} · {mod.duration}</p>
+                      <p className="text-[#73839f] text-[12px] mt-0.5">
+                        {joinWithSeparator([mod.category, mod.duration])}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {mod.mandatory && (
@@ -128,14 +133,16 @@ export default function TrainingPage() {
                       <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full flex items-center gap-1 ${config.color}`}>
                         {config.icon}
                         {config.label}
-                        {status === 'completed' && record?.score && ` · ${record.score}%`}
+                        {status === 'completed' && record?.score && `${TEXT_TOKENS.separator}${record.score}%`}
                       </span>
                     </div>
                   </div>
                   {status === 'completed' && record?.completedDate && (
                     <p className="text-[#1c7b56] text-[11px] mt-1">
-                      Completed {new Date(record.completedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      {record.score && ` · Score: ${record.score}/${mod.passingScore} pass mark`}
+                      {joinWithSeparator([
+                        `Completed ${new Date(record.completedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`,
+                        record.score ? `Score: ${record.score}/${mod.passingScore} pass mark` : null,
+                      ])}
                     </p>
                   )}
                   {(status === 'overdue' || status === 'not_started') && record?.dueDate && (
@@ -192,3 +199,4 @@ export default function TrainingPage() {
     </div>
   );
 }
+

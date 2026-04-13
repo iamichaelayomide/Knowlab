@@ -2,14 +2,7 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 import { AlertCircle, ArrowLeft, Droplets, FlaskConical } from 'lucide-react';
 import { LAB_TESTS } from '../../data/mockData';
 import { openFloatingAI } from '../../services/aiWidget';
-
-const CONTAINER_COLORS: Record<string, string> = {
-  'Purple/Lavender': '#9333ea',
-  'Light Blue': '#3b82f6',
-  Black: '#374151',
-  'Purple or Red': '#9333ea',
-  'EDTA or Plain Tube': '#9333ea',
-};
+import { getContainerToneClass, getTubeColorStyle } from '../../utils/testVisuals';
 
 export default function TestDetailPage() {
   const { id } = useParams();
@@ -34,7 +27,7 @@ export default function TestDetailPage() {
   }
 
   return (
-    <div className="w-full max-w-[900px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <div className="kl-page">
       <button
         onClick={() => {
           if (cameFromAi) {
@@ -50,7 +43,7 @@ export default function TestDetailPage() {
 
       <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6 mb-5">
         <div className="flex items-start gap-4">
-          <div className="bg-[#f4f8ff] rounded-[16px] p-3.5">
+          <div className={`rounded-[16px] p-3.5 ${getContainerToneClass(test.containerColor)}`}>
             <FlaskConical size={24} className="text-[#1c5eff]" />
           </div>
           <div className="flex-1 min-w-0">
@@ -95,11 +88,11 @@ export default function TestDetailPage() {
         </div>
         <div className="mt-4 flex items-center gap-2 p-3 bg-[#f4f8ff] rounded-[12px]">
           <div
-            className="w-4 h-4 rounded-full flex-shrink-0"
-            style={{ backgroundColor: CONTAINER_COLORS[test.containerColor] || '#6b7280' }}
+            className="w-4 h-4 rounded-full border border-[rgba(17,32,59,0.08)] flex-shrink-0"
+            style={getTubeColorStyle(test.containerColor)}
           />
           <span className="text-[#11203b] text-[13px] font-medium">{test.container}</span>
-          <span className="text-[#73839f] text-[12px]">({test.containerColor})</span>
+          <span className={`text-[12px] px-2 py-0.5 rounded-full ${getContainerToneClass(test.containerColor)}`}>{test.containerColor}</span>
         </div>
         <div className="mt-3 p-3 bg-[#f4f8ff] rounded-[12px]">
           <p className="text-[#73839f] text-[11px] font-semibold uppercase tracking-[0.8px] mb-1">Methodology</p>
@@ -167,3 +160,4 @@ export default function TestDetailPage() {
     </div>
   );
 }
+

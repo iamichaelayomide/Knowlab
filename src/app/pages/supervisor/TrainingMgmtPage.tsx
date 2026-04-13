@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { GraduationCap, CheckCircle2, AlertTriangle, Clock, Users } from 'lucide-react';
-import { TRAINING_MODULES, TRAINING_RECORDS, getStaffUsers, getUserById } from '../../data/mockData';
+import { CheckCircle2, AlertTriangle, Clock, Users } from 'lucide-react';
+import { TRAINING_MODULES, TRAINING_RECORDS, getStaffUsers } from '../../data/mockData';
+import { TEXT_TOKENS, joinWithSeparator } from '../../utils/textTokens';
 
 export default function TrainingMgmtPage() {
   const [view, setView] = useState<'matrix' | 'module'>('matrix');
@@ -21,7 +22,7 @@ export default function TrainingMgmtPage() {
     if (status === 'completed') return <CheckCircle2 size={12} />;
     if (status === 'overdue') return <AlertTriangle size={12} />;
     if (status === 'in_progress') return <Clock size={12} />;
-    return <span className="text-[10px]">—</span>;
+    return <span className="text-[10px]">-</span>;
   };
 
   const totalCells = staffList.length * TRAINING_MODULES.length;
@@ -30,11 +31,11 @@ export default function TrainingMgmtPage() {
   const overallCompliance = Math.round((completedCells / totalCells) * 100);
 
   return (
-    <div className="p-6 max-w-[1200px]">
+    <div className="kl-page">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">Training Management</h1>
-          <p className="text-[#73839f] text-[14px]">Team training compliance matrix — {overallCompliance}% overall</p>
+          <p className="text-[#73839f] text-[14px]">Team training compliance matrix - {overallCompliance}% overall</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -145,7 +146,7 @@ export default function TrainingMgmtPage() {
               { icon: <CheckCircle2 size={11} />, label: 'Completed', bg: 'bg-[#e8f8f1] text-[#1c7b56]' },
               { icon: <AlertTriangle size={11} />, label: 'Overdue', bg: 'bg-[#fde9e9] text-[#b14343]' },
               { icon: <Clock size={11} />, label: 'In Progress', bg: 'bg-[#fff0db] text-[#9a6115]' },
-              { icon: <span>—</span>, label: 'Not Started', bg: 'bg-[#f4f8ff] text-[#73839f]' },
+              { icon: <span>-</span>, label: 'Not Started', bg: 'bg-[#f4f8ff] text-[#73839f]' },
             ].map(item => (
               <div key={item.label} className="flex items-center gap-1.5">
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] ${item.bg}`}>{item.icon}</div>
@@ -161,6 +162,8 @@ export default function TrainingMgmtPage() {
             const allRecords = TRAINING_RECORDS.filter(r => r.moduleId === mod.id);
             const completed = allRecords.filter(r => r.status === 'completed').length;
             const pct = Math.round((completed / staffList.length) * 100);
+            const visibleStaff = staffList.slice(0, 6);
+            const remaining = Math.max(0, staffList.length - visibleStaff.length);
             return (
               <div key={mod.id} className="bg-white rounded-[20px] border border-[#d3def5] p-5">
                 <div className="flex items-start justify-between mb-3">
@@ -169,7 +172,9 @@ export default function TrainingMgmtPage() {
                       <h3 className="text-[#11203b] font-semibold text-[15px]">{mod.title}</h3>
                       {mod.mandatory && <span className="bg-[#fde9e9] text-[#b14343] text-[10px] font-semibold px-2 py-0.5 rounded-full">MANDATORY</span>}
                     </div>
-                    <p className="text-[#73839f] text-[12px]">{mod.category} · {mod.duration} · Pass mark: {mod.passingScore}%</p>
+                    <p className="text-[#73839f] text-[12px]">
+                      {joinWithSeparator([mod.category, mod.duration, `Pass mark: ${mod.passingScore}%`])}
+                    </p>
                   </div>
                   <span className={`font-bold text-[18px] ${pct === 100 ? 'text-[#1c7b56]' : pct >= 70 ? 'text-[#9a6115]' : 'text-[#b14343]'}`}>{pct}%</span>
                 </div>
@@ -177,7 +182,7 @@ export default function TrainingMgmtPage() {
                   <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, backgroundColor: pct === 100 ? '#1c7b56' : pct >= 70 ? '#9a6115' : '#b14343' }} />
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {staffList.map(staff => {
+                  {visibleStaff.map(staff => {
                     const record = getRecord(staff.id, mod.id);
                     const status = record?.status || 'not_started';
                     return (
@@ -193,10 +198,15 @@ export default function TrainingMgmtPage() {
                           {staff.initials.charAt(0)}
                         </div>
                         {staff.name.split(' ')[0]}
-                        {record?.score && ` · ${record.score}%`}
+                        {record?.score && `${TEXT_TOKENS.separator}${record.score}%`}
                       </div>
                     );
                   })}
+                  {remaining > 0 && (
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#f4f8ff] text-[#475a7d]">
+                      +{remaining} more
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -206,3 +216,4 @@ export default function TrainingMgmtPage() {
     </div>
   );
 }
+

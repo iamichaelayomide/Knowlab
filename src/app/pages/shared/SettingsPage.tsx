@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useTheme } from "next-themes";
 import { AppIcon } from "../../components/icons/AppIcon";
@@ -26,7 +26,7 @@ export default function SettingsPage() {
   const roleLabel = user?.role === "staff" ? "Lab Scientist" : user?.role === "supervisor" ? "Unit Supervisor" : "Head of Department";
 
   return (
-    <div className="w-full max-w-[760px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <div className="kl-page">
       <div className="mb-6">
         <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">Settings</h1>
         <p className="text-[var(--kl-text-muted)] text-[14px]">Manage your profile, theme, and notification preferences.</p>
@@ -145,3 +145,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+

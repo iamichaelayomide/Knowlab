@@ -3,7 +3,7 @@ import { ThemeProvider } from "next-themes";
 
 export function AppThemeProvider({ children }: PropsWithChildren) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="knowlab-theme">
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange storageKey="knowlab-theme">
       {children}
     </ThemeProvider>
   );

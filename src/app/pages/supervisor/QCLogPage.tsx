@@ -25,7 +25,7 @@ export default function QCLogPage() {
   const markReviewed = (id: string) => setReviewedIds((prev) => new Set([...prev, id]));
 
   return (
-    <div className="w-full max-w-[1000px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <div className="kl-page">
       <div className="mb-6">
         <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">QC Log</h1>
         <p className="text-[#73839f] text-[14px]">Sysmex XN-350 quality control records - Westgard multi-rule monitoring</p>
@@ -227,3 +227,4 @@ export default function QCLogPage() {
     </div>
   );
 }
+

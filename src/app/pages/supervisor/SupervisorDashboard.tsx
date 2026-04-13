@@ -50,7 +50,7 @@ export default function SupervisorDashboard() {
   const pendingUserRequests = workflow.userRequests.filter(r => r.requesterId === user?.id && r.decision === 'pending').length;
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <div className="kl-page">
       {/* Hero */}
       <div
         className="rounded-[18px] sm:rounded-[24px] overflow-hidden mb-4 sm:mb-6 relative"
@@ -293,3 +293,4 @@ export default function SupervisorDashboard() {
     </div>
   );
 }
+

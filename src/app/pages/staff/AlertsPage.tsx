@@ -51,7 +51,7 @@ export default function AlertsPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-[800px]">
+    <div className="kl-page">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">Alerts</h1>
@@ -153,3 +153,4 @@ export default function AlertsPage() {
     </div>
   );
 }
+

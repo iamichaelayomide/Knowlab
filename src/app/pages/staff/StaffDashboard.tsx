@@ -41,7 +41,7 @@ export default function StaffDashboard() {
   });
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto px-3 sm:px-6 py-4 sm:py-6 min-h-full">
+    <div className="kl-page min-h-full">
       {/* Hero Banner */}
       <div
         className="rounded-[18px] sm:rounded-[24px] overflow-hidden mb-4 sm:mb-6 relative"
@@ -119,7 +119,7 @@ export default function StaffDashboard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[#11203b] font-medium text-[13px] truncate">{sop.title}</p>
-                  <p className="text-[#73839f] text-[11px]">{sop.code} · Rev.{sop.revision}</p>
+                  <p className="text-[#73839f] text-[11px]">{sop.code} - Rev.{sop.revision}</p>
                 </div>
                 <div className={`text-[11px] font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
                   sop.status === 'active' ? 'bg-[#e8f8f1] text-[#1c7b56]' : 'bg-[#fff0db] text-[#9a6115]'
@@ -158,7 +158,7 @@ export default function StaffDashboard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[#11203b] font-medium text-[13px] truncate">{test.name}</p>
-                  <p className="text-[#73839f] text-[11px]">{test.code} · {test.turnaround}</p>
+                  <p className="text-[#73839f] text-[11px]">{test.code} - {test.turnaround}</p>
                 </div>
                 <div className={`w-3 h-3 rounded-full flex-shrink-0`} style={{ backgroundColor: test.containerColor === 'Purple/Lavender' ? '#9333ea' : test.containerColor === 'Light Blue' ? '#3b82f6' : test.containerColor === 'Black' ? '#374151' : '#ef4444' }} title={test.container} />
               </button>
@@ -202,7 +202,7 @@ export default function StaffDashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[#11203b] text-[13px] font-medium truncate">{mod.title}</p>
-                    <p className="text-[#73839f] text-[11px]">{mod.duration} · {mod.mandatory ? 'Mandatory' : 'Optional'}</p>
+                    <p className="text-[#73839f] text-[11px]">{mod.duration} - {mod.mandatory ? 'Mandatory' : 'Optional'}</p>
                   </div>
                   <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
                     status === 'completed' ? 'bg-[#e8f8f1] text-[#1c7b56]' :
@@ -241,7 +241,7 @@ export default function StaffDashboard() {
                 }`} />
                 <div className="flex-1 min-w-0">
                   <p className={`text-[13px] font-medium truncate ${alert.read ? 'text-[#475a7d]' : 'text-[#11203b]'}`}>{alert.title}</p>
-                  <p className="text-[#73839f] text-[11px]">{new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} · {alert.category}</p>
+                  <p className="text-[#73839f] text-[11px]">{new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} - {alert.category}</p>
                 </div>
                 {!alert.read && <div className="w-2 h-2 bg-[#1c5eff] rounded-full flex-shrink-0 mt-1.5" />}
               </div>
@@ -252,5 +252,7 @@ export default function StaffDashboard() {
     </div>
   );
 }
+
+
 
 
