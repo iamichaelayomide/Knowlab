@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   ArrowRight,
@@ -141,8 +142,34 @@ interface AppIconProps {
 export function AppIcon({ name, size = 16, className, title, forceFallback = false }: AppIconProps) {
   const fallback = LUCIDE_FALLBACK[name];
   const icons8Class = ICONS8_PRIMARY_CLASS[name];
+  const [icons8Ready, setIcons8Ready] = useState(() => {
+    if (typeof document === "undefined") return false;
+    if (!("fonts" in document)) return false;
+    return document.fonts.check('1em "Line Awesome Free"') || document.fonts.check('1em "Line Awesome Brands"');
+  });
 
-  if (!forceFallback && icons8Class) {
+  useEffect(() => {
+    if (typeof document === "undefined" || !("fonts" in document)) {
+      setIcons8Ready(false);
+      return;
+    }
+    let isActive = true;
+    const checkReady = () => {
+      if (!isActive) return;
+      const ready =
+        document.fonts.check('1em "Line Awesome Free"') ||
+        document.fonts.check('900 1em "Line Awesome Free"') ||
+        document.fonts.check('1em "Line Awesome Brands"');
+      setIcons8Ready(ready);
+    };
+    checkReady();
+    document.fonts.ready.then(checkReady).catch(() => {});
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  if (!forceFallback && icons8Class && icons8Ready) {
     return (
       <span
         title={title}
@@ -155,5 +182,6 @@ export function AppIcon({ name, size = 16, className, title, forceFallback = fal
     );
   }
 
-  return fallback ? <fallback size={size} className={className} aria-hidden={title ? undefined : true} /> : null;
+  const FallbackIcon = fallback;
+  return FallbackIcon ? <FallbackIcon size={size} className={className} aria-hidden={title ? undefined : true} /> : null;
 }
