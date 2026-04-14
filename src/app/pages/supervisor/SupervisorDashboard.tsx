@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { USERS, QC_LOGS, CAPA_ITEMS, TRAINING_RECORDS, TRAINING_MODULES, ALERTS, getStaffUsers } from '../../data/mockData';
 import { getWorkflowState } from '../../services/workflowStore';
 import { openFloatingAI } from '../../services/aiWidget';
+import { TEXT_TOKENS } from '../../utils/textTokens';
 
 function MetricCard({ label, value, sublabel, accent, icon, onClick }: {
   label: string; value: string | number; sublabel: string; accent: string; icon: React.ReactNode; onClick?: () => void;
@@ -48,6 +49,11 @@ export default function SupervisorDashboard() {
   const workflow = getWorkflowState();
   const pendingSopReviews = workflow.reviewTasks.filter(t => t.assignedReviewerId === user?.id && t.decision === 'pending').length;
   const pendingUserRequests = workflow.userRequests.filter(r => r.requesterId === user?.id && r.decision === 'pending').length;
+  const pendingReviewTask = workflow.reviewTasks.find(t => t.assignedReviewerId === user?.id && t.decision === 'pending');
+  const firstOpenCapa = CAPA_ITEMS.find(c => c.status === 'open' || c.status === 'in_progress');
+  const firstOverdueTraining = TRAINING_RECORDS.find(r => r.status === 'overdue');
+  const overdueModule = firstOverdueTraining ? TRAINING_MODULES.find(m => m.id === firstOverdueTraining.moduleId) : undefined;
+  const latestPendingQc = recentQC.find(entry => !entry.supervisorReviewed) ?? recentQC[0];
 
   return (
     <div className="kl-page">
@@ -65,7 +71,7 @@ export default function SupervisorDashboard() {
               Good morning, {user?.name?.split(' ')[0]}.
             </h1>
             <p className="text-[#ebf3ff] text-[15px] leading-relaxed max-w-[500px]">
-              {user?.unit} · {allStaff.length} staff members · Supervisor oversight dashboard
+              {user?.unit} {TEXT_TOKENS.separator.trim()} {allStaff.length} staff members {TEXT_TOKENS.separator.trim()} Supervisor oversight dashboard
             </p>
             <div className="flex gap-3 mt-5">
               <button
@@ -90,14 +96,33 @@ export default function SupervisorDashboard() {
           </div>
           <div className="flex flex-col gap-3 lg:w-[300px]">
             {[
-              { label: 'REVIEW QUEUE', value: `${qcPending} QC log${qcPending !== 1 ? 's' : ''} pending review.` },
-              { label: 'OPEN CAPAS', value: `${openCAPAs} corrective actions in progress.` },
-              { label: 'TRAINING COMPLIANCE', value: `${trainingCompliance}% team compliance rate.` },
-              { label: 'SOP WORKFLOW', value: `${pendingSopReviews} SOP review tasks · ${pendingUserRequests} user request(s).` },
+              {
+                label: 'REVIEW QUEUE',
+                value: `${qcPending} QC log${qcPending !== 1 ? 's' : ''} pending review.`,
+                sub: latestPendingQc
+                  ? `${latestPendingQc.level} on ${new Date(latestPendingQc.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`
+                  : 'No QC entries waiting',
+              },
+              {
+                label: 'OPEN CAPAS',
+                value: `${openCAPAs} corrective actions in progress.`,
+                sub: firstOpenCapa ? `${firstOpenCapa.code} ${TEXT_TOKENS.separator.trim()} ${firstOpenCapa.title}` : 'No open CAPAs',
+              },
+              {
+                label: 'TRAINING COMPLIANCE',
+                value: `${trainingCompliance}% team compliance rate.`,
+                sub: overdueModule ? `Overdue: ${overdueModule.title}` : 'All assigned training is current',
+              },
+              {
+                label: 'SOP WORKFLOW',
+                value: `${pendingSopReviews} SOP review tasks ${TEXT_TOKENS.separator.trim()} ${pendingUserRequests} user request(s).`,
+                sub: pendingReviewTask ? `Next review: ${pendingReviewTask.sopTitle}` : 'No SOP reviews waiting on you',
+              },
             ].map(item => (
               <div key={item.label} className="bg-[rgba(39,70,111,0.7)] border border-[rgba(124,147,183,0.4)] rounded-[20px] px-4 py-3">
                 <p className="text-[#dce6ff] font-semibold text-[10px] tracking-[1.98px] uppercase mb-0.5">{item.label}</p>
                 <p className="text-white text-[13px]">{item.value}</p>
+                <p className="text-[#a0b4d8] text-[11px] mt-0.5 leading-snug">{item.sub}</p>
               </div>
             ))}
           </div>
@@ -197,7 +222,7 @@ export default function SupervisorDashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[#11203b] text-[13px] font-medium">{entry.level}</p>
-                    <p className="text-[#73839f] text-[11px]">{entry.date} · {entry.shift} · {staff?.name}</p>
+                    <p className="text-[#73839f] text-[11px]">{entry.date} {TEXT_TOKENS.separator.trim()} {entry.shift} {TEXT_TOKENS.separator.trim()} {staff?.name}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
@@ -281,7 +306,7 @@ export default function SupervisorDashboard() {
                 <div className="flex-1 min-w-0">
                   <p className={`text-[13px] font-medium leading-snug ${!alert.read ? 'text-[#11203b]' : 'text-[#475a7d]'}`}>{alert.title}</p>
                   <p className="text-[#73839f] text-[11px]">
-                    {new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} · {alert.category}
+                    {new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} {TEXT_TOKENS.separator.trim()} {alert.category}
                   </p>
                 </div>
                 {!alert.read && <div className="w-2 h-2 bg-[#1c5eff] rounded-full flex-shrink-0 mt-1.5" />}

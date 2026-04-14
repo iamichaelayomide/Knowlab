@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { USERS, CAPA_ITEMS, TRAINING_RECORDS, TRAINING_MODULES, ALERTS, getStaffUsers, QC_LOGS } from '../../data/mockData';
 import { getWorkflowState } from '../../services/workflowStore';
 import { openFloatingAI } from '../../services/aiWidget';
+import { TEXT_TOKENS } from '../../utils/textTokens';
 
 export default function HODDashboard() {
   const { user } = useAuth();
@@ -22,8 +23,13 @@ export default function HODDashboard() {
   const workflow = getWorkflowState();
   const pendingValidations = workflow.validationTasks.filter(v => v.assignedHodId === user?.id && v.decision === 'pending').length;
   const pendingUserApprovals = workflow.userRequests.filter(r => r.decision === 'pending').length;
+  const pendingValidationTask = workflow.validationTasks.find(v => v.assignedHodId === user?.id && v.decision === 'pending');
+  const firstOpenCapa = CAPA_ITEMS.find(c => c.status !== 'completed');
+  const firstUnreadAlert = ALERTS.find(a => !a.read && a.targetRoles.includes('hod'));
+  const latestQc = QC_LOGS[0];
 
   const lowCompetency = allStaff.filter(s => (s.competencyScore ?? 75) < 80);
+  const lowestCompetencyStaff = lowCompetency.slice(0, 3).map(s => s.name).join(', ');
 
   return (
     <div className="kl-page">
@@ -41,7 +47,7 @@ export default function HODDashboard() {
               Department Overview
             </h1>
             <p className="text-[#ebf3ff] text-[14px] leading-relaxed max-w-[480px]">
-              {user?.department} · {allStaff.length} staff across {new Set(allStaff.map(s => s.unit)).size} units
+              {user?.department} {TEXT_TOKENS.separator.trim()} {allStaff.length} staff across {new Set(allStaff.map(s => s.unit)).size} units
             </p>
             <div className="flex gap-3 mt-5">
               <button onClick={() => navigate('/hod/staff')} className="bg-white text-[#11203b] font-medium text-[13px] px-4 py-2.5 rounded-[13px] hover:bg-[#f4f8ff] transition-colors">
@@ -60,11 +66,33 @@ export default function HODDashboard() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:w-[320px]">
             {[
-              { label: 'TRAINING COMPLIANCE', value: `${trainingCompliance}%`, sub: `${completedTraining}/${totalTraining} modules completed` },
-              { label: 'QC PASS RATE', value: `${qcRate}%`, sub: `${qcPassed}/${qcTotal} entries passed` },
-              { label: 'OPEN CAPAS', value: openCAPAs.length, sub: `${criticalCAPAs.length} critical` },
-              { label: 'UNREAD ALERTS', value: hodAlerts.length, sub: `Require your attention` },
-              { label: 'SOP VALIDATION', value: pendingValidations, sub: `${pendingUserApprovals} user approvals pending` },
+              {
+                label: 'TRAINING COMPLIANCE',
+                value: `${trainingCompliance}%`,
+                sub: `${completedTraining}/${totalTraining} modules completed`,
+              },
+              {
+                label: 'QC PASS RATE',
+                value: `${qcRate}%`,
+                sub: latestQc ? `Latest batch: ${latestQc.level} ${TEXT_TOKENS.separator.trim()} ${latestQc.overallStatus}` : `${qcPassed}/${qcTotal} entries passed`,
+              },
+              {
+                label: 'OPEN CAPAS',
+                value: openCAPAs.length,
+                sub: firstOpenCapa ? `${firstOpenCapa.code} ${TEXT_TOKENS.separator.trim()} ${firstOpenCapa.title}` : `${criticalCAPAs.length} critical`,
+              },
+              {
+                label: 'UNREAD ALERTS',
+                value: hodAlerts.length,
+                sub: firstUnreadAlert ? `Latest: ${firstUnreadAlert.title}` : 'Require your attention',
+              },
+              {
+                label: 'SOP VALIDATION',
+                value: pendingValidations,
+                sub: pendingValidationTask
+                  ? `Next validation: ${pendingValidationTask.sopTitle} ${TEXT_TOKENS.separator.trim()} ${pendingUserApprovals} user approvals pending`
+                  : `${pendingUserApprovals} user approvals pending`,
+              },
             ].map(item => (
               <div key={item.label} className="bg-[rgba(39,70,111,0.7)] border border-[rgba(124,147,183,0.4)] rounded-[18px] px-4 py-3">
                 <p className="text-[#dce6ff] font-semibold text-[9px] tracking-[1.5px] uppercase mb-1">{item.label}</p>
@@ -143,7 +171,7 @@ export default function HODDashboard() {
                 <AlertTriangle size={12} className="text-[#b14343]" />
                 <span className="text-[#b14343] text-[11px] font-semibold">{lowCompetency.length} staff below 80% threshold</span>
               </div>
-              <p className="text-[#b14343] text-[12px]">{lowCompetency.map(s => s.name.split(' ')[0]).join(', ')} — review recommended</p>
+              <p className="text-[#b14343] text-[12px]">{lowestCompetencyStaff} {TEXT_TOKENS.separator.trim()} review recommended</p>
             </div>
           )}
         </div>
@@ -208,7 +236,7 @@ export default function HODDashboard() {
               }`} />
               <div className="flex-1 min-w-0">
                 <p className={`text-[13px] font-medium truncate ${!alert.read ? 'text-[#11203b]' : 'text-[#475a7d]'}`}>{alert.title}</p>
-                <p className="text-[#73839f] text-[11px]">{alert.category} · {new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
+                <p className="text-[#73839f] text-[11px]">{alert.category} {TEXT_TOKENS.separator.trim()} {new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
               </div>
               {!alert.read && <div className="w-2 h-2 bg-[#1c5eff] rounded-full flex-shrink-0 mt-1.5" />}
             </div>
