@@ -7,7 +7,7 @@ import { AppIcon } from '../icons/AppIcon';
 const DEPARTMENT_ICON_CLASS: Record<string, string> = {
   haematology: 'las la-tint',
   chemistry: 'las la-flask',
-  microbiology: 'las la-bacteria',
+  microbiology: 'las la-microscope',
   histopathology: 'las la-microscope',
   bgs: 'las la-vial',
 };
@@ -20,12 +20,12 @@ const BENCH_ICON_CLASS: Record<string, string> = {
   'esr-special': 'las la-dna',
   glucose: 'las la-chart-line',
   'bilirubin-lft': 'las la-wave-square',
-  kft: 'las la-kidneys',
+  kft: 'las la-flask',
   lipid: 'las la-chart-area',
   electrolytes: 'las la-bolt',
-  bacteriology: 'las la-bacteria',
+  bacteriology: 'las la-flask',
   mycology: 'las la-spa',
-  virology: 'las la-virus',
+  virology: 'las la-microscope',
   parasitology: 'las la-bug',
   molecular: 'las la-dna',
   histology: 'las la-layer-group',
@@ -34,7 +34,7 @@ const BENCH_ICON_CLASS: Record<string, string> = {
   autopsy: 'las la-notes-medical',
   'abo-rh': 'las la-tint',
   crossmatch: 'las la-exchange-alt',
-  'antibody-screen': 'las la-shield-virus',
+  'antibody-screen': 'las la-shield-alt',
   serology: 'las la-microscope',
 };
 
