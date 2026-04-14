@@ -46,6 +46,240 @@ type BenchContent = {
 };
 
 const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
+  HEM: {
+    'FBC & Automated Counts': {
+      sopTitles: [
+        'Analyzer Startup and Daily QC',
+        'Specimen Receipt and FBC Processing',
+        'Flag Review and Smear Reflex Criteria',
+        'Result Validation and Maintenance Shutdown',
+      ],
+      testNames: [
+        'Full Blood Count (FBC)',
+        'Differential Count Review',
+        'Reticulocyte Count',
+        'Platelet and Flag Review',
+      ],
+      jobAidTitles: [
+        'FBC Specimen Acceptance Checklist',
+        'Analyzer Flag Decision Tree',
+        'FBC Smear Review Quick Reference',
+      ],
+      purpose: 'Define a precise FBC workflow for analyzer use, smear reflex, and result release.',
+      principle: 'Use validated hematology analyzer settings, QC acceptance, and smear review criteria to report complete blood count results.',
+      testSummary: 'A specific full blood count assay used to quantify red cells, white cells, and platelets with reflex review when flags appear.',
+      specialInstruction: 'Reject clotted or underfilled EDTA samples before analysis.',
+    },
+    'Blood Film & Morphology': {
+      sopTitles: [
+        'Peripheral Smear Preparation and Staining',
+        'Microscopy and Differential Counting',
+        'Malaria Parasite Review and Morphology Notes',
+        'Film Quality Control and Result Escalation',
+      ],
+      testNames: [
+        'Peripheral Blood Film',
+        'Differential Count and Morphology Review',
+        'Malaria Parasite Film Examination',
+        'Red Cell Morphology Comment',
+      ],
+      jobAidTitles: [
+        'Blood Film Specimen Acceptance Checklist',
+        'Morphology Reporting Decision Tree',
+        'Smear Quality Quick Reference',
+      ],
+      purpose: 'Define a precise blood film workflow for smear preparation, morphology review, and parasite detection.',
+      principle: 'Use standard smear preparation and microscopy rules to identify cell morphology, parasites, and abnormal forms.',
+      testSummary: 'A specific blood film assay used for morphology review, differential count, and parasite detection.',
+      specialInstruction: 'Prepare the smear promptly from fresh EDTA blood and avoid thick, uneven films.',
+    },
+    Coagulation: {
+      sopTitles: [
+        'PT/INR Analysis and Calibration',
+        'APTT and Intrinsic Pathway Review',
+        'Fibrinogen and Clot Curve Validation',
+        'Coagulation QC and Pre-Analytical Error Review',
+      ],
+      testNames: [
+        'Prothrombin Time and INR',
+        'Activated Partial Thromboplastin Time',
+        'Fibrinogen Assay',
+        'D-dimer Screening',
+      ],
+      jobAidTitles: [
+        'Coagulation Sample Acceptance Checklist',
+        'Citrate Tube Fill and Rejection Decision Path',
+        'Coagulation Result Validation Quick Reference',
+      ],
+      purpose: 'Define a precise coagulation workflow for PT, APTT, and related hemostasis testing.',
+      principle: 'Use correctly filled citrate plasma, validated clotting reagents, and QC acceptance rules to report hemostasis results.',
+      testSummary: 'A specific coagulation assay used to assess clotting pathways and anticoagulant monitoring.',
+      specialInstruction: 'Reject underfilled citrate tubes and hemolyzed specimens immediately.',
+    },
+    'Blood Bank & Transfusion': {
+      sopTitles: [
+        'ABO and RhD Grouping',
+        'Compatibility Crossmatch',
+        'Antibody Screen and Discrepancy Review',
+        'Transfusion Release and Traceability',
+      ],
+      testNames: [
+        'ABO and RhD Grouping',
+        'Crossmatch Compatibility Test',
+        'Antibody Screen',
+        'Transfusion Reaction Workup',
+      ],
+      jobAidTitles: [
+        'Transfusion Sample Acceptance Checklist',
+        'Compatibility Decision Tree',
+        'Blood Issue Quick Reference',
+      ],
+      purpose: 'Define a precise blood bank workflow for grouping, compatibility testing, and safe component issue.',
+      principle: 'Use forward and reverse grouping, compatibility testing, and traceable release controls to protect recipients.',
+      testSummary: 'A specific transfusion assay used to confirm group, compatibility, and blood issue safety.',
+      specialInstruction: 'Do not issue blood until grouping and compatibility are fully verified.',
+    },
+    'ESR & Special Haematology': {
+      sopTitles: [
+        'Westergren ESR Setup and Reading',
+        'Reticulocyte Count and Marrow Response Review',
+        'Sickle Screening and Special Test Handling',
+        'Special Haematology QC and Reporting',
+      ],
+      testNames: [
+        'Erythrocyte Sedimentation Rate',
+        'Reticulocyte Count',
+        'Sickle Cell Screening',
+        'Special Haematology Review',
+      ],
+      jobAidTitles: [
+        'ESR Acceptance Checklist',
+        'Special Haematology Decision Tree',
+        'ESR and Retic Quick Reference',
+      ],
+      purpose: 'Define a precise special haematology workflow for ESR, reticulocytes, and related manual assays.',
+      principle: 'Use standard dilution, timing, and microscopy rules to report inflammatory and red cell response testing.',
+      testSummary: 'A specific special haematology assay used for ESR, reticulocyte, and manual screening review.',
+      specialInstruction: 'Set ESR tubes promptly and keep the rack perfectly vertical and vibration free.',
+    },
+  },
+  CHE: {
+    'Glucose & Diabetes Markers': {
+      sopTitles: [
+        'Fasting Glucose Analysis and QC',
+        'Random Glucose and Critical Value Review',
+        'HbA1c Workflow and Result Validation',
+        'OGTT Sample Timing and Reporting',
+      ],
+      testNames: [
+        'Fasting Blood Glucose',
+        'Random Blood Glucose',
+        'HbA1c',
+        'Oral Glucose Tolerance Test',
+      ],
+      jobAidTitles: [
+        'Glucose Specimen Acceptance Checklist',
+        'Diabetes Marker Decision Tree',
+        'Glucose Result Comment Quick Reference',
+      ],
+      purpose: 'Define a precise diabetes marker workflow for glucose, HbA1c, and tolerance testing.',
+      principle: 'Use validated enzymatic or chromatographic methods with fasting status and critical value control.',
+      testSummary: 'A specific chemistry assay used to assess glycemic control, diabetes screening, and monitoring.',
+      specialInstruction: 'Confirm fasting status where required and escalate critically low or high glucose immediately.',
+    },
+    'Bilirubin & Liver Function Tests': {
+      sopTitles: [
+        'Bilirubin and Liver Panel Setup',
+        'AST/ALT/ALP Interpretation Support',
+        'Albumin and Total Protein Review',
+        'Hemolysis and Interference Rejection',
+      ],
+      testNames: [
+        'Total and Direct Bilirubin',
+        'AST, ALT, and ALP Panel',
+        'Albumin and Total Protein',
+        'Liver Function Profile',
+      ],
+      jobAidTitles: [
+        'LFT Specimen Acceptance Checklist',
+        'Jaundice Panel Decision Tree',
+        'Liver Panel Quick Reference',
+      ],
+      purpose: 'Define a precise liver chemistry workflow for bilirubin and hepatic enzyme interpretation.',
+      principle: 'Use validated enzymatic assays and interference checks to report hepatobiliary function results.',
+      testSummary: 'A specific liver chemistry assay used to assess hepatocellular injury and cholestatic patterns.',
+      specialInstruction: 'Reject heavily hemolyzed specimens and repeat when reagent or analyzer flags indicate interference.',
+    },
+    'Kidney Function Tests': {
+      sopTitles: [
+        'Urea and Creatinine Analysis',
+        'Estimated GFR and Renal Panel Review',
+        'Uric Acid and Renal Marker Reporting',
+        'Renal Specimen QC and Rejection Criteria',
+      ],
+      testNames: [
+        'Urea and Creatinine',
+        'Estimated GFR',
+        'Uric Acid',
+        'Renal Function Panel',
+      ],
+      jobAidTitles: [
+        'Renal Specimen Acceptance Checklist',
+        'Kidney Panel Decision Tree',
+        'Renal Result Comment Quick Reference',
+      ],
+      purpose: 'Define a precise kidney chemistry workflow for renal function testing and clearance review.',
+      principle: 'Use validated renal chemistry assays and calculation rules to report filtration and excretion markers.',
+      testSummary: 'A specific renal chemistry assay used to evaluate kidney function and filtration status.',
+      specialInstruction: 'Verify sample quality and do not report estimated values until the creatinine result is validated.',
+    },
+    'Lipid Profile': {
+      sopTitles: [
+        'Lipid Panel Analysis and QC',
+        'Triglyceride and Cholesterol Review',
+        'HDL and LDL Calculation Workflow',
+        'Fasting Status and Lipemia Interpretation',
+      ],
+      testNames: [
+        'Total Cholesterol',
+        'Triglycerides',
+        'HDL and LDL Cholesterol',
+        'Atherogenic Risk Profile',
+      ],
+      jobAidTitles: [
+        'Lipid Specimen Acceptance Checklist',
+        'Cardiovascular Risk Decision Tree',
+        'Lipid Result Quick Reference',
+      ],
+      purpose: 'Define a precise lipid workflow for cardiovascular risk profiling and fasting review.',
+      principle: 'Use calibrated enzymatic assays and calculation rules to report lipid fractions and risk markers.',
+      testSummary: 'A specific lipid assay used to assess cardiovascular risk and dyslipidemia.',
+      specialInstruction: 'Document fasting status where required and note lipemic interference when present.',
+    },
+    'Electrolytes & Minerals': {
+      sopTitles: [
+        'Electrolyte Analysis and ISE QC',
+        'Sodium, Potassium, and Chloride Review',
+        'Calcium and Magnesium Reporting',
+        'Critical Electrolyte Escalation Workflow',
+      ],
+      testNames: [
+        'Sodium, Potassium, and Chloride',
+        'Calcium',
+        'Magnesium',
+        'Electrolyte and Mineral Panel',
+      ],
+      jobAidTitles: [
+        'Electrolyte Specimen Acceptance Checklist',
+        'Critical Value Decision Tree',
+        'Electrolyte Result Quick Reference',
+      ],
+      purpose: 'Define a precise electrolyte workflow for ion-selective and mineral testing.',
+      principle: 'Use calibrated ISE or enzymatic methods with critical value escalation for electrolyte imbalance.',
+      testSummary: 'A specific electrolyte assay used to evaluate sodium, potassium, chloride, calcium, and related mineral balance.',
+      specialInstruction: 'Escalate critical potassium or sodium results immediately and verify sample integrity before release.',
+    },
+  },
   MIC: {
     'Bacteriology': {
       sopTitles: [
@@ -376,6 +610,40 @@ const normalizeBenchToken = (bench: string) =>
 
 function buildDetailedSteps(deptCode: string, bench: string) {
   if (deptCode === 'HEM') {
+    const hemSteps: Record<string, { stepNo: number; title: string; description: string }[]> = {
+      'FBC & Automated Counts': [
+        { stepNo: 1, title: 'Startup and QC', description: 'Power on the analyzer, confirm reagent and waste levels, and run low, normal, and high QC before any patient sample.' },
+        { stepNo: 2, title: 'Specimen verification', description: 'Confirm EDTA sample identity, check for clots or underfill, and gently invert the tube before loading.' },
+        { stepNo: 3, title: 'Analyzer review', description: 'Review histograms, flags, and scattergrams for abnormal cell populations, platelet issues, or rerun alerts.' },
+        { stepNo: 4, title: 'Release', description: 'Validate the count, add smear comments when needed, and release the result with critical call escalation if required.' },
+      ],
+      'Blood Film & Morphology': [
+        { stepNo: 1, title: 'Smear preparation', description: 'Prepare a thin wedge smear from fresh EDTA blood and allow it to air dry without heat.' },
+        { stepNo: 2, title: 'Staining', description: 'Fix and stain the slide with the validated Romanowsky method, then rinse and dry on a clean rack.' },
+        { stepNo: 3, title: 'Microscopy', description: 'Scan the monolayer, perform the differential count, and review red cell, white cell, and platelet morphology.' },
+        { stepNo: 4, title: 'Reporting', description: 'Document morphology findings, note parasites or abnormal cells, and escalate any critical smear finding immediately.' },
+      ],
+      Coagulation: [
+        { stepNo: 1, title: 'Specimen check', description: 'Confirm 9:1 citrate fill, reject clotted or underfilled tubes, and centrifuge to platelet-poor plasma where required.' },
+        { stepNo: 2, title: 'QC setup', description: 'Run normal and abnormal coagulation controls and verify acceptance before patient testing.' },
+        { stepNo: 3, title: 'Assay run', description: 'Perform PT/INR, APTT, fibrinogen, or D-dimer analysis using the validated assay sequence and reagent lot.' },
+        { stepNo: 4, title: 'Validation', description: 'Review clot curves, interpret abnormal prolongation, and escalate dangerous bleeding or anticoagulant values promptly.' },
+      ],
+      'Blood Bank & Transfusion': [
+        { stepNo: 1, title: 'Patient and sample verification', description: 'Verify patient identity, transfusion history, and sample validity before any serologic work is started.' },
+        { stepNo: 2, title: 'Grouping and screening', description: 'Perform ABO/Rh grouping, antibody screen, and discrepancy review using validated antisera and cell panels.' },
+        { stepNo: 3, title: 'Compatibility testing', description: 'Complete the crossmatch route required for the case and resolve incompatible reactions before issue.' },
+        { stepNo: 4, title: 'Issue and traceability', description: 'Release only compatible components, document sign-off, and keep the full traceability trail for haemovigilance.' },
+      ],
+      'ESR & Special Haematology': [
+        { stepNo: 1, title: 'Sample setup', description: 'Confirm the citrate ratio for ESR or the correct sample type for the special haematology test in use.' },
+        { stepNo: 2, title: 'Test performance', description: 'Set the Westergren rack, prepare the reticulocyte workflow, or run the special screening assay as applicable.' },
+        { stepNo: 3, title: 'Reading', description: 'Read the result at the validated interval and check for abnormal inflammatory or red cell response patterns.' },
+        { stepNo: 4, title: 'Reporting', description: 'Record the result, comment on abnormal values, and escalate unusual morphology or strongly elevated ESR values.' },
+      ],
+    };
+    const specific = hemSteps[bench];
+    if (specific) return specific;
     return [
       { stepNo: 1, title: 'Sample receipt and check', description: `Confirm patient identifiers and collect 2.0 mL whole blood (EDTA for FBC/morphology or citrate 9:1 for coagulation benches). Reject clotted or mislabeled specimens.` },
       { stepNo: 2, title: 'Preparation', description: `Mix specimen gently 8-10 inversions, run background check, then load level 1-3 controls before patient analysis on ${bench}.` },
@@ -384,6 +652,40 @@ function buildDetailedSteps(deptCode: string, bench: string) {
     ];
   }
   if (deptCode === 'CHE') {
+    const cheSteps: Record<string, { stepNo: number; title: string; description: string }[]> = {
+      'Glucose & Diabetes Markers': [
+        { stepNo: 1, title: 'Fasting confirmation', description: 'Confirm fasting status for glucose or timing for OGTT before accepting the sample.' },
+        { stepNo: 2, title: 'QC and calibration', description: 'Run instrument QC and verify the calibration status before analyte measurement.' },
+        { stepNo: 3, title: 'Analysis', description: 'Perform glucose, HbA1c, or tolerance testing according to the selected profile and validated method.' },
+        { stepNo: 4, title: 'Reporting', description: 'Review critical hypo or hyperglycemic values, add interpretive comments where needed, and release the validated result.' },
+      ],
+      'Bilirubin & Liver Function Tests': [
+        { stepNo: 1, title: 'Specimen integrity', description: 'Reject haemolysed or lipaemic specimens if they affect bilirubin or enzyme measurement.' },
+        { stepNo: 2, title: 'Reagent and control setup', description: 'Check reagent lot integrity, run liver panel controls, and confirm calibration status.' },
+        { stepNo: 3, title: 'Analysis', description: 'Run bilirubin, transaminases, alkaline phosphatase, and protein markers using the validated panel.' },
+        { stepNo: 4, title: 'Reporting', description: 'Review patterns of hepatocellular or cholestatic injury and release with comments for interference if needed.' },
+      ],
+      'Kidney Function Tests': [
+        { stepNo: 1, title: 'Specimen check', description: 'Confirm serum or plasma quality and reject severely haemolysed samples before renal analysis.' },
+        { stepNo: 2, title: 'Analyzer setup', description: 'Verify the renal chemistry method, QC status, and reagent stability before running patient specimens.' },
+        { stepNo: 3, title: 'Analysis', description: 'Measure urea, creatinine, uric acid, and related renal markers using the validated profile.' },
+        { stepNo: 4, title: 'Validation', description: 'Calculate or review eGFR when applicable, add renal comments if needed, and release the result.' },
+      ],
+      'Lipid Profile': [
+        { stepNo: 1, title: 'Fasting check', description: 'Confirm fasting status when required and check the sample for severe lipemia before analysis.' },
+        { stepNo: 2, title: 'QC setup', description: 'Run lipid controls and verify calibration before loading patient specimens.' },
+        { stepNo: 3, title: 'Analysis', description: 'Measure cholesterol fractions and triglycerides using the validated lipid profile workflow.' },
+        { stepNo: 4, title: 'Reporting', description: 'Interpret the lipid pattern, add risk comments when required, and release the validated profile.' },
+      ],
+      'Electrolytes & Minerals': [
+        { stepNo: 1, title: 'Specimen check', description: 'Confirm serum or plasma integrity and check for contamination or collection errors before ISE testing.' },
+        { stepNo: 2, title: 'Instrument setup', description: 'Run calibration and electrolyte QC, then verify the analyzer is stable for patient testing.' },
+        { stepNo: 3, title: 'Analysis', description: 'Measure sodium, potassium, chloride, calcium, magnesium, and related minerals using the validated profile.' },
+        { stepNo: 4, title: 'Critical escalation', description: 'Flag critical electrolyte results immediately, verify the value, and document the escalation path.' },
+      ],
+    };
+    const specific = cheSteps[bench];
+    if (specific) return specific;
     return [
       { stepNo: 1, title: 'Specimen setup', description: `Collect 2.5 mL serum/plasma, centrifuge at 3000 rpm for 10 minutes, and verify specimen is non-hemolyzed before loading to ${bench}.` },
       { stepNo: 2, title: 'Reagent and QC prep', description: 'Check reagent lot expiry, calibrator traceability, and run two-level internal controls at start of shift and after lot change.' },
@@ -478,8 +780,8 @@ BENCHES.forEach(({ dept, deptCode, benches }) => {
       });
     });
 
-    JOB_AID_BLUEPRINTS.forEach((aid) => {
-      const specificTitle = benchContent?.jobAidTitles[JOB_AID_BLUEPRINTS.indexOf(aid)];
+    JOB_AID_BLUEPRINTS.forEach((aid, idx) => {
+      const specificTitle = benchContent?.jobAidTitles[idx];
       NEW_JOB_AIDS.push({
         id: `ja${jobAidIdCounter++}`,
         title: specificTitle ?? `${bench} ${aid.title}`,
