@@ -40,6 +40,10 @@ export default function StaffDashboard() {
     return t.category === activeBench.name;
   });
 
+  const topSop = activeSops[0];
+  const topTest = activeTests[0];
+  const benchmarkLabel = `${activeDepartment.shortName} · ${activeBench.shortName}`;
+
   return (
     <div className="kl-page min-h-full">
       {/* Hero Banner */}
@@ -50,7 +54,7 @@ export default function StaffDashboard() {
         <div className="p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-4 sm:gap-6">
           <div className="flex-1">
             <div className="inline-flex items-center bg-[rgba(255,255,255,0.10)] border border-[rgba(255,255,255,0.14)] rounded-full px-4 py-2 mb-4">
-              <span className="text-[#dbe7ff] text-[11px] font-semibold tracking-[1.98px] uppercase">Bench workspace</span>
+              <span className="text-[#dbe7ff] text-[11px] font-semibold tracking-[1.98px] uppercase">{benchmarkLabel}</span>
             </div>
             <h1 className="text-white font-bold text-[24px] sm:text-[32px] leading-[1.15] mb-3">
               Start with the exact unit<br />knowledge you need.
@@ -67,16 +71,16 @@ export default function StaffDashboard() {
           </div>
           <div className="flex flex-col gap-3 lg:w-[300px]">
             {[
-              { label: 'ASSIGNED BENCHES', value: '3 active bench views ready now.' },
-              { label: 'PRIMARY SOP', value: 'Full Blood Count - Sysmex XN-350' },
-              { label: 'PRIMARY TEST', value: 'Full Blood Count (FBC)' },
+              { label: 'ACTIVE BENCH', value: `${activeBench.name} workspace` },
+              { label: 'PRIMARY SOP', value: topSop ? topSop.title : 'No SOP assigned yet' },
+              { label: 'PRIMARY TEST', value: topTest ? topTest.name : 'No test assigned yet' },
             ].map(item => (
               <div
                 key={item.label}
                 className="bg-[rgba(7,20,43,0.28)] border border-[rgba(255,255,255,0.14)] rounded-[20px] px-4 py-3"
               >
                 <p className="text-[#dbe7ff] font-semibold text-[11px] tracking-[1.98px] uppercase mb-0.5">{item.label}</p>
-                <p className="text-white text-[14px]">{item.value}</p>
+                <p className="text-white text-[14px] leading-snug line-clamp-2">{item.value}</p>
               </div>
             ))}
           </div>
