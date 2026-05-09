@@ -61,7 +61,6 @@ export default function PatientsPage() {
 
   const base = location.pathname.startsWith("/supervisor") ? "/supervisor" : location.pathname.startsWith("/hod") ? "/hod" : "/staff";
   
-  // Department-wide scoping: Everyone in the department sees all department orders
   const scopedPatients = useMemo(
     () => (user ? scopePatients(user.role, user.unit, activeDepartment.name) : []),
     [activeDepartment.name, user],
@@ -69,11 +68,7 @@ export default function PatientsPage() {
 
   // GLOBAL PENDING COUNTS
   const allDeptDrafts = useMemo(() => {
-    return drafts.filter(d => {
-      // Logic: For staff, show pending results they likely entered or are in their dept
-      // For supervisor/hod, show all pending validation
-      return d.status !== 'approved';
-    });
+    return drafts.filter(d => d.status !== 'approved');
   }, [drafts]);
 
   const globalPendingCount = useMemo(() => {
@@ -119,14 +114,12 @@ export default function PatientsPage() {
   const selectedPatient = PATIENTS.find((patient) => patient.id === patientId) ?? filteredPatients[0];
   const orders = selectedPatient ? getPatientOrders(selectedPatient.id) : [];
   
-  // Cross-bench visibility: Staff sees all orders in their active department
   const allowedOrders = user?.role === "staff" && activeDepartment.name !== "Laboratory"
     ? orders.filter(o => o.department.toLowerCase().includes(activeDepartment.name.toLowerCase()) || activeDepartment.name.toLowerCase().includes(o.department.toLowerCase()))
     : orders;
     
   const selectedOrder = allowedOrders.find((order) => order.id === selectedOrderId) ?? allowedOrders[0];
   
-  // Find test definition for parameters
   const testDefinition = useMemo(() => {
     if (!selectedOrder) return null;
     return LAB_TESTS.find(t => t.code === selectedOrder.testCode) || null;
@@ -139,7 +132,6 @@ export default function PatientsPage() {
   const patientDrafts = selectedPatient ? drafts.filter((draft) => draft.patientId === selectedPatient.id && draft.status !== 'approved') : [];
   const approvedDrafts = selectedPatient ? drafts.filter((draft) => draft.patientId === selectedPatient.id && draft.status === 'approved') : [];
 
-  // Reset draft values when order changes
   useEffect(() => {
     setDraftValues({});
   }, [selectedOrderId]);
@@ -197,85 +189,97 @@ export default function PatientsPage() {
         : `${activeDepartment.name} LIMS workspace for result entry and validation.`;
 
   return (
-    <div className="kl-page min-h-full max-w-full overflow-x-hidden p-4 sm:p-6 lg:p-8">
-      <div className="mb-8 flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="kl-page min-h-full max-w-full overflow-x-hidden p-6 sm:p-8 lg:p-10">
+      <div className="mb-10 flex min-w-0 flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <div className="flex items-center gap-3 mb-1">
-             <h1 className="text-[28px] font-bold tracking-tight text-[var(--text-primary)]">LIMS Portal</h1>
-             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-raised)] border border-[var(--surface-border)] shadow-sm">
-                <StatusUp size={14} className="text-[var(--kl-primary)]" />
-                <span className="text-[13px] font-bold text-[var(--text-primary)]">{globalPendingCount} <span className="font-medium text-[var(--text-tertiary)]">pending tasks</span></span>
+          <div className="flex items-center gap-4 mb-2">
+             <h1 className="text-[32px] font-bold tracking-tight text-[var(--text-primary)]">LIMS Portal</h1>
+             <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-raised)] border border-[var(--surface-border)] shadow-sm">
+                <StatusUp size={16} className="text-[var(--kl-primary)]" />
+                <span className="text-[14px] font-bold text-[var(--text-primary)]">{globalPendingCount} <span className="font-medium text-[var(--text-tertiary)]">pending tasks</span></span>
              </div>
           </div>
-          <p className="kl-text-contain text-[15px] text-[var(--text-secondary)] font-medium">{scopeCopy}</p>
+          <p className="kl-text-contain text-[16px] text-[var(--text-secondary)] font-medium">{scopeCopy}</p>
         </div>
         <div className="flex items-center gap-3">
           <button
-            className="kl-button-soft h-11 px-5 rounded-full text-[13px] font-bold shadow-xs hover:bg-[var(--surface-raised)] transition-all"
+            className="kl-button-soft h-12 px-6 rounded-full text-[14px] font-bold shadow-xs hover:bg-[var(--surface-raised)] transition-all"
             onClick={() => openFloatingAI(`Summarize patient laboratory priorities and detailed history for ${selectedPatient.name}.`)}
           >
-            <Health size={16} variant="Bold" className="mr-2 text-[var(--kl-primary)]" />
+            <Health size={18} variant="Bold" className="mr-2 text-[var(--kl-primary)]" />
             AI Case Summary
           </button>
         </div>
       </div>
 
-      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(300px,350px)_minmax(0,1fr)]">
-        <aside className="kl-premium-card min-w-0 p-4 h-[calc(100vh-160px)] overflow-y-auto shadow-md border-[var(--surface-border)]">
-          <div className="flex items-center gap-3 mb-4">
+      <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(320px,360px)_minmax(0,1fr)]">
+        <aside className="kl-premium-card min-w-0 p-5 h-[calc(100vh-180px)] overflow-y-auto shadow-md border-[var(--surface-border)]">
+          <div className="flex items-center gap-3 mb-5">
             <div className="relative flex-1">
               <SearchNormal1 size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                className="input h-12 w-full rounded-[20px] bg-[var(--surface-raised)] border-transparent focus:bg-[var(--surface-card)] focus:border-[var(--surface-border-strong)] pl-11 pr-4 text-[14px] transition-all"
+                className="input h-12 w-full rounded-[22px] bg-[var(--surface-raised)] border-transparent focus:bg-[var(--surface-card)] focus:border-[var(--surface-border-strong)] pl-12 pr-4 text-[14px] transition-all"
                 placeholder="Find patient..."
               />
             </div>
             <button
               onClick={() => setFilterPending(!filterPending)}
-              className={`size-12 flex-shrink-0 rounded-[20px] border flex items-center justify-center transition-all ${
+              className={`size-12 flex-shrink-0 rounded-[22px] border flex items-center justify-center transition-all ${
                 filterPending 
                 ? "bg-[var(--kl-primary)] text-white border-[var(--kl-primary)] shadow-lg" 
                 : "bg-[var(--surface-raised)] text-[var(--text-secondary)] border-[var(--surface-border)] hover:bg-[var(--surface-card)]"
               }`}
               title={filterPending ? "Showing pending only" : "Filter pending results"}
             >
-              <Timer size={20} variant={filterPending ? "Bold" : "Linear"} />
+              <div className="flex items-center justify-center w-full h-full">
+                <Timer size={22} variant={filterPending ? "Bold" : "Linear"} />
+              </div>
             </button>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {filteredPatients.map((patient) => {
               const active = patient.id === selectedPatient.id;
               const patientOrders = getPatientOrders(patient.id);
               const count = patientOrders.length;
-              const hasPending = patientOrders.some(o => ['ordered', 'collected', 'processing', 'held'].includes(o.status));
+              
+              const hasDrafts = drafts.some(d => d.patientId === patient.id && d.status === 'pending_approval');
+              const hasUnentered = patientOrders.some(o => ['ordered', 'collected', 'processing', 'held'].includes(o.status));
 
               return (
                 <a
                   key={patient.id}
                   href={`${base}/patients/${patient.id}`}
                   onClick={(e) => { e.preventDefault(); navigate(`${base}/patients/${patient.id}`); }}
-                  className="kl-card-interactive relative flex items-center gap-4 rounded-[24px] border p-4 no-underline transition-all"
+                  className="kl-card-interactive relative flex items-center gap-4 rounded-[28px] border p-5 no-underline transition-all"
                   style={{
                     background: active ? "var(--surface-card)" : "transparent",
                     borderColor: active ? "var(--surface-border-strong)" : "transparent",
-                    boxShadow: active ? "0 8px 24px rgba(0,0,0,0.04)" : "none",
+                    boxShadow: active ? "0 10px 30px rgba(0,0,0,0.05)" : "none",
                   }}
                 >
-                  {hasPending && (
-                    <div className="absolute top-4 right-4 flex items-center gap-1 bg-[#fff0db] dark:bg-[rgba(154,97,21,0.12)] px-2 py-0.5 rounded-full border border-[#f3c26f] border-opacity-30">
-                      <div className="size-1.5 rounded-full bg-[#9a6115] animate-pulse"></div>
-                      <span className="text-[9px] font-black text-[#9a6115] uppercase tracking-wider">Pending</span>
-                    </div>
-                  )}
-                  <span className="grid size-12 place-items-center rounded-[20px] border border-[var(--surface-border)] bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-sm">
-                    <Profile2User size={20} />
+                  <div className="absolute top-4 right-4 flex flex-col items-end gap-1.5">
+                    {hasDrafts && (
+                        <div className="flex items-center gap-1 bg-[#fff0db] dark:bg-[rgba(154,97,21,0.15)] px-2.5 py-1 rounded-full border border-[#f3c26f] border-opacity-40 shadow-xs">
+                            <div className="size-1.5 rounded-full bg-[#9a6115] animate-pulse"></div>
+                            <span className="text-[9px] font-black text-[#9a6115] uppercase tracking-wider">Validate</span>
+                        </div>
+                    )}
+                    {!hasDrafts && hasUnentered && (
+                        <div className="flex items-center gap-1 bg-[rgba(0,122,255,0.08)] px-2.5 py-1 rounded-full border border-[rgba(0,122,255,0.2)] shadow-xs">
+                            <div className="size-1.5 rounded-full bg-[#007aff]"></div>
+                            <span className="text-[9px] font-black text-[#007aff] uppercase tracking-wider">Unentered</span>
+                        </div>
+                    )}
+                  </div>
+                  <span className="grid size-14 place-items-center rounded-[22px] border border-[var(--surface-border)] bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-sm">
+                    <Profile2User size={24} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[14px] font-bold text-[var(--text-primary)]">{patient.name}</span>
-                    <span className="block truncate text-[12px] font-medium text-[var(--text-tertiary)] mt-0.5">
-                      {patient.hospitalNumber} • {count} order{count === 1 ? "" : "s"}
+                    <span className="block truncate text-[15px] font-bold text-[var(--text-primary)]">{patient.name}</span>
+                    <span className="block truncate text-[13px] font-medium text-[var(--text-tertiary)] mt-1">
+                      {patient.hospitalNumber} • {count} tests
                     </span>
                   </span>
                 </a>
@@ -284,72 +288,72 @@ export default function PatientsPage() {
           </div>
         </aside>
 
-        <main className="min-w-0 space-y-6">
-          <section className="kl-gradient-card kl-premium-card min-w-0 p-6 sm:p-8 shadow-xl">
-            <div className="flex min-w-0 flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+        <main className="min-w-0 space-y-8">
+          <section className="kl-gradient-card kl-premium-card min-w-0 p-8 sm:p-10 shadow-2xl">
+            <div className="flex min-w-0 flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-3">
-                  <span className="text-[10px] font-black uppercase tracking-[0.15em] text-[var(--text-tertiary)]">Patient Summary</span>
-                  <span className="rounded-full bg-white bg-opacity-40 dark:bg-black dark:bg-opacity-20 px-3 py-1 text-[11px] font-bold text-[var(--text-primary)] border border-[var(--surface-border)] backdrop-blur-sm shadow-sm">HN: {selectedPatient.hospitalNumber}</span>
-                  <span className="rounded-full bg-white bg-opacity-40 dark:bg-black dark:bg-opacity-20 px-3 py-1 text-[11px] font-bold text-[var(--text-primary)] border border-[var(--surface-border)] backdrop-blur-sm shadow-sm">LAB: {selectedPatient.labNumber}</span>
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--text-tertiary)]">Patient Identity</span>
+                  <span className="rounded-full bg-white bg-opacity-40 dark:bg-black dark:bg-opacity-20 px-4 py-1.5 text-[12px] font-bold text-[var(--text-primary)] border border-[var(--surface-border)] backdrop-blur-sm shadow-sm">HOSP: {selectedPatient.hospitalNumber}</span>
+                  <span className="rounded-full bg-white bg-opacity-40 dark:bg-black dark:bg-opacity-20 px-4 py-1.5 text-[12px] font-bold text-[var(--text-primary)] border border-[var(--surface-border)] backdrop-blur-sm shadow-sm">LAB: {selectedPatient.labNumber}</span>
                 </div>
-                <h2 className="kl-text-contain text-[32px] font-black leading-none text-[var(--text-primary)] tracking-tight mb-3">{selectedPatient.name}</h2>
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="kl-text-contain text-[14px] text-[var(--text-secondary)] font-bold">
+                <h2 className="kl-text-contain text-[38px] font-black leading-none text-[var(--text-primary)] tracking-tight mb-5">{selectedPatient.name}</h2>
+                <div className="flex flex-wrap items-center gap-4">
+                  <span className="kl-text-contain text-[16px] text-[var(--text-secondary)] font-bold">
                     {selectedPatient.age} years
                   </span>
                   <span className="text-[var(--surface-border-strong)] opacity-30">•</span>
-                  <span className="kl-text-contain text-[14px] text-[var(--text-secondary)] font-bold">
+                  <span className="kl-text-contain text-[16px] text-[var(--text-secondary)] font-bold">
                     {selectedPatient.sex}
                   </span>
                   <span className="text-[var(--surface-border-strong)] opacity-30">•</span>
-                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-raised)] border border-[var(--surface-border)]">
-                    <Box size={14} className="text-[var(--text-tertiary)]" />
-                    <span className="kl-text-contain text-[13px] text-[var(--text-primary)] font-semibold">
+                  <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-raised)] border border-[var(--surface-border)]">
+                    <Box size={16} className="text-[var(--text-tertiary)]" />
+                    <span className="kl-text-contain text-[14px] text-[var(--text-primary)] font-bold uppercase tracking-tight">
                         {selectedPatient.ward}
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="grid w-full min-w-0 grid-cols-2 gap-4 lg:w-[280px] lg:shrink-0">
-                <div className="rounded-[24px] border border-[var(--surface-border)] bg-[var(--glass-bg)] p-5 shadow-sm backdrop-blur-md">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-1">Total Orders</p>
-                  <p className="text-[32px] font-black text-[var(--text-primary)] leading-none">{orders.length}</p>
+              <div className="grid w-full min-w-0 grid-cols-2 gap-6 lg:w-[320px] lg:shrink-0">
+                <div className="rounded-[28px] border border-[var(--surface-border)] bg-[var(--glass-bg)] p-6 shadow-sm backdrop-blur-md">
+                  <p className="text-[12px] font-black uppercase tracking-widest text-[var(--text-tertiary)] mb-2">Tests</p>
+                  <p className="text-[40px] font-black text-[var(--text-primary)] leading-none">{orders.length}</p>
                 </div>
-                <div className="rounded-[24px] border border-[var(--surface-border)] bg-[var(--glass-bg)] p-5 shadow-sm backdrop-blur-md">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-1">To Validate</p>
-                  <p className="text-[32px] font-black text-[#9a6115] leading-none">{patientDrafts.length}</p>
+                <div className="rounded-[28px] border border-[var(--surface-border)] bg-[var(--glass-bg)] p-6 shadow-sm backdrop-blur-md">
+                  <p className="text-[12px] font-black uppercase tracking-widest text-[var(--text-tertiary)] mb-2">Pending</p>
+                  <p className="text-[40px] font-black text-[#9a6115] leading-none">{patientDrafts.length}</p>
                 </div>
               </div>
             </div>
           </section>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="mb-6 p-1.5 bg-[var(--surface-raised)] rounded-full w-fit">
-              <TabsTrigger value="overview" className="rounded-full px-6 py-2 text-[13px] font-bold">Overview</TabsTrigger>
-              <TabsTrigger value="patient-info" className="rounded-full px-6 py-2 text-[13px] font-bold">Patient Info</TabsTrigger>
-              <TabsTrigger value="results-entry" className="rounded-full px-6 py-2 text-[13px] font-bold">Results Entry</TabsTrigger>
-              <TabsTrigger value="results-dashboard" className="rounded-full px-6 py-2 text-[13px] font-bold">Results Dashboard</TabsTrigger>
+            <TabsList className="mb-8 p-2 bg-[var(--surface-raised)] rounded-full w-fit border border-[var(--surface-border)]">
+              <TabsTrigger value="overview" className="rounded-full px-8 py-2.5 text-[14px] font-black tracking-tight">Overview</TabsTrigger>
+              <TabsTrigger value="patient-info" className="rounded-full px-8 py-2.5 text-[14px] font-black tracking-tight">Info</TabsTrigger>
+              <TabsTrigger value="results-entry" className="rounded-full px-8 py-2.5 text-[14px] font-black tracking-tight">Result Entry</TabsTrigger>
+              <TabsTrigger value="results-dashboard" className="rounded-full px-8 py-2.5 text-[14px] font-black tracking-tight">Dashboard</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-0 outline-none">
-              <div className="grid min-w-0 gap-6 lg:grid-cols-2">
-                <section className="kl-premium-card min-w-0 p-6 sm:p-8 shadow-lg">
-                  <h3 className="mb-5 text-[17px] font-bold text-[var(--text-primary)] flex items-center gap-2">
-                    <div className="size-2 rounded-full bg-[var(--kl-primary)]"></div>
-                    Suspected Diagnosis & Symptoms
+              <div className="grid min-w-0 gap-8 lg:grid-cols-2">
+                <section className="kl-premium-card min-w-0 p-8 sm:p-10 shadow-xl border-[var(--surface-border)]">
+                  <h3 className="mb-6 text-[18px] font-black text-[var(--text-primary)] flex items-center gap-3">
+                    <div className="size-2.5 rounded-full bg-[var(--kl-primary)] shadow-glow"></div>
+                    Suspected Diagnosis
                   </h3>
-                  <div className="space-y-6">
-                    <p className="text-[14px] font-medium leading-relaxed text-[var(--text-secondary)] italic border-l-4 border-[var(--surface-border)] pl-4">
+                  <div className="space-y-8">
+                    <p className="text-[15px] font-medium leading-relaxed text-[var(--text-secondary)] italic border-l-4 border-[var(--surface-border)] pl-5">
                       "{selectedPatient.summary}"
                     </p>
                     <div className="space-y-4">
                       <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--text-tertiary)] mb-2">Active Working Diagnoses</p>
+                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--text-tertiary)] mb-3">Clinical Context</p>
                         {selectedPatient.diagnoses.map((item) => (
-                          <div key={item.label} className="flex items-center justify-between py-3 border-b border-[var(--surface-border)] last:border-0">
-                            <span className="text-[14px] font-bold text-[var(--text-primary)]">{item.label}</span>
-                            <span className="text-[10px] font-black text-white px-2.5 py-1 bg-[var(--text-tertiary)] rounded-full uppercase tracking-widest">{item.status}</span>
+                          <div key={item.label} className="flex items-center justify-between py-4 border-b border-[var(--surface-border)] last:border-0 border-opacity-50">
+                            <span className="text-[15px] font-bold text-[var(--text-primary)]">{item.label}</span>
+                            <span className="text-[11px] font-black text-white px-3 py-1.5 bg-[var(--text-tertiary)] rounded-full uppercase tracking-[0.15em]">{item.status}</span>
                           </div>
                         ))}
                       </div>
@@ -357,105 +361,99 @@ export default function PatientsPage() {
                   </div>
                 </section>
 
-                <section className="kl-premium-card min-w-0 p-6 sm:p-8 shadow-lg">
-                  <div className="mb-5 flex items-center justify-between">
-                    <h3 className="text-[17px] font-bold text-[var(--text-primary)]">Case Notes</h3>
-                    <button className="kl-icon-button flex items-center justify-center bg-[var(--surface-raised)] size-10 rounded-full border border-[var(--surface-border)] hover:bg-[var(--surface-card)] transition-all shadow-sm" aria-label="Attach case note" onClick={() => setActiveTab("patient-info")}>
-                      <NoteText size={18} />
+                <section className="kl-premium-card min-w-0 p-8 sm:p-10 shadow-xl border-[var(--surface-border)]">
+                  <div className="mb-6 flex items-center justify-between">
+                    <h3 className="text-[18px] font-black text-[var(--text-primary)]">Clinical Notes</h3>
+                    <button className="kl-icon-button flex items-center justify-center bg-[var(--surface-raised)] size-12 rounded-[20px] border border-[var(--surface-border)] hover:bg-[var(--surface-card)] transition-all shadow-sm" aria-label="Attach case note" onClick={() => setActiveTab("patient-info")}>
+                      <NoteText size={20} />
                     </button>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     {notes.map((note) => (
-                      <div key={note.id} className="rounded-[24px] bg-[var(--surface-raised)] p-5 border border-[var(--surface-border)] shadow-xs">
-                        <div className="mb-3 flex items-center justify-between">
-                          <span className="text-[12px] font-bold text-[var(--text-primary)]">{note.author}</span>
-                          <span className="text-[11px] font-medium text-[var(--text-tertiary)]">{formatDate(note.createdAt)}</span>
+                      <div key={note.id} className="rounded-[28px] bg-[var(--surface-raised)] p-6 border border-[var(--surface-border)] shadow-xs transition-all hover:bg-white dark:hover:bg-black dark:hover:bg-opacity-10">
+                        <div className="mb-4 flex items-center justify-between">
+                          <span className="text-[13px] font-black text-[var(--text-primary)] tracking-tight">{note.author}</span>
+                          <span className="text-[11px] font-bold text-[var(--text-tertiary)] uppercase">{formatDate(note.createdAt)}</span>
                         </div>
-                        <p className="kl-text-contain text-[13px] font-medium leading-relaxed text-[var(--text-secondary)]">{note.text}</p>
+                        <p className="kl-text-contain text-[14px] font-medium leading-relaxed text-[var(--text-secondary)]">{note.text}</p>
                         {note.attachmentName && (
-                          <div className="mt-4 flex items-center gap-3 bg-[var(--surface-card)] p-3 rounded-[16px] border border-[var(--surface-border)]">
-                            <Gallery size={16} className="text-[var(--kl-primary)]" />
-                            <p className="text-[12px] font-bold text-[var(--text-primary)]">{note.attachmentName}</p>
+                          <div className="mt-5 flex items-center gap-3 bg-[var(--surface-card)] p-4 rounded-[20px] border border-[var(--surface-border)] border-opacity-60 shadow-xs">
+                            <Gallery size={18} className="text-[var(--kl-primary)]" />
+                            <p className="text-[13px] font-bold text-[var(--text-primary)] tracking-tight">{note.attachmentName}</p>
                           </div>
                         )}
                       </div>
                     ))}
-                    {notes.length === 0 && (
-                      <div className="flex flex-col items-center justify-center py-12 opacity-30 bg-[var(--surface-raised)] rounded-[24px] border border-dashed border-[var(--surface-border)]">
-                        <NoteText size={32} className="mb-2" />
-                        <p className="text-[14px] font-bold text-center">No specific case notes filed.</p>
-                      </div>
-                    )}
                   </div>
                 </section>
               </div>
             </TabsContent>
 
             <TabsContent value="patient-info" className="mt-0 outline-none">
-              <section className="kl-premium-card min-w-0 p-6 sm:p-8 shadow-lg">
-                <h3 className="mb-6 text-[20px] font-black text-[var(--text-primary)] border-b border-[var(--surface-border)] pb-4 tracking-tight">Detailed Medical History</h3>
+              <section className="kl-premium-card min-w-0 p-8 sm:p-12 shadow-2xl border-[var(--surface-border)]">
+                <h3 className="mb-8 text-[24px] font-black text-[var(--text-primary)] border-b border-[var(--surface-border)] pb-6 tracking-tighter">Medical Summary</h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-                  <div className="space-y-3">
-                    <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--text-tertiary)] ml-1">Key Vitals</span>
-                    <div className="bg-[var(--surface-raised)] p-5 rounded-[28px] border border-[var(--surface-border)] shadow-sm">
-                      <div className="flex justify-between py-2 border-b border-[var(--surface-border)] last:border-0">
-                        <span className="text-[13px] font-medium text-[var(--text-secondary)]">Height</span>
-                        <span className="text-[14px] font-black text-[var(--text-primary)]">{selectedPatient.height || "Not recorded"}</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+                  <div className="space-y-4">
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--text-tertiary)] ml-2">Vital Signs</span>
+                    <div className="bg-[var(--surface-raised)] p-6 rounded-[32px] border border-[var(--surface-border)] shadow-sm">
+                      <div className="flex justify-between py-3 border-b border-[var(--surface-border)] last:border-0 border-opacity-40">
+                        <span className="text-[14px] font-medium text-[var(--text-secondary)]">Height</span>
+                        <span className="text-[15px] font-black text-[var(--text-primary)]">{selectedPatient.height || "Not recorded"}</span>
                       </div>
-                      <div className="flex justify-between py-2 border-b border-[var(--surface-border)] last:border-0">
-                        <span className="text-[13px] font-medium text-[var(--text-secondary)]">Weight</span>
-                        <span className="text-[14px] font-black text-[var(--text-primary)]">{selectedPatient.weight || "Not recorded"}</span>
+                      <div className="flex justify-between py-3 border-b border-[var(--surface-border)] last:border-0 border-opacity-40">
+                        <span className="text-[14px] font-medium text-[var(--text-secondary)]">Weight</span>
+                        <span className="text-[15px] font-black text-[var(--text-primary)]">{selectedPatient.weight || "Not recorded"}</span>
                       </div>
-                      <div className="flex justify-between py-2 border-b border-[var(--surface-border)] last:border-0">
-                        <span className="text-[13px] font-medium text-[var(--text-secondary)]">Blood Pressure</span>
-                        <span className="text-[14px] font-black text-[var(--text-primary)]">{selectedPatient.bloodPressure || "Not recorded"}</span>
+                      <div className="flex justify-between py-3 border-b border-[var(--surface-border)] last:border-0 border-opacity-40">
+                        <span className="text-[14px] font-medium text-[var(--text-secondary)]">Blood Pressure</span>
+                        <span className="text-[15px] font-black text-[var(--text-primary)]">{selectedPatient.bloodPressure || "Not recorded"}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--text-tertiary)] ml-1">Drug Reactions</span>
-                    <div className="bg-[var(--surface-raised)] p-5 rounded-[28px] border border-[var(--surface-border)] min-h-[120px] shadow-sm">
+                  <div className="space-y-4">
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--text-tertiary)] ml-2">Drug Reactions</span>
+                    <div className="bg-[var(--surface-raised)] p-6 rounded-[32px] border border-[var(--surface-border)] min-h-[140px] shadow-sm">
                       {selectedPatient.allergies.map(reaction => (
-                        <div key={reaction} className="flex items-start gap-3 mb-3 last:mb-0 bg-white bg-opacity-50 dark:bg-black dark:bg-opacity-10 p-2.5 rounded-[16px] border border-[var(--surface-border)] border-opacity-50">
-                          <Warning2 size={16} variant="Bold" className="text-[#b14343] shrink-0 mt-0.5" />
-                          <span className="text-[13px] font-bold text-[var(--text-primary)] leading-tight">{reaction}</span>
+                        <div key={reaction} className="flex items-start gap-4 mb-4 last:mb-0 bg-white bg-opacity-50 dark:bg-black dark:bg-opacity-10 p-3.5 rounded-[20px] border border-[var(--surface-border)] border-opacity-50 shadow-xs">
+                          <Warning2 size={18} variant="Bold" className="text-[#b14343] shrink-0 mt-0.5" />
+                          <span className="text-[14px] font-bold text-[var(--text-primary)] leading-snug">{reaction}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--text-tertiary)] ml-1">Identifiers</span>
-                    <div className="bg-[var(--surface-raised)] p-5 rounded-[28px] border border-[var(--surface-border)] shadow-sm">
-                      <div className="mb-4">
-                        <p className="text-[10px] font-black uppercase text-[var(--text-tertiary)] mb-1">Hospital Number</p>
-                        <p className="text-[16px] font-black text-[var(--text-primary)] tracking-tight">{selectedPatient.hospitalNumber}</p>
+                  <div className="space-y-4">
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--text-tertiary)] ml-2">Case Identifiers</span>
+                    <div className="bg-[var(--surface-raised)] p-6 rounded-[32px] border border-[var(--surface-border)] shadow-sm">
+                      <div className="mb-5">
+                        <p className="text-[11px] font-black uppercase text-[var(--text-tertiary)] mb-1.5 opacity-60">Hospital Record</p>
+                        <p className="text-[18px] font-black text-[var(--text-primary)] tracking-tight">{selectedPatient.hospitalNumber}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-black uppercase text-[var(--text-tertiary)] mb-1">Laboratory Number</p>
-                        <p className="text-[16px] font-black text-[var(--text-primary)] tracking-tight">{selectedPatient.labNumber}</p>
+                        <p className="text-[11px] font-black uppercase text-[var(--text-tertiary)] mb-1.5 opacity-60">LIMS Tracker</p>
+                        <p className="text-[18px] font-black text-[var(--text-primary)] tracking-tight">{selectedPatient.labNumber}</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
-                  <div className="space-y-3">
-                    <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--text-tertiary)] ml-1">Full Clinical History</span>
-                    <div className="bg-[var(--surface-raised)] p-6 rounded-[28px] border border-[var(--surface-border)] text-[15px] font-medium text-[var(--text-primary)] leading-relaxed shadow-sm min-h-[220px]">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-10">
+                  <div className="space-y-4">
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--text-tertiary)] ml-2">Clinical History</span>
+                    <div className="bg-[var(--surface-raised)] p-8 rounded-[36px] border border-[var(--surface-border)] text-[16px] font-medium text-[var(--text-primary)] leading-relaxed shadow-sm min-h-[250px] transition-all hover:bg-white dark:hover:bg-black dark:hover:bg-opacity-10">
                       {selectedPatient.detailedHistory || "Detailed clinical history has not been fully documented in the LIMS yet."}
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[var(--text-tertiary)] ml-1">Medication History</span>
-                    <div className="bg-[var(--surface-raised)] p-6 rounded-[28px] border border-[var(--surface-border)] shadow-sm">
+                  <div className="space-y-4">
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--text-tertiary)] ml-2">Current Medications</span>
+                    <div className="bg-[var(--surface-raised)] p-8 rounded-[36px] border border-[var(--surface-border)] shadow-sm">
                       {selectedPatient.medications.map((item) => (
-                        <div key={item.name} className="mb-5 last:mb-0 pb-4 border-b border-[var(--surface-border)] border-opacity-50 last:border-0 last:pb-0">
-                          <p className="text-[15px] font-black text-[var(--text-primary)]">{item.name}</p>
-                          <p className="text-[13px] text-[var(--text-secondary)] font-bold mt-1 uppercase tracking-tight">{item.dose}</p>
-                          {item.note && <p className="text-[11px] text-[var(--text-tertiary)] mt-2 bg-[var(--surface-card)] p-3 rounded-[12px] italic border border-[var(--surface-border)] border-opacity-30">Note: {item.note}</p>}
+                        <div key={item.name} className="mb-6 last:mb-0 pb-5 border-b border-[var(--surface-border)] border-opacity-40 last:border-0 last:pb-0">
+                          <p className="text-[16px] font-black text-[var(--text-primary)]">{item.name}</p>
+                          <p className="text-[14px] text-[var(--text-secondary)] font-bold mt-1.5 uppercase tracking-tighter">{item.dose}</p>
+                          {item.note && <p className="text-[11px] text-[var(--text-tertiary)] mt-3 bg-[var(--surface-card)] p-4 rounded-[16px] italic border border-[var(--surface-border)] border-opacity-30 shadow-xs">Note: {item.note}</p>}
                         </div>
                       ))}
                     </div>
@@ -465,42 +463,37 @@ export default function PatientsPage() {
             </TabsContent>
 
             <TabsContent value="results-entry" className="mt-0 outline-none">
-              <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(320px,380px)_minmax(0,1fr)]">
-                <section className="kl-premium-card min-w-0 p-5 sm:p-6 shadow-lg">
-                  <div className="mb-5 border-b border-[var(--surface-border)] pb-4">
-                    <h3 className="text-[18px] font-black text-[var(--text-primary)] tracking-tight">Department Tests</h3>
-                    <p className="kl-text-contain text-[13px] font-medium text-[var(--text-secondary)] mt-1 opacity-80">
-                      {user.role === 'staff' ? `Orders for ${activeDepartment.name}` : "Select test to enter results."}
+              <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(340px,400px)_minmax(0,1fr)]">
+                <section className="kl-premium-card min-w-0 p-6 sm:p-8 shadow-xl border-[var(--surface-border)]">
+                  <div className="mb-6 border-b border-[var(--surface-border)] pb-5">
+                    <h3 className="text-[20px] font-black text-[var(--text-primary)] tracking-tight">Active Bench</h3>
+                    <p className="kl-text-contain text-[14px] font-medium text-[var(--text-secondary)] mt-1.5 opacity-80 uppercase tracking-wide">
+                      {activeDepartment.name} Queue
                     </p>
                   </div>
 
-                  <div className="space-y-4">
-                    {allowedOrders.length === 0 && (
-                      <div className="p-10 text-center text-[14px] font-bold text-[var(--text-tertiary)] bg-[var(--surface-raised)] rounded-[24px] border border-dashed border-[var(--surface-border)] opacity-60">
-                        No active orders.
-                      </div>
-                    )}
+                  <div className="space-y-5">
                     {allowedOrders.map((order) => {
                       const active = selectedOrder?.id === order.id;
                       return (
                         <button
                           key={order.id}
                           onClick={() => setSelectedOrderId(order.id)}
-                          className="kl-card-interactive w-full min-w-0 rounded-[28px] border p-5 text-left transition-all"
+                          className="kl-card-interactive w-full min-w-0 rounded-[32px] border p-6 text-left transition-all"
                           style={{
                             background: active ? "var(--surface-raised)" : "transparent",
                             borderColor: active ? "var(--kl-primary)" : "var(--surface-border)",
-                            boxShadow: active ? "0 10px 30px rgba(0,0,0,0.06)" : "none",
+                            boxShadow: active ? "0 15px 40px rgba(0,0,0,0.08)" : "none",
                           }}
                         >
-                          <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                          <div className="flex min-w-0 flex-wrap items-start justify-between gap-4">
                             <div className="min-w-0">
-                              <p className="kl-text-contain text-[15px] font-black text-[var(--text-primary)] leading-snug">{order.testName}</p>
-                              <p className="kl-text-contain text-[11px] font-black text-[var(--text-tertiary)] mt-1 uppercase tracking-widest">
+                              <p className="kl-text-contain text-[16px] font-black text-[var(--text-primary)] leading-tight">{order.testName}</p>
+                              <p className="kl-text-contain text-[11px] font-black text-[var(--text-tertiary)] mt-1.5 uppercase tracking-[0.2em]">
                                 {order.testCode} • {order.bench}
                               </p>
                             </div>
-                            <span className="shrink-0 rounded-full bg-[var(--surface-card)] border border-[var(--surface-border)] px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[var(--text-secondary)]">
+                            <span className="shrink-0 rounded-full bg-[var(--surface-card)] border border-[var(--surface-border)] px-4 py-1.5 text-[11px] font-black uppercase tracking-widest text-[var(--text-secondary)] shadow-xs">
                               {statusLabel(order.status)}
                             </span>
                           </div>
@@ -510,98 +503,102 @@ export default function PatientsPage() {
                   </div>
                 </section>
 
-                <section className="kl-premium-card min-w-0 p-6 sm:p-10 shadow-xl border-[var(--surface-border)]">
+                <section className="kl-premium-card min-w-0 p-8 sm:p-12 shadow-2xl border-[var(--surface-border)]">
                   {selectedOrder ? (
                     <div>
-                      <h3 className="mb-6 text-[22px] font-black text-[var(--text-primary)] flex items-center gap-3 tracking-tight">
-                        <div className="size-3 rounded-full bg-[var(--kl-primary)] shadow-glow"></div>
-                        Test Result Entry: <span className="opacity-70 font-medium">{selectedOrder.testName}</span>
+                      <h3 className="mb-8 text-[26px] font-black text-[var(--text-primary)] flex items-center gap-4 tracking-tighter">
+                        <div className="size-3.5 rounded-full bg-[var(--kl-primary)] shadow-glow"></div>
+                        Entry Mode: <span className="opacity-60 font-bold">{selectedOrder.testName}</span>
                       </h3>
-                      <div className="bg-[var(--surface-raised)] p-8 rounded-[32px] border border-[var(--surface-border)] shadow-sm">
+                      <div className="bg-[var(--surface-raised)] p-10 rounded-[40px] border border-[var(--surface-border)] shadow-md">
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 mb-10">
-                          <div className="space-y-1.5">
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-tertiary)]">Department</p>
-                            <p className="text-[15px] font-bold text-[var(--text-primary)]">{selectedOrder.department}</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 mb-12 border-b border-[var(--surface-border)] border-opacity-50 pb-10">
+                          <div className="space-y-2">
+                            <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[var(--text-tertiary)] ml-1">Laboratory</p>
+                            <p className="text-[16px] font-bold text-[var(--text-primary)]">{selectedOrder.department}</p>
                           </div>
-                          <div className="space-y-1.5">
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-tertiary)]">Specimen</p>
-                            <p className="text-[15px] font-bold text-[var(--text-primary)]">{selectedOrder.specimen}</p>
+                          <div className="space-y-2">
+                            <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[var(--text-tertiary)] ml-1">Specimen</p>
+                            <p className="text-[16px] font-bold text-[var(--text-primary)]">{selectedOrder.specimen}</p>
                           </div>
-                          <div className="space-y-1.5">
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-tertiary)]">Priority</p>
-                            <div className="flex items-center gap-2">
-                              <span className={`size-2.5 rounded-full ${selectedOrder.priority === 'stat' ? 'bg-[#b14343]' : 'bg-[#9a6115]'} shadow-sm`}></span>
-                              <p className="text-[15px] font-black uppercase text-[var(--text-primary)] tracking-widest">{selectedOrder.priority}</p>
+                          <div className="space-y-2">
+                            <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[var(--text-tertiary)] ml-1">Urgency</p>
+                            <div className="flex items-center gap-2.5">
+                              <span className={`size-3 rounded-full ${selectedOrder.priority === 'stat' ? 'bg-[#b14343]' : 'bg-[#9a6115]'} shadow-sm`}></span>
+                              <p className="text-[16px] font-black uppercase text-[var(--text-primary)] tracking-[0.2em]">{selectedOrder.priority}</p>
                             </div>
                           </div>
                         </div>
 
                         {canEnterResults ? (
-                          <div className="border-t border-[var(--surface-border)] border-opacity-50 pt-10 mt-6">
-                            <div className="mb-8">
-                                <h4 className="text-[15px] font-black text-[var(--text-primary)] mb-2 uppercase tracking-tight">Parameter Inputs</h4>
-                                <p className="text-[12px] text-[var(--text-tertiary)]">Enter measured values for all required test parameters.</p>
+                          <div className="pt-2">
+                            <div className="mb-10">
+                                <h4 className="text-[17px] font-black text-[var(--text-primary)] mb-2 uppercase tracking-tight">Parameter Definitions</h4>
+                                <p className="text-[14px] font-medium text-[var(--text-tertiary)]">Record numeric or qualitative values for verification.</p>
                             </div>
                             
-                            <div className="space-y-6">
+                            <div className="space-y-8">
                                 {testDefinition?.parameters.map(param => (
-                                    <div key={param.name} className="grid grid-cols-1 md:grid-cols-[1fr_200px_180px] gap-6 items-center bg-[var(--surface-card)] p-5 rounded-[24px] border border-[var(--surface-border)] border-opacity-40 transition-all hover:bg-white dark:hover:bg-black dark:hover:bg-opacity-10">
+                                    <div key={param.name} className="grid grid-cols-1 md:grid-cols-[1.5fr_1.2fr_auto] gap-8 items-center bg-[var(--surface-card)] p-7 rounded-[32px] border border-[var(--surface-border)] border-opacity-60 transition-all hover:bg-white dark:hover:bg-black dark:hover:bg-opacity-10 shadow-xs">
                                         <div className="min-w-0">
-                                            <p className="text-[14px] font-black text-[var(--text-primary)] truncate">{param.name}</p>
-                                            <p className="text-[11px] font-medium text-[var(--text-tertiary)] mt-0.5">Range: {param.maleRange} {param.unit}</p>
+                                            <p className="text-[16px] font-black text-[var(--text-primary)] tracking-tight">{param.name}</p>
+                                            <p className="text-[12px] font-bold text-[var(--kl-primary)] mt-1 opacity-70 uppercase tracking-widest">Normal: {param.maleRange} {param.unit}</p>
                                         </div>
                                         <div className="relative">
                                             <input 
-                                                className="input h-12 w-full rounded-[16px] bg-[var(--surface-raised)] border-[var(--surface-border)] focus:bg-white dark:focus:bg-black focus:border-[var(--kl-primary)] focus:ring-4 focus:ring-[var(--kl-primary)] focus:ring-opacity-5 text-[14px] font-bold px-4 transition-all"
+                                                className="input h-14 w-full rounded-[22px] bg-[var(--surface-raised)] border-[var(--surface-border)] focus:bg-white dark:focus:bg-black focus:border-[var(--kl-primary)] focus:ring-8 focus:ring-[var(--kl-primary)] focus:ring-opacity-5 text-[16px] font-black px-6 transition-all shadow-inner"
                                                 value={draftValues[param.name] || ""}
                                                 onChange={(e) => handleValueChange(param.name, e.target.value)}
-                                                placeholder="Enter result..."
+                                                placeholder="0.00"
                                             />
-                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-black text-[var(--text-tertiary)] pointer-events-none">
+                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-[12px] font-black text-[var(--text-tertiary)] pointer-events-none opacity-40 uppercase tracking-tighter">
                                                 {param.unit}
                                             </div>
                                         </div>
-                                        <div className="hidden md:block">
-                                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-raised)] border border-[var(--surface-border)] border-opacity-60 w-fit">
-                                                <div className="size-1.5 rounded-full bg-[var(--text-tertiary)]"></div>
-                                                <span className="text-[10px] font-black text-[var(--text-tertiary)] uppercase">Ready</span>
+                                        <div className="hidden lg:block">
+                                            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--surface-raised)] border border-[var(--surface-border)] border-opacity-60 shadow-xs">
+                                                <div className="size-2 rounded-full bg-[var(--text-tertiary)] opacity-30"></div>
+                                                <span className="text-[11px] font-black text-[var(--text-tertiary)] uppercase tracking-widest">Awaiting</span>
                                             </div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-6 bg-[var(--surface-card)] p-6 rounded-[28px] border border-[var(--surface-border)] border-opacity-50">
-                                <div className="flex items-center gap-3">
-                                    <div className="size-10 rounded-full bg-[var(--kl-primary)] bg-opacity-10 flex items-center justify-center text-[var(--kl-primary)] shadow-sm">
-                                        <TickCircle size={20} variant="Bold" />
+                            <div className="mt-12 flex flex-col xl:flex-row items-center justify-between gap-8 bg-[var(--surface-card)] p-8 rounded-[36px] border-2 border-[var(--surface-border)] border-opacity-50 shadow-lg">
+                                <div className="flex items-start gap-4">
+                                    <div className="size-12 rounded-[18px] bg-[var(--kl-primary)] bg-opacity-10 flex items-center justify-center text-[var(--kl-primary)] shadow-sm shrink-0">
+                                        <TickCircle size={24} variant="Bold" />
                                     </div>
-                                    <p className="text-[12px] font-bold text-[var(--text-secondary)] leading-tight max-w-[280px]">
-                                        Results will be routed to supervisor for approval before release to clinicians.
-                                    </p>
+                                    <div className="space-y-1">
+                                        <p className="text-[14px] font-black text-[var(--text-primary)] uppercase tracking-tight">Ready for Validation?</p>
+                                        <p className="text-[12px] font-medium text-[var(--text-secondary)] leading-snug max-w-[320px]">
+                                            Check all parameter values. Submitted results will appear in the supervisor's dashboard for final release.
+                                        </p>
+                                    </div>
                                 </div>
                                 <button 
                                     onClick={saveAllDrafts} 
                                     disabled={Object.keys(draftValues).length === 0}
-                                    className="btn-primary h-14 px-10 rounded-[22px] text-[15px] font-black shadow-lg hover:translate-y-[-2px] active:translate-y-[0px] active:scale-95 transition-all disabled:opacity-30 disabled:translate-y-0 disabled:scale-100"
+                                    className="btn-primary h-16 px-12 rounded-[24px] text-[16px] font-black shadow-glow hover:translate-y-[-3px] active:translate-y-[0px] active:scale-[0.98] transition-all disabled:opacity-20 disabled:translate-y-0 disabled:scale-100 w-full xl:w-auto"
                                 >
-                                    Submit All for Validation
+                                    Submit Batch for Approval
                                 </button>
                             </div>
                           </div>
                         ) : (
-                          <div className="p-10 bg-[var(--surface-card)] rounded-[32px] text-center border border-[var(--surface-border)] mt-6 shadow-inner">
-                            <Warning2 size={32} className="mx-auto mb-3 text-[var(--text-tertiary)] opacity-30" />
-                            <p className="text-[16px] font-black text-[var(--text-secondary)] opacity-60">Validation Mode: Staff access only.</p>
+                          <div className="p-12 bg-[var(--surface-card)] rounded-[40px] text-center border border-[var(--surface-border)] mt-6 shadow-inner opacity-60">
+                            <Warning2 size={48} className="mx-auto mb-4 text-[var(--text-tertiary)] opacity-40" />
+                            <p className="text-[18px] font-black text-[var(--text-secondary)] tracking-tight">Access Restricted</p>
+                            <p className="text-[14px] font-medium text-[var(--text-tertiary)] mt-1">Validation mode requires staff credentials.</p>
                           </div>
                         )}
                       </div>
                     </div>
                   ) : (
-                    <div className="h-full flex items-center justify-center flex-col text-[var(--text-tertiary)] py-24 opacity-20">
-                      <DocumentUpload size={64} className="mb-4" />
-                      <p className="text-[20px] font-black uppercase tracking-[0.2em]">Select Order</p>
+                    <div className="h-full flex items-center justify-center flex-col text-[var(--text-tertiary)] py-32 opacity-10">
+                      <DocumentUpload size={80} className="mb-6" />
+                      <p className="text-[24px] font-black uppercase tracking-[0.3em]">Selection Required</p>
                     </div>
                   )}
                 </section>
@@ -609,108 +606,100 @@ export default function PatientsPage() {
             </TabsContent>
 
             <TabsContent value="results-dashboard" className="mt-0 outline-none">
-              <section className="kl-premium-card min-w-0 p-6 sm:p-10 shadow-xl">
-                <div className="flex justify-between items-center mb-8 border-b border-[var(--surface-border)] pb-6">
+              <section className="kl-premium-card min-w-0 p-8 sm:p-12 shadow-2xl border-[var(--surface-border)]">
+                <div className="flex justify-between items-center mb-10 border-b border-[var(--surface-border)] pb-8 border-opacity-50">
                   <div>
-                    <h3 className="text-[22px] font-black text-[var(--text-primary)] tracking-tight">LIMS Results Dashboard</h3>
-                    <p className="text-[14px] font-medium text-[var(--text-secondary)] mt-1 opacity-70">Monitor validation queue and finalized reports.</p>
+                    <h3 className="text-[26px] font-black text-[var(--text-primary)] tracking-tighter uppercase">LIMS Registry</h3>
+                    <p className="text-[15px] font-medium text-[var(--text-secondary)] mt-1.5 opacity-60">Review department-wide validation queue and finalized audits.</p>
                   </div>
                   {canApproveResults && (
-                    <div className="bg-[var(--surface-raised)] px-5 py-2 rounded-full border border-[var(--surface-border)] flex items-center gap-2 shadow-xs">
-                        <StatusUp size={16} className="text-[#9a6115]" />
-                        <span className="text-[13px] font-black text-[var(--text-primary)] uppercase tracking-tighter">{allDeptDrafts.length} <span className="font-bold opacity-60 text-[11px]">in queue</span></span>
+                    <div className="bg-[var(--surface-raised)] px-6 py-3 rounded-full border-2 border-[var(--surface-border)] flex items-center gap-3 shadow-md">
+                        <StatusUp size={20} className="text-[#9a6115]" />
+                        <span className="text-[15px] font-black text-[var(--text-primary)] uppercase tracking-tight">{allDeptDrafts.length} <span className="font-bold opacity-40 text-[12px] ml-1">in registry</span></span>
                     </div>
                   )}
                 </div>
 
-                <div className="space-y-10">
+                <div className="space-y-12">
                   {/* PENDING APPROVALS */}
                   <div>
-                    <div className="flex items-center gap-3 mb-6">
-                      <h4 className="text-[16px] font-black text-[#9a6115] flex items-center gap-2.5 uppercase tracking-tight">
-                        <Timer size={20} variant="Bold" />
-                        Awaiting Supervisor Validation
+                    <div className="flex items-center gap-4 mb-8">
+                      <h4 className="text-[18px] font-black text-[#9a6115] flex items-center gap-3 uppercase tracking-tighter">
+                        <Timer size={22} variant="Bold" />
+                        Verification Queue
                       </h4>
-                      <span className="bg-[#9a6115] text-white px-3 py-0.5 rounded-full flex items-center justify-center text-[11px] font-black shadow-sm">{patientDrafts.length}</span>
+                      <span className="bg-[#9a6115] text-white px-4 py-1 rounded-full flex items-center justify-center text-[12px] font-black shadow-lg">{patientDrafts.length}</span>
                     </div>
                     {patientDrafts.length > 0 ? (
-                      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                         {patientDrafts.map(draft => (
-                          <div key={draft.id} className="bg-[#fff0db] dark:bg-[rgba(154,97,21,0.06)] border-2 border-[#f3c26f] border-opacity-40 p-6 rounded-[32px] shadow-sm flex flex-col justify-between hover:border-opacity-100 transition-all group">
+                          <div key={draft.id} className="bg-[#fff0db] dark:bg-[rgba(154,97,21,0.08)] border-2 border-[#f3c26f] border-opacity-50 p-8 rounded-[40px] shadow-sm flex flex-col justify-between hover:border-opacity-100 hover:shadow-xl transition-all group">
                             <div>
-                              <div className="flex justify-between items-start mb-3">
-                                <span className="text-[12px] font-black uppercase tracking-[0.1em] text-[#9a6115] group-hover:tracking-[0.15em] transition-all">{draft.parameter}</span>
-                                <span className="text-[9px] font-black bg-[#f3c26f] bg-opacity-40 text-[#9a6115] px-2.5 py-1 rounded-full uppercase tracking-widest">Pending</span>
+                              <div className="flex justify-between items-start mb-4">
+                                <span className="text-[13px] font-black uppercase tracking-[0.2em] text-[#9a6115] group-hover:tracking-[0.25em] transition-all">{draft.parameter}</span>
+                                <span className="text-[10px] font-black bg-[#f3c26f] bg-opacity-50 text-[#9a6115] px-3 py-1.5 rounded-full uppercase tracking-[0.1em]">Verification</span>
                               </div>
-                              <div className="text-[36px] font-black text-[var(--text-primary)] mb-5 leading-none tracking-tighter">{draft.value} <span className="text-[12px] opacity-40">{draft.unit}</span></div>
+                              <div className="text-[44px] font-black text-[var(--text-primary)] mb-6 leading-none tracking-tighter">{draft.value} <span className="text-[14px] opacity-40 uppercase ml-1">{draft.unit}</span></div>
                             </div>
                             {canApproveResults ? (
-                              <button onClick={() => approveDraft(draft.id)} className="w-full bg-[#9a6115] hover:bg-[#805010] text-white py-3 rounded-[18px] text-[14px] font-black transition-all shadow-md active:scale-95 hover:shadow-lg">
-                                Validate & Release
+                              <button onClick={() => approveDraft(draft.id)} className="w-full bg-[#9a6115] hover:bg-[#805010] text-white py-4 rounded-[22px] text-[15px] font-black transition-all shadow-glow active:scale-95 hover:shadow-xl">
+                                Approve & Release
                               </button>
                             ) : (
-                              <div className="text-[12px] font-bold text-[#9a6115] opacity-60 italic border-t border-[#f3c26f] border-opacity-30 pt-4 flex items-center gap-2">
-                                <Timer size={14} />
-                                Waiting for review
+                              <div className="text-[13px] font-bold text-[#9a6115] opacity-50 italic border-t border-[#f3c26f] border-opacity-20 pt-5 flex items-center gap-3">
+                                <Timer size={16} />
+                                Pending supervisor review
                               </div>
                             )}
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center justify-center py-16 bg-[var(--surface-raised)] rounded-[32px] border-2 border-dashed border-[var(--surface-border)] opacity-60">
-                        <TickCircle size={48} className="mb-3 text-[var(--kl-primary)] opacity-40" />
-                        <p className="text-[16px] font-black text-[var(--text-secondary)] uppercase tracking-[0.15em]">Queue Clear</p>
-                        <p className="text-[13px] font-medium text-[var(--text-tertiary)] mt-1">All results for this patient have been processed.</p>
+                      <div className="flex flex-col items-center justify-center py-20 bg-[var(--surface-raised)] rounded-[40px] border-2 border-dashed border-[var(--surface-border)] border-opacity-60">
+                        <TickCircle size={64} className="mb-4 text-[var(--kl-primary)] opacity-20" />
+                        <p className="text-[18px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em]">Cleared</p>
+                        <p className="text-[15px] font-medium text-[var(--text-tertiary)] mt-2">No pending results for this patient.</p>
                       </div>
                     )}
                   </div>
 
                   {/* FINALIZED RESULTS */}
                   <div>
-                    <h4 className="text-[16px] font-black text-[var(--text-primary)] flex items-center gap-2.5 mb-6 uppercase tracking-tight">
-                      <TickCircle size={20} variant="Bold" className="text-[#1c7b56]" />
-                      Finalized Laboratory Results
+                    <h4 className="text-[18px] font-black text-[var(--text-primary)] flex items-center gap-3 mb-8 uppercase tracking-tighter">
+                      <TickCircle size={22} variant="Bold" className="text-[#1c7b56]" />
+                      Certified Audit Log
                     </h4>
                     
-                    <div className="bg-[var(--surface-raised)] border border-[var(--surface-border)] rounded-[32px] overflow-hidden shadow-inner">
-                      <table className="w-full text-left text-[14px]">
+                    <div className="bg-[var(--surface-raised)] border border-[var(--surface-border)] rounded-[40px] overflow-hidden shadow-inner border-opacity-60">
+                      <table className="w-full text-left text-[15px]">
                         <thead>
                           <tr className="border-b border-[var(--surface-border)] bg-[var(--surface-card)] text-[var(--text-tertiary)] border-opacity-50">
-                            <th className="font-black p-5 text-[10px] uppercase tracking-[0.2em]">Parameter</th>
-                            <th className="font-black p-5 text-[10px] uppercase tracking-[0.2em]">Value</th>
-                            <th className="font-black p-5 hidden sm:table-cell text-[10px] uppercase tracking-[0.2em]">Ref Range</th>
-                            <th className="font-black p-5 text-[10px] uppercase tracking-[0.2em]">Flag</th>
-                            <th className="font-black p-5 hidden md:table-cell text-[10px] uppercase tracking-[0.2em]">LIMS Audit</th>
+                            <th className="font-black p-7 text-[11px] uppercase tracking-[0.3em]">Parameter</th>
+                            <th className="font-black p-7 text-[11px] uppercase tracking-[0.3em]">Analyzed Value</th>
+                            <th className="font-black p-7 hidden sm:table-cell text-[11px] uppercase tracking-[0.3em]">Biological Ref</th>
+                            <th className="font-black p-7 text-[11px] uppercase tracking-[0.3em]">Flag</th>
+                            <th className="font-black p-7 hidden md:table-cell text-[11px] uppercase tracking-[0.3em]">Status</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--surface-border)] divide-opacity-30">
                           {[...allPatientResults, ...approvedDrafts.map(d => ({ ...d, flag: 'normal' as ResultFlag }))].map((result, idx) => (
                             <tr key={'id' in result ? result.id : idx} className="hover:bg-white dark:hover:bg-black dark:hover:bg-opacity-20 transition-colors group">
-                              <td className="p-5 font-black text-[var(--text-primary)] group-hover:text-[var(--kl-primary)] transition-colors">{result.parameter}</td>
-                              <td className="p-5 text-[var(--text-primary)] font-black text-[18px] tracking-tight">{result.value} <span className="text-[12px] font-bold opacity-40">{result.unit}</span></td>
-                              <td className="p-5 text-[var(--text-secondary)] font-bold hidden sm:table-cell">{result.referenceRange}</td>
-                              <td className="p-5">
-                                <span className={`px-3 py-1 rounded-[10px] text-[10px] font-black uppercase tracking-widest ${FLAG_CLASS[result.flag]} shadow-xs`}>
+                              <td className="p-7 font-black text-[var(--text-primary)] group-hover:text-[var(--kl-primary)] transition-colors tracking-tight">{result.parameter}</td>
+                              <td className="p-7 text-[var(--text-primary)] font-black text-[22px] tracking-tight">{result.value} <span className="text-[14px] font-bold opacity-30 ml-1 uppercase">{result.unit}</span></td>
+                              <td className="p-7 text-[var(--text-secondary)] font-bold hidden sm:table-cell tracking-tighter">{result.referenceRange}</td>
+                              <td className="p-7">
+                                <span className={`px-4 py-1.5 rounded-[12px] text-[11px] font-black uppercase tracking-[0.15em] ${FLAG_CLASS[result.flag]} shadow-sm`}>
                                   {result.flag}
                                 </span>
                               </td>
-                              <td className="p-5 hidden md:table-cell">
-                                <div className="flex items-center gap-2 text-[#1c7b56] font-black text-[11px] uppercase tracking-tighter">
-                                  <div className="size-1.5 rounded-full bg-[#1c7b56]"></div>
-                                  VERIFIED
+                              <td className="p-7 hidden md:table-cell">
+                                <div className="flex items-center gap-2.5 text-[#1c7b56] font-black text-[12px] uppercase tracking-tighter">
+                                  <div className="size-2 rounded-full bg-[#1c7b56] shadow-sm"></div>
+                                  CERTIFIED
                                 </div>
                               </td>
                             </tr>
                           ))}
-                          {allPatientResults.length === 0 && approvedDrafts.length === 0 && (
-                            <tr>
-                              <td colSpan={5} className="p-20 text-center text-[var(--text-secondary)] opacity-30">
-                                <DocumentUpload size={48} className="mx-auto mb-3" />
-                                <p className="font-black uppercase tracking-[0.2em]">Empty Ledger</p>
-                              </td>
-                            </tr>
-                          )}
                         </tbody>
                       </table>
                     </div>
