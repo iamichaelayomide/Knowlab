@@ -43,7 +43,7 @@ export default function SupervisorDashboard() {
 
   return (
     <div className="kl-page">
-      <section className="kl-premium-card mb-5 overflow-hidden bg-[var(--surface-card)] dark:bg-[linear-gradient(145deg,#0c0c0d,#19191b_52%,#2a2a2c)] p-5 text-[var(--text-primary)] dark:text-white sm:p-7 border border-[var(--surface-border)]">
+      <section className="kl-premium-card mb-5 overflow-hidden bg-[var(--surface-card)] dark:bg-[linear-gradient(145deg,#0c0c0d,#19191b_52%,#2a2a2c)] p-5 text-[var(--text-primary)] dark:text-white sm:p-7 border border-[var(--surface-border)] shadow-sm">
         <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-[var(--surface-border)] dark:border-white/12 bg-[var(--surface-raised)] dark:bg-white/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)] dark:text-white/68">
