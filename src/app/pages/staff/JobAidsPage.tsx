@@ -129,7 +129,7 @@ export default function JobAidsPage() {
     const deptShort = activeDepartment.shortName.toLowerCase();
     if (text.includes(deptName) || text.includes(deptShort)) return true;
 
-    // Fallback mappings for original JOB_AIDS that lack explicit department names
+    // Fallback mappings
     const allText = (aid.title + ' ' + aid.description + ' ' + aid.tags.join(' ')).toLowerCase();
     if (activeDepartment.id === 'haematology' && (allText.includes('sysmex') || allText.includes('fbc') || allText.includes('haematology'))) return true;
     if (activeDepartment.id === 'chemistry' && (allText.includes('chemistry') || allText.includes('lft') || allText.includes('ise'))) return true;
@@ -166,10 +166,13 @@ export default function JobAidsPage() {
       {/* Toolbar: Dropdowns + Search */}
       <div className="flex flex-col md:flex-row gap-3 mb-6">
         <div className="flex gap-2 shrink-0">
-          <div className="w-[160px]">
+          <div className="w-[180px]">
             <Select value={activeCategory} onValueChange={setActiveCategory}>
               <SelectTrigger className="rounded-[14px] bg-[var(--kl-surface)] border-[var(--kl-border)] h-11">
-                <SelectValue placeholder="Category" />
+                <div className="flex items-center gap-2 truncate">
+                    <span className="text-[11px] font-black uppercase text-[var(--kl-text-muted)] shrink-0">Bench:</span>
+                    <SelectValue placeholder="All Benches" />
+                </div>
               </SelectTrigger>
               <SelectContent>
                 {categories.map(cat => (
@@ -178,10 +181,13 @@ export default function JobAidsPage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="w-[140px]">
+          <div className="w-[180px]">
             <Select value={activeType} onValueChange={setActiveType}>
               <SelectTrigger className="rounded-[14px] bg-[var(--kl-surface)] border-[var(--kl-border)] h-11">
-                <SelectValue placeholder="Type" />
+                <div className="flex items-center gap-2 truncate">
+                    <span className="text-[11px] font-black uppercase text-[var(--kl-text-muted)] shrink-0">Type:</span>
+                    <SelectValue placeholder="All Types" />
+                </div>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Types</SelectItem>

@@ -103,14 +103,14 @@ export default function AppShell() {
         {/* Bench Selector (Staff/Supervisor Only) */}
         {user.role !== "hod" && (
           <div className="px-4 mb-4">
-            <button className="flex w-full items-center gap-3 rounded-[20px] bg-[var(--surface-raised)] p-3 border border-[var(--surface-border)] hover:bg-[var(--surface-card)] transition-all">
+            <button className="flex w-full items-center gap-3 rounded-[20px] bg-[var(--surface-raised)] p-3 border border-[var(--surface-border)] hover:bg-[var(--surface-card)] transition-all text-left">
               <div 
                 className="grid size-9 shrink-0 place-items-center rounded-xl text-white shadow-sm"
                 style={{ backgroundColor: activeDepartment.color }}
               >
                 <AppIcon name="tests" size={18} />
               </div>
-              <div className="min-w-0 flex-1 text-left">
+              <div className="min-w-0 flex-1">
                 <p className="truncate text-[13px] font-bold text-[var(--text-primary)]">{activeDepartment.shortName}</p>
                 <p className="truncate text-[10px] font-medium text-[var(--text-tertiary)] uppercase tracking-wider">{activeBench.shortName} bench</p>
               </div>
@@ -180,7 +180,7 @@ export default function AppShell() {
           
           <div className="flex flex-1 items-center justify-end gap-3 lg:gap-4">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--surface-raised)] border border-[var(--surface-border)]">
-                <div className="size-1.5 rounded-full bg-[#1c7b56] shadow-[0_0_8px_rgba(28,123,86,0.4)]"></div>
+                <div className={`size-1.5 rounded-full bg-[#1c7b56] shadow-[0_0_8px_rgba(28,123,86,0.4)]`}></div>
                 <span className="text-[11px] font-black uppercase tracking-widest text-[var(--text-secondary)]">Cloud Sync</span>
             </div>
             

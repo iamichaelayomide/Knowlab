@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import {
-  ArrowRight2 as ChevronRight,
+  ArrowRight2,
   ClipboardText,
   Profile2User,
   TickCircle,
@@ -10,21 +10,18 @@ import { ALERTS, QC_LOGS, USERS, getStaffUsers } from '../../data/mockData';
 import { LAB_ORDERS, scopePatients } from '../../data/patients';
 import { useAuth } from '../../context/AuthContext';
 import { openFloatingAI } from '../../services/aiWidget';
-import { TEXT_TOKENS } from '../../utils/textTokens';
 
-function MetricCard({ label, value, sublabel, tone, onClick }: { label: string; value: string | number; sublabel: string; tone: string; onClick: () => void }) {
+const ArrowRight = ArrowRight2;
+const ChevronRight = ArrowRight2;
+
+function MetricTile({ label, value, sublabel, accent }: { label: string; value: string | number; sublabel: string; accent: string }) {
   return (
-    <button onClick={onClick} className="kl-gradient-card kl-card-interactive rounded-[28px] border border-[var(--surface-border)] p-5 text-left shadow-sm">
-      <div className="mb-5 flex items-start justify-between">
-        <span className="grid size-10 place-items-center rounded-[18px] border border-[var(--surface-border)] bg-[var(--surface-card)] text-[var(--text-primary)]">
-          {tone === 'patient' ? <Profile2User size={17} /> : tone === 'warning' ? <Warning2 size={17} /> : <ClipboardText size={17} />}
-        </span>
-        <span className="rounded-full bg-[var(--kl-surface-tinted)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">Live</span>
-      </div>
-      <p className="mb-1 text-[12px] font-medium text-[var(--text-secondary)]">{label}</p>
-      <p className="mb-1 text-[30px] font-semibold leading-none text-[var(--text-primary)]">{value}</p>
-      <p className="text-[12px] text-[var(--text-secondary)]">{sublabel}</p>
-    </button>
+    <div className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-5">
+      <div className="h-1 rounded-full mb-4" style={{ backgroundColor: accent }} />
+      <p className="text-[var(--kl-text-muted)] text-[14px] mb-1">{label}</p>
+      <p className="text-[var(--kl-text)] font-bold text-[30px] leading-none mb-1">{value}</p>
+      <p className="text-[var(--kl-text-muted)] text-[12px]">{sublabel}</p>
+    </div>
   );
 }
 
@@ -43,43 +40,61 @@ export default function SupervisorDashboard() {
 
   return (
     <div className="kl-page">
-      <section className="kl-premium-card mb-5 overflow-hidden bg-[var(--surface-card)] dark:bg-[linear-gradient(145deg,#0c0c0d,#19191b_52%,#2a2a2c)] p-5 text-[var(--text-primary)] dark:text-white sm:p-7 border border-[var(--surface-border)] shadow-sm">
-        <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-          <div>
-            <p className="mb-4 inline-flex rounded-full border border-[var(--surface-border)] dark:border-white/12 bg-[var(--surface-raised)] dark:bg-white/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)] dark:text-white/68">
-              Unit command center
+      {/* Hero Banner (Staff Style) */}
+      <div
+        className="rounded-[24px] overflow-hidden mb-6 relative border border-[var(--surface-border)]"
+        style={{ background: 'linear-gradient(151deg, #0f0f10 11%, #1c1c1e 56%, #2a2a2c 100%)' }}
+      >
+        <div className="p-6 sm:p-8 lg:p-10 flex flex-col lg:flex-row gap-6 sm:gap-8">
+          <div className="flex-1">
+            <div className="inline-flex items-center bg-[rgba(255,255,255,0.10)] border border-[rgba(255,255,255,0.14)] rounded-full px-4 py-2 mb-6">
+              <span className="text-white/70 text-[11px] font-semibold tracking-[1.98px] uppercase">Unit command center</span>
+            </div>
+            <h1 className="text-white font-bold text-[32px] sm:text-[42px] leading-[1.1] mb-4">
+              Good morning, {user.name.split(' ')[0]}.
+            </h1>
+            <p className="text-white/72 text-[16px] leading-[1.7] max-w-[580px] mb-8">
+              Oversight for <span className="text-white font-black">{user.unit}</span>. You have {staff.length} staff members on active shift and {qcPending} QC logs awaiting review.
             </p>
-            <h1 className="text-[28px] font-semibold leading-tight sm:text-[34px]">Good morning, {user.name.split(' ')[0]}.</h1>
-            <p className="mt-3 max-w-[620px] text-[14px] leading-relaxed text-[var(--text-secondary)] dark:text-white/68">
-              {user.unit} {TEXT_TOKENS.separator.trim()} {staff.length} staff members {TEXT_TOKENS.separator.trim()} bench-focused patient and QC oversight.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <button className="btn-primary" onClick={() => navigate('/supervisor/patients')}>Open patients</button>
-              <button className="kl-button-soft rounded-full border border-[var(--surface-border)] dark:border-white/14 bg-[var(--surface-raised)] dark:bg-white/8 px-4 text-[var(--text-primary)] dark:text-white" onClick={() => navigate('/supervisor/qc-log')}>Open QC log</button>
-              <button className="kl-button-soft rounded-full border border-[var(--surface-border)] dark:border-white/14 bg-[var(--surface-raised)] dark:bg-white/8 px-4 text-[var(--text-primary)] dark:text-white" onClick={() => openFloatingAI('Which QC issue should I prioritize today?')}>Ask AI insights</button>
+            <div className="flex flex-wrap gap-4">
+              <button
+                onClick={() => navigate('/supervisor/patients')}
+                className="btn-primary text-white font-bold text-[14px] px-8 py-3.5 rounded-full shadow-lg transition-all hover:translate-y-[-1px] inline-flex items-center gap-2"
+              >
+                Open Patient Portal <ArrowRight size={16} />
+              </button>
+              <button
+                onClick={() => openFloatingAI('Which QC issue should I prioritize today?')}
+                className="bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold text-[14px] px-6 py-3.5 rounded-full transition-all"
+              >
+                Ask AI Insights
+              </button>
             </div>
           </div>
-          <div className="grid gap-3">
+          <div className="flex flex-col gap-4 lg:w-[320px]">
             {[
-              ['Review queue', `${qcPending} QC log pending review.`, `${qcAttention} warning/fail signal(s).`],
-              ['Patient workload', `${patients.length} patients in scope.`, `${heldOrders} held order(s) require attention.`],
-              ['SOP workflow', 'SOP reviews remain available.', 'Open the SOP Reviews queue when assigned.'],
-            ].map(([label, value, sub]) => (
-              <div key={label} className="rounded-[22px] border border-[var(--surface-border)] dark:border-white/12 bg-[var(--surface-raised)] dark:bg-white/8 p-4">
-                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-[var(--text-tertiary)] dark:text-white/55">{label}</p>
-                <p className="text-[14px] font-medium">{value}</p>
-                <p className="mt-1 text-[12px] text-[var(--text-tertiary)] dark:text-white/50">{sub}</p>
+              { label: 'REVIEW QUEUE', value: `${qcPending} logs pending review`, sub: `${qcAttention} warning/fail signal(s)` },
+              { label: 'PATIENT WORKLOAD', value: `${patients.length} patients in scope`, sub: `${heldOrders} held orders require attention` },
+              { label: 'SOP WORKFLOW', value: 'SOP reviews available', sub: 'Open queue when assigned' },
+            ].map(item => (
+              <div
+                key={item.label}
+                className="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-[24px] px-5 py-4"
+              >
+                <p className="text-white/50 font-semibold text-[10px] tracking-[0.2em] uppercase mb-1">{item.label}</p>
+                <p className="text-white text-[15px] font-bold leading-snug">{item.value}</p>
+                <p className="text-white/40 text-[11px] mt-1">{item.sub}</p>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
-      <section className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Staff Members" value={staff.length} sublabel="In supervisor view" tone="staff" onClick={() => navigate('/supervisor/staff')} />
-        <MetricCard label="Patients" value={patients.length} sublabel={`${heldOrders} held orders`} tone="patient" onClick={() => navigate('/supervisor/patients')} />
-        <MetricCard label="QC Pending" value={qcPending} sublabel={`${qcAttention} need attention`} tone="warning" onClick={() => navigate('/supervisor/qc-log')} />
-        <MetricCard label="Unread Alerts" value={myAlerts.length} sublabel="Need follow-up" tone="alert" onClick={() => navigate('/supervisor/alerts')} />
+      <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <MetricTile label="Staff Members" value={staff.length} sublabel="On active shift" accent="#171717" />
+        <MetricTile label="Patients" value={patients.length} sublabel={`${heldOrders} held orders`} accent="#1c7b56" />
+        <MetricTile label="QC Pending" value={qcPending} sublabel={`${qcAttention} need attention`} accent="#9a6115" />
+        <MetricTile label="Unread Alerts" value={myAlerts.length} sublabel="Need follow-up" accent="#b14343" />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
@@ -122,7 +137,7 @@ export default function SupervisorDashboard() {
                     <p className="truncate text-[13px] font-semibold text-[var(--text-primary)]">{order.testName}</p>
                     <p className="text-[11px] text-[var(--text-secondary)]">{order.ward} | {order.specimen}</p>
                   </div>
-                  <span className="rounded-full bg-[var(--kl-surface-tinted)] px-2.5 py-1 text-[10px] font-semibold capitalize text-[var(--text-primary)]">{order.status}</span>
+                  <span className="rounded-full bg-[var(--kl-surface-tinted)] px-2.5 py-1 text-[10px] font-semibold capitalize text-[var(--text-primary)] text-center">{order.status}</span>
                 </div>
               </button>
             ))}
