@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
-import { getUserByEmail } from '../data/mockData';
+import { USERS, getUserByEmail } from '../data/mockData';
 import { TEXT_TOKENS } from '../utils/textTokens';
 import { AppIcon } from '../components/icons/AppIcon';
 
@@ -12,6 +12,12 @@ const DEMO_CREDENTIALS: Record<DemoRole, { email: string; password: string }> = 
   Staff: { email: 'staff123@knowlab.com', password: 'staff123' },
   Supervisor: { email: 'supervisor123@knowlab.com', password: 'supervisor123' },
   HOD: { email: 'hod123@knowlab.com', password: 'hod123' },
+};
+
+const DEMO_USERS_BY_ROLE = {
+  Staff: USERS.filter((user) => user.role === 'staff'),
+  Supervisor: USERS.filter((user) => user.role === 'supervisor'),
+  HOD: USERS.filter((user) => user.role === 'hod'),
 };
 
 export default function LoginPage() {
@@ -26,7 +32,10 @@ export default function LoginPage() {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [detectedUser, setDetectedUser] = useState<null | { name: string; unit: string; role: string }>(null);
+  const [selectedDemoUserId, setSelectedDemoUserId] = useState('');
   const visibleRole = detectedUser?.role || 'Staff';
+  const showUnitSelector = visibleRole === 'Staff' || visibleRole === 'Supervisor';
+  const visibleDemoUsers = DEMO_USERS_BY_ROLE[visibleRole as DemoRole] ?? [];
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -37,11 +46,14 @@ export default function LoginPage() {
       if (found) {
         const roleLabel = found.role === 'staff' ? 'Staff' : found.role === 'supervisor' ? 'Supervisor' : 'HOD';
         setDetectedUser({ name: found.name, unit: found.unit, role: roleLabel });
+        setSelectedDemoUserId(found.role === 'staff' || found.role === 'supervisor' ? found.id : '');
       } else {
         setDetectedUser(null);
+        setSelectedDemoUserId('');
       }
     } else {
       setDetectedUser(null);
+      setSelectedDemoUserId('');
     }
   };
 
@@ -50,6 +62,14 @@ export default function LoginPage() {
     setPassword(credentials.password);
     setShowPassword(false);
     handleEmailChange(credentials.email);
+  };
+
+  const handleDemoUserSelect = (userId: string) => {
+    const selected = USERS.find((user) => user.id === userId);
+    if (!selected) return;
+    setPassword(selected.password);
+    setShowPassword(false);
+    handleEmailChange(selected.email);
   };
 
   const routeByRole = (emailAddress: string) => {
@@ -155,6 +175,30 @@ export default function LoginPage() {
                 ))}
               </div>
               <form onSubmit={handleSignIn} className="space-y-4">
+                {showUnitSelector && (
+                  <div>
+                    <label className="block text-[var(--text-secondary)] font-medium text-[13px] mb-1.5" htmlFor="demo-unit">
+                      {visibleRole} unit
+                    </label>
+                    <div className="relative">
+                      <select
+                        id="demo-unit"
+                        value={selectedDemoUserId}
+                        onChange={(event) => handleDemoUserSelect(event.target.value)}
+                        className="input h-[44px] w-full appearance-none rounded-full px-4 pr-11 text-[14px]"
+                      >
+                        <option value="">Choose a {visibleRole.toLowerCase()} unit</option>
+                        {visibleDemoUsers.map((user) => (
+                          <option key={user.id} value={user.id}>
+                            {user.unit} - {user.name}
+                          </option>
+                        ))}
+                      </select>
+                      <AppIcon name="chevronDown" size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-[var(--text-secondary)] font-medium text-[13px] mb-1.5">Work email</label>
                   <input
