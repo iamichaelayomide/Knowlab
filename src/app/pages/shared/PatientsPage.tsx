@@ -78,7 +78,9 @@ export default function PatientsPage() {
       const patientOrders = getPatientOrders(patient.id);
       // Logic: Patient has at least one order in the current department that is not yet 'verified' or 'resulted'
       const hasPendingInDept = patientOrders.some(o => {
-        const isDeptMatch = user?.role === 'staff' ? o.department === activeDepartment.name : true;
+        const isDeptMatch = user?.role === 'staff' && activeDepartment.name !== 'Laboratory' 
+          ? o.department.toLowerCase().includes(activeDepartment.name.toLowerCase()) || activeDepartment.name.toLowerCase().includes(o.department.toLowerCase())
+          : true;
         const isPending = ['ordered', 'collected', 'processing', 'held'].includes(o.status);
         return isDeptMatch && isPending;
       });
@@ -190,18 +192,27 @@ export default function PatientsPage() {
           <div className="space-y-2">
             {filteredPatients.map((patient) => {
               const active = patient.id === selectedPatient.id;
-              const count = getPatientOrders(patient.id).length;
+              const patientOrders = getPatientOrders(patient.id);
+              const count = patientOrders.length;
+              const hasPending = patientOrders.some(o => ['ordered', 'collected', 'processing', 'held'].includes(o.status));
+
               return (
                 <a
                   key={patient.id}
                   href={`${base}/patients/${patient.id}`}
                   onClick={(e) => { e.preventDefault(); navigate(`${base}/patients/${patient.id}`); }}
-                  className="kl-card-interactive flex items-center gap-3 rounded-[22px] border p-3 no-underline"
+                  className="kl-card-interactive relative flex items-center gap-3 rounded-[22px] border p-3 no-underline"
                   style={{
                     background: active ? "var(--surface-card)" : "transparent",
                     borderColor: active ? "var(--surface-border-strong)" : "transparent",
                   }}
                 >
+                  {hasPending && (
+                    <div className="absolute top-3 right-3 flex items-center gap-1">
+                      <div className="size-1.5 rounded-full bg-[#9a6115] animate-pulse"></div>
+                      <span className="text-[9px] font-bold text-[#9a6115] uppercase tracking-tighter">Pending</span>
+                    </div>
+                  )}
                   <span className="grid size-11 place-items-center rounded-[18px] border border-[var(--surface-border)] bg-[var(--surface-raised)] text-[var(--text-primary)]">
                     <Profile2User size={18} />
                   </span>

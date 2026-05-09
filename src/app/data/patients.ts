@@ -413,11 +413,24 @@ export const PATIENT_NOTES: PatientNote[] = [
 
 export function scopePatients(role: UserRole, unit: string | undefined, department: string | undefined) {
   if (role === "hod") return PATIENTS;
-  const text = `${unit ?? ""} ${department ?? ""}`.toLowerCase();
-  if (role === "supervisor") {
-    return PATIENTS.filter((patient) => text.includes(patient.departmentScope.toLowerCase().split(" ")[0]));
-  }
-  return PATIENTS.filter((patient) => text.includes(patient.departmentScope.toLowerCase().split(" ")[0]));
+  const targetDept = (department ?? "").toLowerCase();
+  const targetUnit = (unit ?? "").toLowerCase();
+
+  return PATIENTS.filter((patient) => {
+    // 1. Direct match with patient's primary department scope
+    const primaryMatch = patient.departmentScope.toLowerCase().includes(targetDept) || targetUnit.includes(patient.departmentScope.toLowerCase());
+    if (primaryMatch) return true;
+
+    // 2. Multi-test match: Check if they have ANY order in this department
+    const orders = getPatientOrders(patient.id);
+    const hasRelevantOrder = orders.some(o => 
+      o.department.toLowerCase().includes(targetDept) || 
+      o.bench.toLowerCase().includes(targetUnit) ||
+      targetDept.includes(o.department.toLowerCase())
+    );
+    
+    return hasRelevantOrder;
+  });
 }
 
 export function getPatientOrders(patientId: string) {
