@@ -60,6 +60,7 @@ export interface PatientNote {
 export interface Patient {
   id: string;
   hospitalNumber: string;
+  labNumber: string;
   name: string;
   age: number;
   sex: PatientSex;
@@ -68,7 +69,11 @@ export interface Patient {
   clinician: string;
   departmentScope: string;
   summary: string;
-  allergies: string[];
+  allergies: string[]; // Keep for backwards compat, treated as drug reactions
+  height?: string;
+  weight?: string;
+  bloodPressure?: string;
+  detailedHistory?: string;
   diagnoses: PatientDiagnosis[];
   medications: PatientMedication[];
   lastSeen: string;
@@ -83,6 +88,7 @@ export interface OfflineResultDraft {
   unit: string;
   referenceRange: string;
   flag: ResultFlag;
+  status?: "pending_approval" | "approved" | "rejected";
   createdAt: string;
 }
 
@@ -90,6 +96,7 @@ const BASE_PATIENTS: Patient[] = [
   {
     id: "pt-001",
     hospitalNumber: "UCH-24-01982",
+    labNumber: "L-26-0001",
     name: "Amara Okeke",
     age: 34,
     sex: "Female",
@@ -98,6 +105,10 @@ const BASE_PATIENTS: Patient[] = [
     departmentScope: "Haematology",
     summary: "Admitted for severe anaemia workup with fatigue and dizziness. Previous transfusion in 2023.",
     allergies: ["No known drug allergy"],
+    height: "165 cm",
+    weight: "58 kg",
+    bloodPressure: "110/70 mmHg",
+    detailedHistory: "Patient presents with a 3-week history of worsening fatigue, dizziness upon standing, and occasional shortness of breath. History of menorrhagia for the past 2 years. Had a previous blood transfusion (2 units of packed RBCs) in November 2023 following a severe bleeding episode. No history of hypertension or diabetes. Currently denies any acute pain but feels extremely lethargic.",
     diagnoses: [
       { label: "Severe anaemia under evaluation", status: "working", date: "2026-05-08" },
       { label: "Menorrhagia", status: "history", date: "2025-11-12" },
@@ -111,6 +122,7 @@ const BASE_PATIENTS: Patient[] = [
   {
     id: "pt-002",
     hospitalNumber: "UCH-24-02114",
+    labNumber: "L-26-0002",
     name: "Musa Danladi",
     age: 58,
     sex: "Male",
@@ -118,7 +130,11 @@ const BASE_PATIENTS: Patient[] = [
     clinician: "Dr. Akinola",
     departmentScope: "Chemistry",
     summary: "Known diabetic patient with vomiting and dehydration. Chemistry requested for renal function and glucose monitoring.",
-    allergies: ["Penicillin"],
+    allergies: ["Penicillin - causes severe hives and shortness of breath"],
+    height: "178 cm",
+    weight: "82 kg",
+    bloodPressure: "145/90 mmHg",
+    detailedHistory: "58-year-old male with a 6-year history of Type 2 Diabetes Mellitus. Presented to the ER with a 2-day history of recurrent vomiting, inability to keep fluids down, and profound weakness. Blood glucose at triage was 350 mg/dL. Signs of severe dehydration (dry mucous membranes, delayed capillary refill). Acute kidney injury is strongly suspected secondary to volume depletion. Metformin has been held.",
     diagnoses: [
       { label: "Type 2 diabetes mellitus", status: "confirmed", date: "2020-04-18" },
       { label: "Acute kidney injury query", status: "working", date: "2026-05-09" },
@@ -132,6 +148,7 @@ const BASE_PATIENTS: Patient[] = [
   {
     id: "pt-003",
     hospitalNumber: "UCH-24-02201",
+    labNumber: "L-26-0003",
     name: "Chinedu Eze",
     age: 7,
     sex: "Male",
@@ -139,9 +156,13 @@ const BASE_PATIENTS: Patient[] = [
     clinician: "Dr. Bello",
     departmentScope: "Microbiology & Parasitology",
     summary: "Fever with suspected bloodstream infection. Blood culture and malaria testing requested.",
-    allergies: ["No known drug allergy"],
+    allergies: ["Sulfa drugs - mild rash"],
+    height: "120 cm",
+    weight: "22 kg",
+    bloodPressure: "95/60 mmHg",
+    detailedHistory: "7-year-old boy brought in by parents with high-grade fever (up to 40°C), chills, and rigor for the past 3 days. Complains of generalized body ache and loss of appetite. No history of recent travel. Had a similar episode of malaria 6 months ago treated with ACT. Given the persistent high fever unresponsive to paracetamol, a bloodstream infection (sepsis) or severe malaria is suspected. Cultures drawn before initiating empiric Ceftriaxone.",
     diagnoses: [{ label: "Sepsis query", status: "working", date: "2026-05-09" }],
-    medications: [{ name: "Ceftriaxone", dose: "Per weight", note: "Started after culture collection" }],
+    medications: [{ name: "Ceftriaxone", dose: "Per weight", note: "Started after culture collection" }, { name: "Paracetamol", dose: "15mg/kg PRN", note: "For fever" }],
     lastSeen: "2026-05-09T10:05:00Z",
   },
 ];
@@ -167,19 +188,25 @@ const EXTRA_PATIENT_NAMES = [
 const EXTRA_PATIENTS: Patient[] = EXTRA_PATIENT_GROUPS.flatMap((group, groupIndex) =>
   EXTRA_PATIENT_NAMES[groupIndex].map((name, itemIndex) => {
     const number = groupIndex * 5 + itemIndex + 4;
+    const isFemale = number % 2 === 0;
     return {
       id: `pt-${String(number).padStart(3, "0")}`,
       hospitalNumber: `UCH-24-${String(2300 + number).padStart(5, "0")}`,
+      labNumber: `L-26-${String(100 + number).padStart(4, "0")}`,
       name,
       age: 18 + ((number * 7) % 54),
-      sex: number % 2 === 0 ? "Female" : "Male",
+      sex: isFemale ? "Female" : "Male",
       ward: ["Medical Ward 1", "Emergency Unit", "Paediatrics", "Surgical Ward", "Antenatal Clinic"][itemIndex],
       clinician: ["Dr. Adeyemi", "Dr. Okoro", "Dr. Musa", "Dr. Ekanem", "Dr. Ibrahim"][itemIndex],
       departmentScope: group.scope,
-      summary: `${group.testName} requested for active laboratory review. Result entry and review should use local reference ranges, QC status, and clinical context.`,
-      allergies: itemIndex === 2 ? ["Sulphonamide"] : ["No known drug allergy"],
+      summary: `${group.testName} requested for active laboratory review. Patient presents with symptoms requiring ${group.bench} investigation.`,
+      allergies: itemIndex === 2 ? ["Sulphonamide - skin rash"] : ["No known drug allergy"],
+      height: `${155 + (number % 25)} cm`,
+      weight: `${55 + (number % 35)} kg`,
+      bloodPressure: `${110 + (number % 30)}/${70 + (number % 20)} mmHg`,
+      detailedHistory: `Patient ${name} admitted to ${["Medical Ward 1", "Emergency Unit", "Paediatrics", "Surgical Ward", "Antenatal Clinic"][itemIndex]} under ${["Dr. Adeyemi", "Dr. Okoro", "Dr. Musa", "Dr. Ekanem", "Dr. Ibrahim"][itemIndex]}. Request for ${group.testName} initiated due to clinical suspicion of ${group.scope.toLowerCase()} related pathology. Current clinical state is stable but requires laboratory confirmation for definitive management. No significant past surgical history noted in current records.`,
       diagnoses: [{ label: `${group.testName} workup`, status: "working", date: "2026-05-09" }],
-      medications: [{ name: "Medication history", dose: "See case note", note: "Verify with ward chart before interpretation" }],
+      medications: [{ name: "Standard care protocol", dose: "As per ward chart", note: "Verify with ward team" }],
       lastSeen: `2026-05-09T${String(9 + groupIndex).padStart(2, "0")}:${String(10 + itemIndex * 7).padStart(2, "0")}:00Z`,
     } satisfies Patient;
   }),
