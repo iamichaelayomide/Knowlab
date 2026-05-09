@@ -31,6 +31,15 @@ describe('LoginPage', () => {
     expect(screen.queryByText(/Click to fill/i)).not.toBeInTheDocument();
   });
 
+  it('fills demo credentials when a role chip is selected', () => {
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: /Use Supervisor demo account/i }));
+
+    expect(screen.getByPlaceholderText(/you@knowlab.com/i)).toHaveValue('supervisor123@knowlab.com');
+    expect(screen.getByPlaceholderText(/Enter your password/i)).toHaveValue('supervisor123');
+    expect(screen.getByRole('button', { name: /Use Supervisor demo account/i })).toHaveAttribute('aria-current', 'true');
+  });
+
   it('routes staff demo credentials to staff dashboard', async () => {
     renderPage();
     fireEvent.change(screen.getByPlaceholderText(/you@knowlab.com/i), { target: { value: 'staff123@knowlab.com' } });
@@ -55,4 +64,3 @@ describe('LoginPage', () => {
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/hod/dashboard'));
   });
 });
-

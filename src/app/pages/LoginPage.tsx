@@ -6,6 +6,13 @@ import { TEXT_TOKENS } from '../utils/textTokens';
 import { AppIcon } from '../components/icons/AppIcon';
 
 type AuthMode = 'signin' | 'forgot' | 'reset';
+type DemoRole = 'Staff' | 'Supervisor' | 'HOD';
+
+const DEMO_CREDENTIALS: Record<DemoRole, { email: string; password: string }> = {
+  Staff: { email: 'staff123@knowlab.com', password: 'staff123' },
+  Supervisor: { email: 'supervisor123@knowlab.com', password: 'supervisor123' },
+  HOD: { email: 'hod123@knowlab.com', password: 'hod123' },
+};
 
 export default function LoginPage() {
   const { login, requestPasswordReset, resetPassword } = useAuth();
@@ -36,6 +43,13 @@ export default function LoginPage() {
     } else {
       setDetectedUser(null);
     }
+  };
+
+  const handleRoleSelect = (role: DemoRole) => {
+    const credentials = DEMO_CREDENTIALS[role];
+    setPassword(credentials.password);
+    setShowPassword(false);
+    handleEmailChange(credentials.email);
   };
 
   const routeByRole = (emailAddress: string) => {
@@ -123,18 +137,21 @@ export default function LoginPage() {
               <h1 className="auth-heading text-[var(--text-primary)] font-bold text-[28px] mb-1">Sign in to Knowlab</h1>
               <p className="auth-subheading text-[var(--text-secondary)] text-[14px] mb-6 leading-[1.5]">Secure workspace sign in with role-aware access.</p>
               <div className="role-tabs mb-6 flex gap-1 rounded-full bg-[var(--surface-base)] p-1">
-                {['Staff', 'Supervisor', 'HOD'].map((role) => (
-                  <div
+                {(['Staff', 'Supervisor', 'HOD'] as DemoRole[]).map((role) => (
+                  <button
                     key={role}
+                    type="button"
+                    onClick={() => handleRoleSelect(role)}
                     className={`role-tab flex-1 rounded-full px-3 py-2 text-center text-[13px] font-medium transition-all duration-base ease-soft ${
                       visibleRole === role
                         ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-sm border border-[var(--surface-border)]'
                         : 'text-[var(--text-secondary)]'
                     }`}
                     aria-current={visibleRole === role ? 'true' : undefined}
+                    aria-label={`Use ${role} demo account`}
                   >
                     {role}
-                  </div>
+                  </button>
                 ))}
               </div>
               <form onSubmit={handleSignIn} className="space-y-4">
