@@ -1,6 +1,18 @@
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { BookOpenCheck, Clock3, FileImage, FileText, History, Paperclip, Plus, Send, Sparkles, User, X } from 'lucide-react';
+import {
+  BookSaved as BookOpenCheck,
+  Clock as Clock3,
+  Gallery as FileImage,
+  DocumentText as FileText,
+  Archive as History,
+  Paperclip,
+  Add as Plus,
+  Send2 as Send,
+  MagicStar as Sparkles,
+  User,
+  CloseCircle as X,
+} from 'iconsax-react';
 import { JOB_AIDS, LAB_TESTS, SOPS } from '../../data/mockData';
 import { useAuth } from '../../context/AuthContext';
 import { useDepartment } from '../../context/DepartmentContext';
@@ -538,7 +550,7 @@ export default function AIAssistantPage() {
                                 navigate(target.to, { state: { fromAi: true, sourceTitle: src.title } });
                               }}
                               disabled={!target}
-                              className={`kl-filter-pill inline-flex items-center gap-1 bg-[#eef5ff] text-[#1c5eff] text-[11px] px-2.5 py-1 rounded-full ${
+                              className={`kl-filter-pill inline-flex items-center gap-1 bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] text-[11px] px-2.5 py-1 rounded-full ${
                                 target ? 'hover:bg-[#dce9ff]' : 'opacity-60 cursor-not-allowed'
                               }`}
                               title={target?.label || 'Source route unavailable in current workspace'}
@@ -568,7 +580,7 @@ export default function AIAssistantPage() {
                   <button
                     key={prompt}
                     onClick={() => void send(prompt)}
-                    className="kl-filter-pill bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--text-secondary)] text-[12px] px-3 py-1.5 rounded-full hover:bg-[var(--surface-raised)] hover:text-[var(--accent-blue)]"
+                    className="kl-filter-pill bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--text-secondary)] text-[12px] px-3 py-1.5 rounded-full hover:bg-[var(--surface-raised)] hover:text-[var(--text-primary)]"
                   >
                     {prompt}
                   </button>

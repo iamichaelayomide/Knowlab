@@ -53,8 +53,12 @@ function StaffDetailView({ staffId }: { staffId: string }) {
       <div className="mt-4 rounded-[20px] border border-[var(--kl-border)] bg-[var(--kl-surface)] p-5 shadow-[var(--kl-shadow)]">
         <div className="flex items-start gap-4">
           <div
-            className="size-14 rounded-full flex items-center justify-center text-white font-semibold text-lg"
-            style={{ backgroundColor: staff.color }}
+            className="size-14 rounded-full flex items-center justify-center font-semibold text-lg"
+            style={{
+              background: 'linear-gradient(180deg, var(--surface-raised), var(--surface-card))',
+              border: 'var(--line-hairline) solid var(--surface-border-strong)',
+              color: 'var(--text-primary)',
+            }}
           >
             {staff.initials}
           </div>
@@ -241,7 +245,7 @@ export default function MyStaffPage() {
 
       <div className="flex gap-2 flex-wrap mb-4">
         {[
-          { label: "Total Staff", count: allDepartmentStaff.length, tone: "text-[#1c5eff] bg-[var(--kl-surface-tinted)]" },
+          { label: "Total Staff", count: allDepartmentStaff.length, tone: "text-[var(--text-primary)] bg-[var(--kl-surface-tinted)]" },
           { label: "Overdue Training", count: overdueCount, tone: "text-[#b14343] dark:text-[#fca5a5] bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]" },
           { label: "Below 80% Competency", count: belowThreshold, tone: "text-[#9a6115] dark:text-[#f3c26f] bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)]" },
         ].map((pill) => (
@@ -257,7 +261,7 @@ export default function MyStaffPage() {
           onClick={() => setSelectedBenchId("all")}
           className={`rounded-full border px-3 py-1.5 text-xs font-medium ${
             selectedBenchId === "all"
-              ? "border-[var(--kl-primary)] bg-[var(--kl-surface-tinted)] text-[var(--kl-primary)]"
+              ? "border-[var(--surface-border-strong)] bg-[var(--kl-surface-tinted)] text-[var(--text-primary)]"
               : "border-[var(--kl-border)] bg-[var(--kl-surface)] text-[var(--kl-text-muted)]"
           }`}
         >
@@ -269,7 +273,7 @@ export default function MyStaffPage() {
             onClick={() => setSelectedBenchId(bench.id)}
             className={`rounded-full border px-3 py-1.5 text-xs font-medium ${
               selectedBenchId === bench.id
-                ? "border-[var(--kl-primary)] bg-[var(--kl-surface-tinted)] text-[var(--kl-primary)]"
+                ? "border-[var(--surface-border-strong)] bg-[var(--kl-surface-tinted)] text-[var(--text-primary)]"
                 : "border-[var(--kl-border)] bg-[var(--kl-surface)] text-[var(--kl-text-muted)]"
             }`}
           >
@@ -284,7 +288,7 @@ export default function MyStaffPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search staff by name or unit"
-          className="w-full rounded-[12px] border border-[var(--kl-border)] bg-[var(--kl-surface)] pl-9 pr-3 py-2.5 text-sm text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--kl-primary)]"
+          className="w-full rounded-[12px] border border-[var(--kl-border)] bg-[var(--kl-surface)] pl-9 pr-3 py-2.5 text-sm text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--surface-border-strong)]"
         />
       </div>
 
@@ -314,8 +318,12 @@ export default function MyStaffPage() {
                     className="px-4 py-3 border-b border-[var(--kl-border)] last:border-b-0 flex items-center gap-3 hover:bg-[var(--kl-surface-soft)] active:bg-[var(--kl-surface-tinted)] active:scale-[0.995] transition-all"
                   >
                     <div
-                      className="size-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
-                      style={{ backgroundColor: member.color }}
+                      className="size-9 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0"
+                      style={{
+                        background: 'linear-gradient(180deg, var(--surface-raised), var(--surface-card))',
+                        border: 'var(--line-hairline) solid var(--surface-border-strong)',
+                        color: 'var(--text-primary)',
+                      }}
                     >
                       {member.initials}
                     </div>
@@ -338,7 +346,7 @@ export default function MyStaffPage() {
                     </div>
                     <button
                       onClick={() => navigate(`/supervisor/staff/${member.id}`)}
-                      className="inline-flex items-center gap-1 rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-2.5 py-1.5 text-xs text-[var(--kl-primary)] hover:bg-[var(--kl-surface-tinted)] active:scale-[0.98] transition-all"
+                      className="inline-flex items-center gap-1 rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] hover:bg-[var(--kl-surface-tinted)] active:scale-[0.98] transition-all"
                     >
                       View
                       <AppIcon name="chevronRight" size={12} />

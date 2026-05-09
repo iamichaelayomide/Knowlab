@@ -14,7 +14,7 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  font-family: "Manrope", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
   font-size: 15px;
   line-height: 1.6;
   color: var(--text-primary);
@@ -40,7 +40,7 @@ button, input, textarea, select {
 }
 
 [data-theme="dark"] :focus-visible {
-  box-shadow: 0 0 0 3px rgba(110, 161, 255, 0.26), 0 0 0 1px var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.14), 0 0 0 1px var(--accent-blue);
 }
 
 ::-webkit-scrollbar {

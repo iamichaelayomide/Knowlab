@@ -1,20 +1,29 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
-import { Search, BookOpen, CheckSquare, GitBranch, FileText, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  SearchNormal1 as Search,
+  BookSaved as BookOpen,
+  TickSquare as CheckSquare,
+  Hierarchy as GitBranch,
+  DocumentText as FileText,
+  Warning2 as AlertCircle,
+  ArrowDown2 as ChevronDown,
+  ArrowUp2 as ChevronUp,
+} from 'iconsax-react';
 import { JOB_AIDS, JobAid } from '../../data/mockData';
 import { useDepartment } from '../../context/DepartmentContext';
 
 const TYPE_ICONS: Record<string, React.ReactNode> = {
   checklist: <CheckSquare size={18} className="text-[#1c7b56] dark:text-[#88e0ba]" />,
   decision_tree: <GitBranch size={18} className="text-[#9a6115] dark:text-[#f3c26f]" />,
-  quick_reference: <FileText size={18} className="text-[#1c5eff]" />,
+  quick_reference: <FileText size={18} className="text-[var(--text-primary)]" />,
   protocol: <AlertCircle size={18} className="text-[#b14343] dark:text-[#fca5a5]" />,
 };
 
 const TYPE_COLORS: Record<string, string> = {
   checklist: 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]',
   decision_tree: 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]',
-  quick_reference: 'bg-[var(--kl-surface-tinted)] text-[#1c5eff]',
+  quick_reference: 'bg-[var(--kl-surface-tinted)] text-[var(--text-primary)]',
   protocol: 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]',
 };
 
@@ -60,7 +69,7 @@ function JobAidCard({ aid }: { aid: JobAid }) {
           {aid.steps && (
             <button
               onClick={() => setExpanded(v => !v)}
-              className="flex items-center gap-1.5 text-[#1c5eff] text-[12px] font-medium hover:gap-2 transition-all"
+              className="flex items-center gap-1.5 text-[var(--text-primary)] text-[12px] font-medium hover:gap-2 transition-all"
             >
               {expanded ? 'Hide steps' : `Show ${aid.steps.length} steps`}
               {expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
@@ -71,12 +80,12 @@ function JobAidCard({ aid }: { aid: JobAid }) {
 
       {/* Expanded Steps */}
       {expanded && aid.steps && (
-        <div className="border-t border-[#f4f8ff] bg-[var(--kl-surface-soft)]">
+        <div className="border-t border-[var(--surface-border)] bg-[var(--kl-surface-soft)]">
           <div className="p-5 space-y-3">
             {aid.steps.map((step, i) => (
               <div key={i} className="flex gap-3">
                 <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--kl-surface-tinted)] flex items-center justify-center">
-                  <span className="text-[#1c5eff] text-[11px] font-bold">{i + 1}</span>
+                  <span className="text-[var(--text-primary)] text-[11px] font-bold">{i + 1}</span>
                 </div>
                 <p className="text-[var(--kl-text-muted)] text-[13px] leading-relaxed flex-1">{step}</p>
               </div>
@@ -149,7 +158,7 @@ export default function JobAidsPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search job aids…"
-          className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[#1c5eff] transition-colors"
+          className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--surface-border-strong)] transition-colors"
         />
       </div>
 
@@ -162,7 +171,7 @@ export default function JobAidsPage() {
               onClick={() => setActiveCategory(cat)}
               className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors border ${
                 activeCategory === cat
-                  ? 'bg-[var(--kl-surface-tinted)] text-[#1c5eff] border-[#1c5eff]'
+                  ? 'bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] border-[var(--surface-border-strong)]'
                   : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--kl-primary)]'
               }`}
             >
@@ -177,7 +186,7 @@ export default function JobAidsPage() {
               onClick={() => setActiveType(type)}
               className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors border ${
                 activeType === type
-                  ? 'bg-[var(--kl-surface-tinted)] text-[#1c5eff] border-[#1c5eff]'
+                  ? 'bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] border-[var(--surface-border-strong)]'
                   : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--kl-primary)]'
               }`}
             >
@@ -191,7 +200,7 @@ export default function JobAidsPage() {
       <div className="grid lg:grid-cols-2 gap-4">
         {filtered.length === 0 && (
           <div className="col-span-2 bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-8 text-center">
-            <BookOpen size={32} className="text-[#c4d2ef] mx-auto mb-3" />
+            <BookOpen size={32} className="text-[var(--text-tertiary)] mx-auto mb-3" />
             <p className="text-[var(--kl-text-muted)] font-medium">No job aids found</p>
           </div>
         )}

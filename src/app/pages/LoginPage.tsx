@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Eye, EyeOff, FlaskConical, AlertCircle, KeyRound, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getUserByEmail } from '../data/mockData';
 import { TEXT_TOKENS } from '../utils/textTokens';
+import { AppIcon } from '../components/icons/AppIcon';
 
 type AuthMode = 'signin' | 'forgot' | 'reset';
 
@@ -114,7 +114,7 @@ export default function LoginPage() {
               }}
               className="kl-button-soft mb-4 inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[var(--text-secondary)] text-[13px] hover:text-[var(--text-primary)] transition-colors"
             >
-              <ArrowLeft size={14} /> Back to sign in
+              <AppIcon name="arrowRight" size={14} className="rotate-180" /> Back to sign in
             </button>
           )}
 
@@ -152,7 +152,7 @@ export default function LoginPage() {
 
                 {detectedUser && (
                   <div className="kl-card bg-[var(--accent-glow)] border border-[var(--surface-border)] rounded-[24px] p-4 flex items-start gap-3">
-                    <FlaskConical size={16} className="text-[var(--accent-blue)] mt-0.5" />
+                    <AppIcon name="tests" size={16} className="text-[var(--accent-blue)] mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <p className="text-[var(--text-primary)] font-semibold text-[14px]">{detectedUser.unit}</p>
                       <p className="text-[var(--text-secondary)] text-[12px]">{detectedUser.name}</p>
@@ -180,7 +180,7 @@ export default function LoginPage() {
                       className="kl-icon-button absolute right-2 top-1/2 flex size-8 min-h-8 min-w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--glass-bg)] text-[var(--text-tertiary)] backdrop-blur-sm transition-all hover:bg-[var(--surface-base)] hover:text-[var(--text-secondary)]"
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      <AppIcon name={showPassword ? 'eyeSlash' : 'eye'} size={16} />
                     </button>
                   </div>
                 </div>
@@ -197,13 +197,13 @@ export default function LoginPage() {
 
                 {error && (
                   <div className="flex items-center gap-2 bg-[rgba(255,59,48,0.12)] text-[var(--destructive)] text-[13px] rounded-[20px] px-4 py-3">
-                    <AlertCircle size={14} />
+                    <AppIcon name="warning" size={14} />
                     {error}
                   </div>
                 )}
                 {message && (
                   <div className="flex items-center gap-2 bg-[rgba(52,199,89,0.12)] text-[var(--success)] text-[13px] rounded-[20px] px-4 py-3">
-                    <KeyRound size={14} />
+                    <AppIcon name="key" size={14} />
                     {message}
                   </div>
                 )}
@@ -237,7 +237,7 @@ export default function LoginPage() {
                 </div>
                 {message && (
                   <div className="flex items-center gap-2 bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba] text-[13px] rounded-[12px] px-4 py-3">
-                    <KeyRound size={14} />
+                    <AppIcon name="key" size={14} />
                     {message}
                   </div>
                 )}
@@ -284,7 +284,7 @@ export default function LoginPage() {
                 </div>
                 {error && (
                   <div className="flex items-center gap-2 bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5] text-[13px] rounded-[12px] px-4 py-3">
-                    <AlertCircle size={14} />
+                    <AppIcon name="warning" size={14} />
                     {error}
                   </div>
                 )}

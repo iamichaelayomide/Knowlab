@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Send } from 'lucide-react';
+import { Send2 as Send } from 'iconsax-react';
 import { useAuth } from '../../context/AuthContext';
 import { createUserRequest, getWorkflowState } from '../../services/workflowStore';
 import type { UserRole } from '../../types/workflow';
@@ -52,7 +52,7 @@ export default function UserRequestPage() {
             <option value="supervisor">Supervisor</option>
           </select>
         </div>
-        <button type="submit" className="mt-3 inline-flex items-center gap-1.5 bg-[#1c5eff] text-white rounded-[10px] px-3 py-2 text-[12px]">
+        <button type="submit" className="btn-primary mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[12px]">
           <Send size={13} /> Submit request
         </button>
       </form>
@@ -67,7 +67,7 @@ export default function UserRequestPage() {
             <span className={`text-[11px] px-2 py-0.5 rounded-full ${
               req.decision === 'approved' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' :
               req.decision === 'rejected' ? 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]' :
-              'bg-[#eef5ff] text-[#1c5eff]'
+              'bg-[var(--kl-surface-tinted)] text-[var(--text-primary)]'
             }`}>
               {req.decision}
             </span>

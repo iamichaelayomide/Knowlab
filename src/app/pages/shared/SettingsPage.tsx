@@ -40,8 +40,12 @@ export default function SettingsPage() {
 
         <div className="flex items-center gap-4">
           <div
-            className="size-[56px] rounded-full flex items-center justify-center text-white font-bold text-[18px]"
-            style={{ backgroundColor: user?.color }}
+            className="size-[56px] rounded-full flex items-center justify-center font-bold text-[18px]"
+            style={{
+              background: "linear-gradient(180deg, var(--surface-raised), var(--surface-card))",
+              border: "var(--line-hairline) solid var(--surface-border-strong)",
+              color: "var(--text-primary)",
+            }}
           >
             {user?.initials}
           </div>

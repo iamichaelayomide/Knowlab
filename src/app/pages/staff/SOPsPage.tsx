@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { Search, FileText, ChevronRight, Plus } from 'lucide-react';
+import { SearchNormal1 as Search, DocumentText as FileText, ArrowRight2 as ChevronRight, Add as Plus } from 'iconsax-react';
 import { SOPS } from '../../data/mockData';
 import { useDepartment } from '../../context/DepartmentContext';
 import { getStageBadge, getWorkflowState } from '../../services/workflowStore';
@@ -62,13 +62,13 @@ export default function SOPsPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search SOPs, codes, or keywords…"
-            className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[#1c5eff] transition-colors"
+            className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--surface-border-strong)] transition-colors"
           />
         </div>
         {base === '/staff' && (
           <button
             onClick={() => navigate('/staff/sops/new')}
-            className="inline-flex items-center justify-center gap-1.5 bg-[#1c5eff] text-white rounded-[14px] px-4 py-3 text-[13px] font-medium"
+            className="btn-primary inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-3 text-[13px] font-medium"
           >
             <Plus size={14} /> Create SOP Draft
           </button>
@@ -83,7 +83,7 @@ export default function SOPsPage() {
             onClick={() => setActiveCategory(cat)}
             className={`px-4 py-2 rounded-full text-[12px] font-medium transition-colors border ${
               activeCategory === cat
-                ? 'bg-[var(--kl-surface-tinted)] text-[#1c5eff] border-[#1c5eff]'
+                ? 'bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] border-[var(--surface-border-strong)]'
                 : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--kl-primary)]'
             }`}
           >
@@ -102,7 +102,7 @@ export default function SOPsPage() {
               className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[20px] p-5 flex items-start gap-4 text-left"
             >
               <div className="bg-[var(--kl-surface-tinted)] rounded-[14px] p-3 flex-shrink-0">
-                <FileText size={20} className="text-[#1c5eff]" />
+                <FileText size={20} className="text-[var(--text-primary)]" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3 mb-1">
@@ -111,7 +111,7 @@ export default function SOPsPage() {
                     stage.tone === 'success' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' :
                     stage.tone === 'warning' ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]' :
                     stage.tone === 'danger' ? 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]' :
-                    'bg-[#eef5ff] text-[#1c5eff]'
+                    'bg-[var(--kl-surface-tinted)] text-[var(--text-primary)]'
                   }`}>{stage.label}</span>
                 </div>
                 <div className="flex items-center gap-3 mb-2">
@@ -129,7 +129,7 @@ export default function SOPsPage() {
 
         {filtered.length === 0 && filteredWorkflow.length === 0 && (
           <div className="bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-8 text-center">
-            <FileText size={32} className="text-[#c4d2ef] mx-auto mb-3" />
+            <FileText size={32} className="text-[var(--text-tertiary)] mx-auto mb-3" />
             <p className="text-[var(--kl-text-muted)] font-medium">No SOPs found</p>
             <p className="text-[var(--kl-text-muted)] text-[13px]">Try adjusting your search or filter</p>
           </div>
@@ -138,15 +138,15 @@ export default function SOPsPage() {
           <button
             key={sop.id}
             onClick={() => navigate(`${base}/sops/${sop.id}`)}
-            className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[20px] p-5 flex items-start gap-4 hover:border-[var(--kl-primary)] hover:shadow-[var(--kl-shadow)] transition-all text-left group"
+            className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[20px] p-5 flex items-start gap-4 hover:border-[var(--surface-border-strong)] hover:shadow-[var(--kl-shadow)] transition-all text-left group"
           >
             <div className="bg-[var(--kl-surface-tinted)] rounded-[14px] p-3 flex-shrink-0">
-              <FileText size={20} className="text-[#1c5eff]" />
+              <FileText size={20} className="text-[var(--text-primary)]" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-3 mb-1">
-                <h3 className="text-[var(--kl-text)] font-semibold text-[15px] leading-snug group-hover:text-[#1c5eff] transition-colors">{sop.title}</h3>
-                <ChevronRight size={16} className="text-[#c4d2ef] group-hover:text-[#1c5eff] flex-shrink-0 mt-0.5 transition-colors" />
+                <h3 className="text-[var(--kl-text)] font-semibold text-[15px] leading-snug group-hover:text-[var(--text-primary)] transition-colors">{sop.title}</h3>
+                <ChevronRight size={16} className="text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)] flex-shrink-0 mt-0.5 transition-colors" />
               </div>
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-[var(--kl-text-muted)] text-[12px]">{sop.code}</span>

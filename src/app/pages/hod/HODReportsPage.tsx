@@ -1,4 +1,4 @@
-import { BarChart2, TrendingUp, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Chart2 as BarChart2, TrendUp as TrendingUp, TickCircle as CheckCircle2, Warning2 as AlertTriangle } from 'iconsax-react';
 import { TRAINING_RECORDS, TRAINING_MODULES, QC_LOGS, CAPA_ITEMS, getStaffUsers, ALERTS } from '../../data/mockData';
 
 export default function HODReportsPage() {
@@ -60,7 +60,7 @@ export default function HODReportsPage() {
       {/* Training breakdown */}
       <div className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] p-6 mb-5">
         <h2 className="text-[var(--kl-text)] font-semibold text-[17px] mb-4 flex items-center gap-2">
-          <BarChart2 size={18} className="text-[#1c5eff]" /> Training Breakdown by Module
+          <BarChart2 size={18} className="text-[var(--text-primary)]" /> Training Breakdown by Module
         </h2>
         <div className="space-y-3">
           {TRAINING_MODULES.map(mod => {
@@ -96,12 +96,12 @@ export default function HODReportsPage() {
       {/* QC Performance */}
       <div className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] p-6 mb-5">
         <h2 className="text-[var(--kl-text)] font-semibold text-[17px] mb-4 flex items-center gap-2">
-          <BarChart2 size={18} className="text-[#1c5eff]" /> QC Performance Summary
+          <BarChart2 size={18} className="text-[var(--text-primary)]" /> QC Performance Summary
         </h2>
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[400px]">
             <thead>
-              <tr className="border-b border-[#f4f8ff]">
+              <tr className="border-b border-[var(--surface-border)]">
                 {['QC Level', 'Total Runs', 'Passed', 'Warning', 'Failed', 'Pass Rate'].map(h => (
                   <th key={h} className="text-[var(--kl-text-muted)] font-semibold text-[11px] uppercase tracking-[0.8px] pb-3 pr-4">{h}</th>
                 ))}
@@ -111,7 +111,7 @@ export default function HODReportsPage() {
               {qcByLevel.map(row => {
                 const passRate = Math.round((row.passed / row.entries) * 100);
                 return (
-                  <tr key={row.level} className="border-b border-[#f4f8ff] last:border-0">
+                  <tr key={row.level} className="border-b border-[var(--surface-border)] last:border-0">
                     <td className="py-3 pr-4 text-[var(--kl-text)] font-medium text-[13px]">{row.level}</td>
                     <td className="py-3 pr-4 text-[var(--kl-text-muted)] text-[13px]">{row.entries}</td>
                     <td className="py-3 pr-4 text-[#1c7b56] dark:text-[#88e0ba] font-semibold text-[13px]">{row.passed}</td>
@@ -133,11 +133,11 @@ export default function HODReportsPage() {
       {/* CAPA summary */}
       <div className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] p-6">
         <h2 className="text-[var(--kl-text)] font-semibold text-[17px] mb-4 flex items-center gap-2">
-          <AlertTriangle size={18} className="text-[#1c5eff]" /> CAPA Summary
+          <AlertTriangle size={18} className="text-[var(--text-primary)]" /> CAPA Summary
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           {[
-            { label: 'Total CAPAs', value: CAPA_ITEMS.length, color: '#11203b', bg: '#f4f8ff' },
+            { label: 'Total CAPAs', value: CAPA_ITEMS.length, color: '#2f2f31', bg: 'var(--surface-raised)' },
             { label: 'Open', value: CAPA_ITEMS.filter(c => c.status === 'open').length, color: '#b14343', bg: '#fde9e9' },
             { label: 'In Progress', value: CAPA_ITEMS.filter(c => c.status === 'in_progress').length, color: '#9a6115', bg: '#fff0db' },
             { label: 'Completed', value: CAPA_ITEMS.filter(c => c.status === 'completed').length, color: '#1c7b56', bg: '#e8f8f1' },
@@ -152,7 +152,7 @@ export default function HODReportsPage() {
           {CAPA_ITEMS.map(capa => (
             <div key={capa.id} className="flex items-center gap-3 py-2">
               <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                capa.priority === 'critical' ? 'bg-[#b14343]' : capa.priority === 'high' ? 'bg-[#9a6115]' : 'bg-[#1c5eff]'
+                capa.priority === 'critical' ? 'bg-[#b14343]' : capa.priority === 'high' ? 'bg-[#9a6115]' : 'bg-[var(--text-tertiary)]'
               }`} />
               <span className="text-[var(--kl-text)] text-[13px] flex-1">{capa.title}</span>
               <span className="text-[var(--kl-text-muted)] text-[12px]">{capa.code}</span>

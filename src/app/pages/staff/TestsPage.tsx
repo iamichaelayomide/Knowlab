@@ -2,22 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {
   Activity,
-  Beaker,
-  Bug,
-  ChevronRight,
-  CircleDot,
+  ChemicalGlass as Beaker,
+  Microscope as Bug,
+  ArrowRight2 as ChevronRight,
+  Data2 as CircleDot,
   Clock,
-  Dna,
-  Droplets,
-  FlaskConical,
+  Data as Dna,
+  Drop as Droplets,
+  ChemicalGlass as FlaskConical,
   Microscope,
-  ScanLine,
-  Search,
+  Scan as ScanLine,
+  SearchNormal1 as Search,
   Shield,
-  ShieldPlus,
-  Sparkles,
-  TestTube2,
-} from 'lucide-react';
+  ShieldTick as ShieldPlus,
+  MagicStar as Sparkles,
+  Glass as TestTube2,
+} from 'iconsax-react';
 import { LAB_TESTS } from '../../data/mockData';
 import { useDepartment } from '../../context/DepartmentContext';
 import { getContainerToneClass, getTubeColorStyle } from '../../utils/testVisuals';
@@ -84,7 +84,7 @@ export default function TestsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search tests by name, code, or category..."
-          className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[#1c5eff] transition-colors"
+          className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--surface-border-strong)] transition-colors"
         />
       </div>
 
@@ -95,8 +95,8 @@ export default function TestsPage() {
             onClick={() => setActiveCategory(cat)}
             className={`px-4 py-2 rounded-full text-[12px] font-medium transition-all border active:scale-[0.98] ${
               activeCategory === cat
-                ? 'bg-[var(--kl-surface-tinted)] text-[#1c5eff] border-[#1c5eff] shadow-[0_0_0_2px_rgba(28,94,255,0.15)]'
-                : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--kl-primary)] hover:bg-[var(--kl-surface-soft)]'
+                ? 'bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] border-[var(--surface-border-strong)] shadow-[0_0_0_2px_rgba(0,0,0,0.08)]'
+                : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--surface-border-strong)] hover:bg-[var(--kl-surface-soft)]'
             }`}
           >
             {cat}
@@ -107,7 +107,7 @@ export default function TestsPage() {
       <div className="grid sm:grid-cols-2 gap-4">
         {filtered.length === 0 && (
           <div className="col-span-2 bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-8 text-center">
-            <FlaskConical size={32} className="text-[#c4d2ef] mx-auto mb-3" />
+            <FlaskConical size={32} className="text-[var(--text-tertiary)] mx-auto mb-3" />
             <p className="text-[var(--kl-text-muted)] font-medium">No tests found</p>
           </div>
         )}
@@ -116,7 +116,7 @@ export default function TestsPage() {
           <button
             key={test.id}
             onClick={() => navigate(`${base}/tests/${test.id}`)}
-            className="bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-5 text-left hover:border-[var(--kl-primary)] hover:shadow-[var(--kl-shadow)] active:scale-[0.995] transition-all group flex flex-col h-full"
+            className="bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-5 text-left hover:border-[var(--surface-border-strong)] hover:shadow-[var(--kl-shadow)] active:scale-[0.995] transition-all group flex flex-col h-full"
           >
             <div className="flex items-start justify-between mb-3 w-full">
               <div className="flex items-center gap-2">
@@ -125,10 +125,10 @@ export default function TestsPage() {
                 </span>
                 <span className="text-[var(--kl-text-muted)] text-[11px] font-mono">{test.code}</span>
               </div>
-              <ChevronRight size={14} className="text-[#c4d2ef] group-hover:text-[#1c5eff] transition-colors" />
+              <ChevronRight size={14} className="text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)] transition-colors" />
             </div>
 
-            <h3 className="text-[var(--kl-text)] font-semibold text-[15px] mb-1 group-hover:text-[#1c5eff] transition-colors leading-snug">{test.name}</h3>
+            <h3 className="text-[var(--kl-text)] font-semibold text-[15px] mb-1 group-hover:text-[var(--text-primary)] transition-colors leading-snug">{test.name}</h3>
             <p className="text-[var(--kl-text-muted)] text-[12px] mb-3 flex-1">{test.category}</p>
 
             <div className="space-y-1.5 w-full">
@@ -143,7 +143,7 @@ export default function TestsPage() {
                   </span>
                   <span>{test.container}</span>
                 </div>
-                <span className="text-[#d3def5]">{TEXT_TOKENS.separator.trim()}</span>
+                <span className="text-[var(--text-tertiary)]">{TEXT_TOKENS.separator.trim()}</span>
                 <span>{test.sampleVolume}</span>
               </div>
               <div className="flex items-center gap-1.5 text-[12px] text-[var(--kl-text-muted)]">
@@ -155,7 +155,7 @@ export default function TestsPage() {
             <div className="mt-4 flex gap-2 flex-wrap w-full">
               <span className="bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)] text-[11px] px-2 py-0.5 rounded-full">{test.parameters.length} parameters</span>
               {test.relatedSop && (
-                <span className="bg-[var(--kl-surface-tinted)] text-[#1c5eff] text-[11px] px-2 py-0.5 rounded-full">{test.relatedSop}</span>
+                <span className="bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] text-[11px] px-2 py-0.5 rounded-full">{test.relatedSop}</span>
               )}
             </div>
           </button>

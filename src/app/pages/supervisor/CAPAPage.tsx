@@ -9,7 +9,7 @@ const STORE_KEY = "knowlab_capa_updates_v1";
 const PRIORITY_CONFIG = {
   critical: { label: "Critical", color: "text-[#b14343] dark:text-[#fca5a5]", bg: "bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]", dot: "bg-[#b14343]" },
   high: { label: "High", color: "text-[#9a6115] dark:text-[#f3c26f]", bg: "bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)]", dot: "bg-[#9a6115]" },
-  medium: { label: "Medium", color: "text-[#1c5eff]", bg: "bg-[var(--kl-surface-tinted)]", dot: "bg-[#1c5eff]" },
+  medium: { label: "Medium", color: "text-[var(--text-primary)]", bg: "bg-[var(--kl-surface-tinted)]", dot: "bg-[var(--text-tertiary)]" },
   low: { label: "Low", color: "text-[var(--kl-text-muted)]", bg: "bg-[var(--kl-surface-tinted)]", dot: "bg-[#73839f]" },
 } as const;
 
@@ -190,7 +190,7 @@ export default function CAPAPage() {
               </button>
 
               {isExpanded && (
-                <div className="border-t border-[#f4f8ff] p-5 bg-[var(--kl-surface-soft)] space-y-4">
+                <div className="border-t border-[var(--surface-border)] p-5 bg-[var(--kl-surface-soft)] space-y-4">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center gap-1 rounded-full bg-[var(--kl-surface-tinted)] px-2.5 py-1 text-[11px] text-[var(--kl-text-muted)] border border-[var(--kl-border)]">
                       <AppIcon name="info" size={11} />
@@ -199,7 +199,7 @@ export default function CAPAPage() {
                     {!isEditing ? (
                       <button
                         onClick={() => beginEdit(item)}
-                        className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#1c5eff] text-white px-3 py-1.5 text-[12px] font-medium hover:bg-[#1548e8]"
+                        className="btn-primary inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium"
                       >
                         <AppIcon name="edit" size={12} />
                         Edit item
@@ -208,14 +208,14 @@ export default function CAPAPage() {
                       <>
                         <button
                           onClick={() => saveEdit(item.id)}
-                          className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#1c5eff] text-white px-3 py-1.5 text-[12px] font-medium hover:bg-[#1548e8]"
+                          className="btn-primary inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium"
                         >
                           <AppIcon name="save" size={12} />
                           {savedId === item.id ? "Saved" : "Save changes"}
                         </button>
                         <button
                           onClick={() => cancelEdit(item.id)}
-                          className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#eef5ff] text-[var(--kl-text-muted)] px-3 py-1.5 text-[12px] font-medium border border-[var(--kl-border)]"
+                          className="inline-flex items-center gap-1.5 rounded-full bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)] px-3 py-1.5 text-[12px] font-medium border border-[var(--kl-border)]"
                         >
                           <AppIcon name="close" size={12} />
                           Cancel

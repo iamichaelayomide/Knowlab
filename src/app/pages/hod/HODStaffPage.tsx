@@ -82,8 +82,12 @@ function HODStaffDetail({ staffId }: { staffId: string }) {
       <div className="mt-4 rounded-[20px] border border-[var(--kl-border)] bg-[var(--kl-surface)] p-5 shadow-[var(--kl-shadow)]">
         <div className="flex items-start gap-4">
           <div
-            className="size-14 rounded-full flex items-center justify-center text-white font-semibold text-lg"
-            style={{ backgroundColor: staff.color }}
+            className="size-14 rounded-full flex items-center justify-center font-semibold text-lg"
+            style={{
+              background: "linear-gradient(180deg, var(--surface-raised), var(--surface-card))",
+              border: "var(--line-hairline) solid var(--surface-border-strong)",
+              color: "var(--text-primary)",
+            }}
           >
             {staff.initials}
           </div>
@@ -348,8 +352,12 @@ export default function HODStaffPage() {
                     className="px-4 py-3 border-b border-[var(--kl-border)] last:border-b-0 flex items-center gap-3 hover:bg-[var(--kl-surface-soft)] active:bg-[var(--kl-surface-tinted)] active:scale-[0.995] transition-all"
                   >
                     <div
-                      className="size-9 rounded-full flex items-center justify-center text-white text-xs font-semibold"
-                      style={{ backgroundColor: member.color }}
+                      className="size-9 rounded-full flex items-center justify-center text-xs font-semibold"
+                      style={{
+                        background: "linear-gradient(180deg, var(--surface-raised), var(--surface-card))",
+                        border: "var(--line-hairline) solid var(--surface-border-strong)",
+                        color: "var(--text-primary)",
+                      }}
                     >
                       {member.initials}
                     </div>
@@ -364,7 +372,7 @@ export default function HODStaffPage() {
                     </div>
                     <button
                       onClick={() => navigate(`/hod/staff/${member.id}`)}
-                      className="inline-flex items-center gap-1 rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-2.5 py-1.5 text-xs text-[var(--kl-primary)] hover:bg-[var(--kl-surface-tinted)] active:scale-[0.98] transition-all"
+                      className="inline-flex items-center gap-1 rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] hover:bg-[var(--kl-surface-tinted)] active:scale-[0.98] transition-all"
                     >
                       Profile
                       <AppIcon name="chevronRight" size={12} />

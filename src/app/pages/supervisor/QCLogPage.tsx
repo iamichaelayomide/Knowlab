@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { ClipboardList, CheckCircle2, AlertTriangle, ChevronDown, ChevronUp, Eye } from 'lucide-react';
+import {
+  ClipboardText as ClipboardList,
+  TickCircle as CheckCircle2,
+  Warning2 as AlertTriangle,
+  ArrowDown2 as ChevronDown,
+  ArrowUp2 as ChevronUp,
+  Eye,
+} from 'iconsax-react';
 import { QC_LOGS, getUserById } from '../../data/mockData';
 import { useAuth } from '../../context/AuthContext';
 
@@ -33,7 +40,7 @@ export default function QCLogPage() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
         {[
-          { label: 'Total Entries', count: stats.total, color: '#1c5eff', bg: '#e3edff', f: 'all' as const },
+          { label: 'Total Entries', count: stats.total, color: '#2f2f31', bg: 'var(--surface-raised)', f: 'all' as const },
           { label: 'Passed', count: stats.passed, color: '#1c7b56', bg: '#e8f8f1', f: 'passed' as const },
           { label: 'Warnings', count: stats.warning, color: '#9a6115', bg: '#fff0db', f: 'warning' as const },
           { label: 'Pending Review', count: stats.pending, color: '#b14343', bg: '#fde9e9', f: 'pending_review' as const },
@@ -51,7 +58,7 @@ export default function QCLogPage() {
       </div>
 
       <div className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] overflow-hidden shadow-[var(--kl-shadow)]">
-        <div className="px-4 sm:px-5 py-3 border-b border-[#f4f8ff] bg-[var(--kl-surface-soft)] hidden sm:grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4">
+        <div className="px-4 sm:px-5 py-3 border-b border-[var(--surface-border)] bg-[var(--kl-surface-soft)] hidden sm:grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4">
           {['Date', 'Level', 'Shift | Analyst', 'Overall Status', 'Action'].map((heading) => (
             <span key={heading} className="text-[var(--kl-text-muted)] font-semibold text-[11px] uppercase tracking-[0.8px]">
               {heading}
@@ -61,7 +68,7 @@ export default function QCLogPage() {
 
         {filtered.length === 0 && (
           <div className="p-8 text-center">
-            <ClipboardList size={32} className="text-[#c4d2ef] mx-auto mb-3" />
+            <ClipboardList size={32} className="text-[var(--text-tertiary)] mx-auto mb-3" />
             <p className="text-[var(--kl-text-muted)] font-medium">No QC entries</p>
           </div>
         )}
@@ -72,7 +79,7 @@ export default function QCLogPage() {
           const analyst = getUserById(entry.staffId);
 
           return (
-            <div key={entry.id} className="border-b border-[#f4f8ff] last:border-0">
+            <div key={entry.id} className="border-b border-[var(--surface-border)] last:border-0">
               <div className="px-4 sm:px-5 py-4 grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-3 sm:gap-4 items-start sm:items-center hover:bg-[var(--kl-surface-soft)] transition-colors">
                 <div>
                   <p className="text-[var(--kl-text)] font-medium text-[13px]">
@@ -104,18 +111,18 @@ export default function QCLogPage() {
                     {entry.overallStatus === 'passed' ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
                     {entry.overallStatus.charAt(0).toUpperCase() + entry.overallStatus.slice(1)}
                   </span>
-                  {!isReviewed && <span className="text-[10px] bg-[var(--kl-surface-tinted)] text-[#1c5eff] font-semibold px-2 py-0.5 rounded-full">NEW</span>}
+                  {!isReviewed && <span className="text-[10px] bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] font-semibold px-2 py-0.5 rounded-full">NEW</span>}
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setExpandedId(isExpanded ? null : entry.id)} className="text-[var(--kl-text-muted)] hover:text-[#1c5eff] transition-colors">
+                  <button onClick={() => setExpandedId(isExpanded ? null : entry.id)} className="text-[var(--kl-text-muted)] hover:text-[var(--text-primary)] transition-colors">
                     {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </button>
                 </div>
               </div>
 
               {isExpanded && (
-                <div className="border-t border-[#f4f8ff] bg-[var(--kl-surface-soft)] p-4 sm:p-5">
+                <div className="border-t border-[var(--surface-border)] bg-[var(--kl-surface-soft)] p-4 sm:p-5">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                     <div className="bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[10px] px-3 py-2">
                       <p className="text-[var(--kl-text-muted)] text-[10px] font-semibold uppercase tracking-[0.8px]">Westgard Trigger</p>
@@ -143,7 +150,7 @@ export default function QCLogPage() {
                   <div className="overflow-x-auto mb-4">
                     <table className="w-full text-left min-w-[500px]">
                       <thead>
-                        <tr className="border-b border-[#eef4ff]">
+                        <tr className="border-b border-[var(--surface-border)]">
                           {['Parameter', 'Measured', 'Target', 'SD Value', 'Deviation (SD)', 'Status'].map((heading) => (
                             <th key={heading} className="text-[var(--kl-text-muted)] font-semibold text-[10px] uppercase tracking-[0.8px] pb-2 pr-4">
                               {heading}
@@ -153,7 +160,7 @@ export default function QCLogPage() {
                       </thead>
                       <tbody>
                         {entry.results.map((result, index) => (
-                          <tr key={index} className="border-b border-[#f4f8ff] last:border-0">
+                          <tr key={index} className="border-b border-[var(--surface-border)] last:border-0">
                             <td className="py-2.5 pr-4 text-[var(--kl-text)] font-medium text-[12px]">{result.parameter}</td>
                             <td className="py-2.5 pr-4 text-[var(--kl-text)] font-mono text-[12px]">{result.measuredValue}</td>
                             <td className="py-2.5 pr-4 text-[var(--kl-text-muted)] font-mono text-[12px]">{result.targetValue}</td>
@@ -200,7 +207,7 @@ export default function QCLogPage() {
                     <div className="flex items-center gap-3 flex-wrap">
                       <button
                         onClick={() => markReviewed(entry.id)}
-                        className="bg-[#1c5eff] text-white text-[13px] font-medium px-4 py-2.5 rounded-[12px] hover:bg-[#1548e8] transition-colors flex items-center gap-2"
+                        className="btn-primary text-[13px] font-medium px-4 py-2.5 rounded-full transition-colors flex items-center gap-2"
                       >
                         <Eye size={14} /> Mark as Reviewed
                       </button>

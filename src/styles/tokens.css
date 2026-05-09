@@ -5,14 +5,15 @@
 
 :root {
   color-scheme: light;
+  --line-hairline: 0.3px;
 
   /* --- SURFACES --- */
   --surface-base: #f3f3f3;
   --surface-card: rgba(255, 255, 255, 0.78);
   --surface-raised: rgba(250, 250, 250, 0.88);
   --surface-overlay: rgba(255, 255, 255, 0.82);
-  --surface-border: rgba(0, 0, 0, 0.08);
-  --surface-border-strong: rgba(0, 0, 0, 0.16);
+  --surface-border: rgba(0, 0, 0, 0.04);
+  --surface-border-strong: rgba(0, 0, 0, 0.10);
 
   /* --- TEXT --- */
   --text-primary: #111111;
@@ -23,15 +24,15 @@
   /* --- ACCENT --- */
   --accent-primary: #111111;
   --accent-primary-hover: #000000;
-  --accent-blue: #3a6ee8;
-  --accent-blue-hover: #2d5dd6;
-  --accent-glow: rgba(58, 110, 232, 0.14);
+  --accent-blue: #151515;
+  --accent-blue-hover: #000000;
+  --accent-glow: rgba(0, 0, 0, 0.08);
 
   /* --- SEMANTIC STATUS --- */
   --success: #34c759;
   --warning: #f5a623;
   --destructive: #ff3b30;
-  --info: #007aff;
+  --info: #555555;
 
   /* --- GLASS --- */
   --glass-bg: rgba(255, 255, 255, 0.62);
@@ -117,8 +118,8 @@
   --surface-card: #1c1c1e;
   --surface-raised: #242426;
   --surface-overlay: rgba(28, 28, 30, 0.88);
-  --surface-border: rgba(255, 255, 255, 0.08);
-  --surface-border-strong: rgba(255, 255, 255, 0.14);
+  --surface-border: rgba(255, 255, 255, 0.04);
+  --surface-border-strong: rgba(255, 255, 255, 0.10);
 
   --text-primary: rgba(255, 255, 255, 0.92);
   --text-secondary: rgba(255, 255, 255, 0.62);
@@ -126,14 +127,14 @@
 
   --accent-primary: #f4f4f5;
   --accent-primary-hover: #ffffff;
-  --accent-blue: #6ea1ff;
-  --accent-blue-hover: #8bb6ff;
-  --accent-glow: rgba(110, 161, 255, 0.18);
+  --accent-blue: rgba(255, 255, 255, 0.88);
+  --accent-blue-hover: #ffffff;
+  --accent-glow: rgba(255, 255, 255, 0.10);
 
   --success: #30d158;
   --warning: #ffd60a;
   --destructive: #ff453a;
-  --info: #0a84ff;
+  --info: rgba(255, 255, 255, 0.72);
 
   --glass-bg: rgba(255, 255, 255, 0.08);
   --glass-border: rgba(255, 255, 255, 0.14);

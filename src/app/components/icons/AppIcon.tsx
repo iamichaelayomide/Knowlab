@@ -1,36 +1,44 @@
-import type { LucideIcon } from "lucide-react";
+import type { Icon } from "iconsax-react";
 import {
-  AlertTriangle,
-  ArrowRight,
-  BarChart2,
-  Bell,
-  BookOpen,
-  Bot,
-  Check,
-  ChevronDown,
-  ChevronRight,
-  ClipboardCheck,
-  FileText,
-  FlaskConical,
-  GraduationCap,
-  Info,
-  Layers,
-  LayoutDashboard,
-  LogOut,
+  Activity,
+  Add,
+  ArrowDown2,
+  ArrowRight2,
+  BookSaved,
+  Category,
+  Chart2,
+  ClipboardText,
+  ClipboardTick,
+  CloseCircle,
+  Data2,
+  DocumentText,
+  Drop,
+  Eye,
+  EyeSlash,
+  ChemicalGlass,
+  Health,
+  Home2,
+  Hospital,
+  InfoCircle,
+  Key,
+  Layer,
+  LogoutCurve,
+  MagicStar,
   Menu,
+  Microscope,
   Moon,
-  Pencil,
-  Save,
-  Search,
-  Send,
-  Settings,
-  ShieldAlert,
-  Sparkles,
-  Sun,
-  UserCog,
-  Users,
-  X,
-} from "lucide-react";
+  Notification,
+  Profile2User,
+  Save2,
+  SearchNormal1,
+  Send2,
+  Setting2,
+  ShieldSecurity,
+  Sun1,
+  Teacher,
+  TickCircle,
+  Warning2,
+} from "iconsax-react";
 import { cn } from "../ui/utils";
 
 export type AppIconName =
@@ -49,6 +57,19 @@ export type AppIconName =
   | "users"
   | "department"
   | "bench"
+  | "haematology"
+  | "chemistry"
+  | "microbiology"
+  | "histopathology"
+  | "bloodBank"
+  | "fbc"
+  | "bloodFilm"
+  | "coagulation"
+  | "renal"
+  | "lipid"
+  | "electrolytes"
+  | "bacteriology"
+  | "molecular"
   | "menu"
   | "close"
   | "logout"
@@ -63,39 +84,60 @@ export type AppIconName =
   | "chevronDown"
   | "check"
   | "warning"
-  | "info";
+  | "info"
+  | "eye"
+  | "eyeSlash"
+  | "key"
+  | "add";
 
-const ICONS: Record<AppIconName, LucideIcon> = {
-  dashboard: LayoutDashboard,
-  sops: FileText,
-  tests: FlaskConical,
-  jobAids: BookOpen,
-  training: GraduationCap,
-  ai: Sparkles,
-  alerts: Bell,
-  settings: Settings,
-  staff: Users,
-  capa: ShieldAlert,
-  qc: ClipboardCheck,
-  reports: BarChart2,
-  users: UserCog,
-  department: Layers,
-  bench: FlaskConical,
+const ICONS: Record<AppIconName, Icon> = {
+  dashboard: Home2,
+  sops: DocumentText,
+  tests: ChemicalGlass,
+  jobAids: BookSaved,
+  training: Teacher,
+  ai: MagicStar,
+  alerts: Notification,
+  settings: Setting2,
+  staff: Profile2User,
+  capa: ShieldSecurity,
+  qc: ClipboardTick,
+  reports: Chart2,
+  users: Profile2User,
+  department: Hospital,
+  bench: Activity,
+  haematology: Drop,
+  chemistry: ChemicalGlass,
+  microbiology: Microscope,
+  histopathology: Health,
+  bloodBank: Data2,
+  fbc: Activity,
+  bloodFilm: SearchNormal1,
+  coagulation: ShieldSecurity,
+  renal: Health,
+  lipid: Chart2,
+  electrolytes: Category,
+  bacteriology: Microscope,
+  molecular: Layer,
   menu: Menu,
-  close: X,
-  logout: LogOut,
-  edit: Pencil,
-  save: Save,
-  search: Search,
-  send: Send,
-  themeLight: Sun,
+  close: CloseCircle,
+  logout: LogoutCurve,
+  edit: ClipboardText,
+  save: Save2,
+  search: SearchNormal1,
+  send: Send2,
+  themeLight: Sun1,
   themeDark: Moon,
-  arrowRight: ArrowRight,
-  chevronRight: ChevronRight,
-  chevronDown: ChevronDown,
-  check: Check,
-  warning: AlertTriangle,
-  info: Info,
+  arrowRight: ArrowRight2,
+  chevronRight: ArrowRight2,
+  chevronDown: ArrowDown2,
+  check: TickCircle,
+  warning: Warning2,
+  info: InfoCircle,
+  eye: Eye,
+  eyeSlash: EyeSlash,
+  key: Key,
+  add: Add,
 };
 
 interface AppIconProps {
@@ -107,18 +149,18 @@ interface AppIconProps {
 }
 
 export function AppIcon({ name, size = 16, className, title }: AppIconProps) {
-  const Icon = ICONS[name] ?? Bot;
+  const Icon = ICONS[name] ?? Activity;
 
   return (
     <Icon
       aria-hidden={title ? undefined : true}
       aria-label={title}
       className={cn("inline-flex shrink-0", className)}
+      color="currentColor"
       focusable="false"
       size={size}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.65}
+      strokeWidth={1.05}
+      variant="Linear"
     />
   );
 }

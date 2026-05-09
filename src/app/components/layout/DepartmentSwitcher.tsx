@@ -2,7 +2,32 @@
 import type { Bench, Department } from '../../data/mockData';
 import { DEPARTMENTS } from '../../data/mockData';
 import { useDepartment } from '../../context/DepartmentContext';
+import type { AppIconName } from '../icons/AppIcon';
 import { AppIcon } from '../icons/AppIcon';
+
+function getDepartmentIconName(departmentId: string): AppIconName {
+  if (departmentId === 'haematology') return 'haematology';
+  if (departmentId === 'chemistry') return 'chemistry';
+  if (departmentId === 'microbiology') return 'microbiology';
+  if (departmentId === 'histopathology') return 'histopathology';
+  if (departmentId === 'bgs') return 'bloodBank';
+  return 'department';
+}
+
+function getBenchIconName(bench: Bench): AppIconName {
+  const key = `${bench.id} ${bench.name}`.toLowerCase();
+  if (key.includes('fbc') || key.includes('count')) return 'fbc';
+  if (key.includes('film') || key.includes('morphology')) return 'bloodFilm';
+  if (key.includes('coag')) return 'coagulation';
+  if (key.includes('bank') || key.includes('crossmatch') || key.includes('abo') || key.includes('serology')) return 'bloodBank';
+  if (key.includes('glucose') || key.includes('lft') || key.includes('bilirubin') || key.includes('kft')) return 'chemistry';
+  if (key.includes('lipid')) return 'lipid';
+  if (key.includes('electrolyte')) return 'electrolytes';
+  if (key.includes('bacter') || key.includes('mycology') || key.includes('virology') || key.includes('paras')) return 'microbiology';
+  if (key.includes('molecular')) return 'molecular';
+  if (key.includes('histology') || key.includes('cytology') || key.includes('ihc') || key.includes('autopsy')) return 'histopathology';
+  return 'bench';
+}
 
 export function DepartmentSwitcher() {
   const { activeDepartment, activeBench, setActiveDepartment, setActiveBench } = useDepartment();
@@ -53,11 +78,8 @@ export function DepartmentSwitcher() {
         onClick={() => setOpen((value) => !value)}
         className="kl-card-interactive w-full flex items-center gap-3 px-3 py-3 rounded-[22px] border border-[var(--surface-border)] bg-[var(--glass-bg)] shadow-xs backdrop-blur-xl hover:bg-[var(--surface-card)] transition-all"
       >
-        <span
-          className="size-10 rounded-[18px] flex items-center justify-center text-white flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]"
-          style={{ backgroundColor: activeDepartment.color }}
-        >
-          <AppIcon name="department" size={18} />
+        <span className="size-10 rounded-[18px] flex items-center justify-center text-[var(--text-primary)] flex-shrink-0 border border-[var(--surface-border)] bg-[var(--surface-raised)] shadow-[inset_0_1px_0_rgba(255,255,255,0.10)]">
+          <AppIcon name={getDepartmentIconName(activeDepartment.id)} size={18} />
         </span>
         <div className="flex-1 min-w-0 text-left">
           <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{activeDepartment.shortName}</p>
@@ -89,15 +111,12 @@ export function DepartmentSwitcher() {
                       onClick={() => selectDepartment(department)}
                       className={`kl-menu-item w-full flex items-center gap-3 px-3 py-2.5 border transition-all ${
                         isActive
-                          ? 'border-[var(--accent-blue)] bg-[var(--accent-glow)] shadow-[0_0_0_2px_var(--accent-glow)]'
+                          ? 'border-[var(--surface-border-strong)] bg-[var(--accent-glow)] shadow-[0_0_0_2px_var(--accent-glow)]'
                           : 'border-transparent hover:border-[var(--surface-border)] hover:bg-[var(--surface-base)]'
                       }`}
                     >
-                      <span
-                        className="size-9 rounded-[16px] flex items-center justify-center text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]"
-                        style={{ backgroundColor: department.color }}
-                      >
-                        <AppIcon name="department" size={16} />
+                      <span className="size-9 rounded-[16px] flex items-center justify-center text-[var(--text-primary)] border border-[var(--surface-border)] bg-[var(--surface-raised)] shadow-[inset_0_1px_0_rgba(255,255,255,0.10)]">
+                        <AppIcon name={getDepartmentIconName(department.id)} size={16} />
                       </span>
                       <div className="min-w-0 flex-1 text-left">
                         <p className="text-sm font-medium text-[var(--text-primary)] truncate">{department.name}</p>
@@ -130,19 +149,19 @@ export function DepartmentSwitcher() {
                       onClick={() => selectBench(bench)}
                       className={`kl-menu-item w-full flex items-center gap-3 px-3 py-2.5 border transition-all ${
                         isActive
-                          ? 'border-[var(--accent-blue)] bg-[var(--accent-glow)] shadow-[0_0_0_2px_var(--accent-glow)]'
+                          ? 'border-[var(--surface-border-strong)] bg-[var(--accent-glow)] shadow-[0_0_0_2px_var(--accent-glow)]'
                           : 'border-transparent hover:border-[var(--surface-border)] hover:bg-[var(--surface-base)]'
                       }`}
                     >
                       <span
-                        className="size-7 rounded-full flex items-center justify-center bg-[var(--glass-bg)] text-[var(--accent-blue)] border border-[var(--surface-border)]"
+                        className="size-7 rounded-full flex items-center justify-center bg-[var(--glass-bg)] text-[var(--text-secondary)] border border-[var(--surface-border)]"
                         title={bench.name}
                       >
-                        <AppIcon name="bench" size={13} />
+                        <AppIcon name={getBenchIconName(bench)} size={13} />
                       </span>
                       <span className="min-w-0 flex-1 text-left text-sm text-[var(--text-primary)] truncate">{bench.name}</span>
                       {isActive ? (
-                      <span className="size-5 rounded-full bg-[var(--accent-blue)] text-white flex items-center justify-center">
+                      <span className="size-5 rounded-full bg-[var(--text-primary)] text-[var(--surface-base)] flex items-center justify-center">
                           <AppIcon name="check" size={11} className="text-white" />
                         </span>
                       ) : null}

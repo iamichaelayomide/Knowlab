@@ -8,7 +8,7 @@ function decisionTone(decision: "pending" | "approved" | "changes_requested" | "
   if (decision === "approved") return "bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]";
   if (decision === "changes_requested") return "bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]";
   if (decision === "rejected") return "bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]";
-  return "bg-[#eef5ff] text-[#1c5eff]";
+  return "bg-[var(--kl-surface-tinted)] text-[var(--text-primary)]";
 }
 
 export default function SOPValidationPage() {

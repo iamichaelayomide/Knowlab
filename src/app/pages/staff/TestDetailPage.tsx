@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams } from 'react-router';
-import { AlertCircle, ArrowLeft, Droplets, FlaskConical } from 'lucide-react';
+import { Warning2 as AlertCircle, ArrowLeft2 as ArrowLeft, Drop as Droplets, ChemicalGlass as FlaskConical } from 'iconsax-react';
 import { LAB_TESTS } from '../../data/mockData';
 import { openFloatingAI } from '../../services/aiWidget';
 import { getContainerToneClass, getTubeColorStyle } from '../../utils/testVisuals';

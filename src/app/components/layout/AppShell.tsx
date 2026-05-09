@@ -295,8 +295,12 @@ export default function AppShell() {
       <div className="px-3 pb-5">
         <div className="kl-card bg-[var(--surface-raised)] border border-[var(--surface-border)] rounded-[24px] p-3.5 flex items-center gap-3 shadow-xs">
           <div
-            className="rounded-full size-[40px] flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0"
-            style={{ backgroundColor: user.color }}
+            className="rounded-full size-[40px] flex items-center justify-center text-[12px] font-bold flex-shrink-0"
+            style={{
+              background: "linear-gradient(180deg, var(--surface-raised), var(--surface-card))",
+              border: "var(--line-hairline) solid var(--surface-border-strong)",
+              color: "var(--text-primary)",
+            }}
           >
             {user.initials}
           </div>
@@ -338,15 +342,14 @@ export default function AppShell() {
 
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div
-              className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-semibold"
-              style={{ backgroundColor: `${activeDepartment.color}18`, color: activeDepartment.color }}
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-semibold bg-[var(--glass-bg)] text-[var(--text-primary)] border border-[var(--surface-border)]"
             >
               <AppIcon name="department" size={12} />
               {activeDepartment.shortName}
             </div>
             <AppIcon name="chevronRight" size={12} className="hidden md:inline-flex text-[var(--text-tertiary)]" />
             <div className="hidden md:flex items-center gap-1.5 bg-[var(--accent-glow)] text-[var(--text-primary)] text-[12px] font-medium px-2.5 py-1 rounded-full">
-              <span className="inline-block size-[6px] rounded-full flex-shrink-0" style={{ backgroundColor: activeBench.color }} />
+              <AppIcon name="bench" size={12} className="text-[var(--text-secondary)]" />
               {activeBench.name}
             </div>
           </div>

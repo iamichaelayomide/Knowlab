@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GraduationCap, CheckCircle2, Clock, AlertTriangle, Play, Award } from 'lucide-react';
+import { Teacher as GraduationCap, TickCircle as CheckCircle2, Clock, Warning2 as AlertTriangle, Play, Award } from 'iconsax-react';
 import { TRAINING_MODULES, TRAINING_RECORDS, TrainingModule, StaffTrainingRecord } from '../../data/mockData';
 import { TEXT_TOKENS, joinWithSeparator } from '../../utils/textTokens';
 import { useAuth } from '../../context/AuthContext';
@@ -19,7 +19,7 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
         className="h-1.5 rounded-full transition-all"
         style={{
           width: `${pct}%`,
-          backgroundColor: pct === 100 ? '#1c7b56' : pct > 60 ? '#1c5eff' : '#9a6115',
+          backgroundColor: pct === 100 ? '#1c7b56' : pct > 60 ? '#2f2f31' : '#9a6115',
         }}
       />
     </div>
@@ -67,7 +67,7 @@ export default function TrainingPage() {
           { label: 'Completed', count: stats.completed, color: '#1c7b56', bg: '#e8f8f1', filter: 'completed' as const },
           { label: 'In Progress', count: stats.in_progress, color: '#9a6115', bg: '#fff0db', filter: 'in_progress' as const },
           { label: 'Overdue', count: stats.overdue, color: '#b14343', bg: '#fde9e9', filter: 'overdue' as const },
-          { label: 'Not Started', count: stats.not_started, color: '#73839f', bg: '#f4f8ff', filter: 'not_started' as const },
+          { label: 'Not Started', count: stats.not_started, color: '#5f5f62', bg: 'var(--surface-raised)', filter: 'not_started' as const },
         ].map(stat => (
           <button
             key={stat.filter}
@@ -87,7 +87,7 @@ export default function TrainingPage() {
       <div className="bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-5 mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[var(--kl-text)] font-semibold text-[14px]">Overall Completion</span>
-          <span className="text-[#1c5eff] font-bold text-[14px]">{stats.completed}/{TRAINING_MODULES.length} modules</span>
+          <span className="text-[var(--text-primary)] font-bold text-[14px]">{stats.completed}/{TRAINING_MODULES.length} modules</span>
         </div>
         <ProgressBar value={stats.completed} max={TRAINING_MODULES.length} />
         <p className="text-[var(--kl-text-muted)] text-[12px] mt-1.5">
@@ -155,14 +155,14 @@ export default function TrainingPage() {
 
               {/* Expanded Detail */}
               {isOpen && (
-                <div className="border-t border-[#f4f8ff] p-5 bg-[var(--kl-surface-soft)]">
+                <div className="border-t border-[var(--surface-border)] p-5 bg-[var(--kl-surface-soft)]">
                   <p className="text-[var(--kl-text-muted)] text-[13px] leading-relaxed mb-4">{mod.description}</p>
                   <div className="mb-4">
                     <p className="text-[var(--kl-text)] font-semibold text-[13px] mb-2">Learning Objectives</p>
                     <ul className="space-y-1.5">
                       {mod.objectives.map((obj, i) => (
                         <li key={i} className="flex items-start gap-2 text-[13px] text-[var(--kl-text-muted)]">
-                          <CheckCircle2 size={13} className="text-[#1c5eff] mt-0.5 flex-shrink-0" />
+                          <CheckCircle2 size={13} className="text-[var(--text-primary)] mt-0.5 flex-shrink-0" />
                           {obj}
                         </li>
                       ))}
@@ -178,7 +178,7 @@ export default function TrainingPage() {
                       <span className="text-[var(--kl-text)] font-semibold text-[13px]">{mod.duration}</span>
                     </div>
                     {status !== 'completed' && (
-                      <button className="bg-[#1c5eff] text-white text-[13px] font-medium px-4 py-2 rounded-[12px] hover:bg-[#1548e8] transition-colors flex items-center gap-1.5">
+                      <button className="btn-primary text-[13px] font-medium px-4 py-2 rounded-full transition-colors flex items-center gap-1.5">
                         <Play size={13} />
                         {status === 'in_progress' ? 'Continue Module' : 'Start Module'}
                       </button>

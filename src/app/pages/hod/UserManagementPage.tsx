@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { CheckCircle2, UserPlus, XCircle } from 'lucide-react';
+import { TickCircle as CheckCircle2, UserAdd as UserPlus, CloseCircle as XCircle } from 'iconsax-react';
 import { useAuth } from '../../context/AuthContext';
 import { createUserByHod, decideUserRequest, getWorkflowState } from '../../services/workflowStore';
 import type { UserRole } from '../../types/workflow';
@@ -71,7 +71,7 @@ export default function UserManagementPage() {
               <option value="supervisor">Supervisor</option>
               <option value="hod">HOD</option>
             </select>
-            <button type="submit" className="inline-flex items-center gap-1.5 bg-[#1c5eff] text-white rounded-[10px] px-3 py-2 text-[12px]">
+            <button type="submit" className="btn-primary inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[12px]">
               <UserPlus size={13} /> Create user
             </button>
           </form>
@@ -84,7 +84,7 @@ export default function UserManagementPage() {
               <p className="text-[var(--kl-text-muted)] text-[13px]">No pending user requests.</p>
             )}
             {pendingRequests.map(req => (
-              <div key={req.id} className="border border-[#e3edff] rounded-[12px] p-3">
+              <div key={req.id} className="border border-[var(--surface-border)] rounded-[12px] p-3">
                 <p className="text-[var(--kl-text)] text-[13px] font-medium">{req.requestedUserName} ({req.requestedUserEmail})</p>
                 <p className="text-[var(--kl-text-muted)] text-[11px] mb-2">
                   {req.requestedUnit} · {req.requestedUserRole} · requested by {req.requesterName}
@@ -120,7 +120,7 @@ export default function UserManagementPage() {
         <h2 className="text-[var(--kl-text)] font-semibold text-[16px] mb-3">Recent User Decisions</h2>
         <div className="space-y-2">
           {createdOrDecided.map(req => (
-            <div key={req.id} className="border border-[#e3edff] rounded-[10px] p-2.5 flex items-center justify-between">
+            <div key={req.id} className="border border-[var(--surface-border)] rounded-[10px] p-2.5 flex items-center justify-between">
               <div>
                 <p className="text-[var(--kl-text)] text-[12px] font-medium">{req.requestedUserEmail}</p>
                 <p className="text-[var(--kl-text-muted)] text-[10px]">{req.requestedUserRole} · {req.requestedUnit}</p>

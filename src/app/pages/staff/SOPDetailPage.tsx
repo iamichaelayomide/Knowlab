@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useLocation } from 'react-router';
-import { ArrowLeft, FileText, AlertTriangle, FlaskConical } from 'lucide-react';
+import { ArrowLeft2 as ArrowLeft, DocumentText as FileText, Warning2 as AlertTriangle, ChemicalGlass as FlaskConical } from 'iconsax-react';
 import { SOPS } from '../../data/mockData';
 import { openFloatingAI } from '../../services/aiWidget';
 

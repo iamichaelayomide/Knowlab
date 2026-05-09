@@ -1,8 +1,21 @@
 import { useNavigate } from 'react-router';
-import { FileText, FlaskConical, BookOpen, GraduationCap, Bell, ArrowRight, CheckCircle2, Clock, AlertTriangle, ChevronRight } from 'lucide-react';
+import {
+  DocumentText as FileText,
+  ChemicalGlass as FlaskConical,
+  BookSaved as BookOpen,
+  Teacher as GraduationCap,
+  Notification as Bell,
+  ArrowRight2,
+  TickCircle as CheckCircle2,
+  Clock,
+  Warning2 as AlertTriangle,
+} from 'iconsax-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDepartment } from '../../context/DepartmentContext';
 import { SOPS, LAB_TESTS, JOB_AIDS, TRAINING_MODULES, TRAINING_RECORDS, ALERTS } from '../../data/mockData';
+
+const ArrowRight = ArrowRight2;
+const ChevronRight = ArrowRight2;
 
 function MetricTile({ label, value, sublabel, accent }: { label: string; value: string | number; sublabel: string; accent: string }) {
   return (
@@ -49,22 +62,22 @@ export default function StaffDashboard() {
       {/* Hero Banner */}
       <div
         className="rounded-[18px] sm:rounded-[24px] overflow-hidden mb-4 sm:mb-6 relative"
-        style={{ background: 'linear-gradient(151deg, rgb(15,31,68) 11%, rgb(18,59,108) 53%, rgb(28,94,255) 89%)' }}
+        style={{ background: 'linear-gradient(151deg, #0f0f10 11%, #1c1c1e 56%, #2a2a2c 100%)' }}
       >
         <div className="p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-4 sm:gap-6">
           <div className="flex-1">
             <div className="inline-flex items-center bg-[rgba(255,255,255,0.10)] border border-[rgba(255,255,255,0.14)] rounded-full px-4 py-2 mb-4">
-              <span className="text-[#dbe7ff] text-[11px] font-semibold tracking-[1.98px] uppercase">{benchmarkLabel}</span>
+              <span className="text-white/70 text-[11px] font-semibold tracking-[1.98px] uppercase">{benchmarkLabel}</span>
             </div>
             <h1 className="text-white font-bold text-[24px] sm:text-[32px] leading-[1.15] mb-3">
               Start with the exact unit<br />knowledge you need.
             </h1>
-            <p className="text-[#ebf3ff] text-[15px] leading-[1.7] max-w-[560px]">
+            <p className="text-white/72 text-[15px] leading-[1.7] max-w-[560px]">
               SOPs, tests, and quick job aids stay scoped to your current bench context so the dashboard feels like a shift workspace, not a document portal.
             </p>
             <button
               onClick={() => navigate('/staff/sops')}
-              className="mt-5 bg-[#1c5eff] hover:bg-[#1548e8] text-white font-medium text-[14px] px-5 py-3 rounded-[14px] shadow-[var(--kl-shadow)] transition-colors inline-flex items-center gap-2"
+              className="btn-primary mt-5 text-white font-medium text-[14px] px-5 py-3 rounded-full shadow-[var(--kl-shadow)] transition-colors inline-flex items-center gap-2"
             >
               Open SOP library <ArrowRight size={15} />
             </button>
@@ -77,9 +90,9 @@ export default function StaffDashboard() {
             ].map(item => (
               <div
                 key={item.label}
-                className="bg-[rgba(7,20,43,0.28)] border border-[rgba(255,255,255,0.14)] rounded-[20px] px-4 py-3"
+                className="bg-[rgba(255,255,255,0.07)] border border-[rgba(255,255,255,0.12)] rounded-[20px] px-4 py-3"
               >
-                <p className="text-[#dbe7ff] font-semibold text-[11px] tracking-[1.98px] uppercase mb-0.5">{item.label}</p>
+                <p className="text-white/55 font-semibold text-[11px] tracking-[1.98px] uppercase mb-0.5">{item.label}</p>
                 <p className="text-white text-[14px] leading-snug line-clamp-2">{item.value}</p>
               </div>
             ))}
@@ -89,8 +102,8 @@ export default function StaffDashboard() {
 
       {/* Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-        <MetricTile label="Active SOPs" value={activeSops.length} sublabel="In your department" accent="#1c5eff" />
-        <MetricTile label="Lab Tests" value={activeTests.length} sublabel="With full reference ranges" accent="#0f86ff" />
+        <MetricTile label="Active SOPs" value={activeSops.length} sublabel="In your department" accent="#171717" />
+        <MetricTile label="Lab Tests" value={activeTests.length} sublabel="With full reference ranges" accent="#4a4a4a" />
         <MetricTile label="Training Completed" value={completedTraining} sublabel={`${inProgressTraining} in progress`} accent="#1c7b56" />
         {overdueTraining > 0
           ? <MetricTile label="Overdue Training" value={overdueTraining} sublabel="Action required" accent="#b14343" />
@@ -104,10 +117,10 @@ export default function StaffDashboard() {
         <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <FileText size={18} className="text-[#1c5eff]" />
+              <FileText size={18} className="text-[var(--text-primary)]" />
               <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Quick SOPs</h2>
             </div>
-            <button onClick={() => navigate('/staff/sops')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
+            <button onClick={() => navigate('/staff/sops')} className="text-[var(--text-primary)] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               View all <ChevronRight size={14} />
             </button>
           </div>
@@ -119,7 +132,7 @@ export default function StaffDashboard() {
                 className="w-full flex items-center gap-3 p-3 rounded-[16px] hover:bg-[var(--kl-surface-tinted)] transition-colors text-left group"
               >
                 <div className="bg-[var(--kl-surface-tinted)] rounded-[10px] p-2 flex-shrink-0">
-                  <FileText size={14} className="text-[#1c5eff]" />
+                  <FileText size={14} className="text-[var(--text-primary)]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[var(--kl-text)] font-medium text-[13px] truncate">{sop.title}</p>
@@ -143,10 +156,10 @@ export default function StaffDashboard() {
         <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <FlaskConical size={18} className="text-[#1c5eff]" />
+              <FlaskConical size={18} className="text-[var(--text-primary)]" />
               <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Common Tests</h2>
             </div>
-            <button onClick={() => navigate('/staff/tests')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
+            <button onClick={() => navigate('/staff/tests')} className="text-[var(--text-primary)] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               View all <ChevronRight size={14} />
             </button>
           </div>
@@ -164,7 +177,7 @@ export default function StaffDashboard() {
                   <p className="text-[var(--kl-text)] font-medium text-[13px] truncate">{test.name}</p>
                   <p className="text-[var(--kl-text-muted)] text-[11px]">{test.code} - {test.turnaround}</p>
                 </div>
-                <div className={`w-3 h-3 rounded-full flex-shrink-0`} style={{ backgroundColor: test.containerColor === 'Purple/Lavender' ? '#9333ea' : test.containerColor === 'Light Blue' ? '#3b82f6' : test.containerColor === 'Black' ? '#374151' : '#ef4444' }} title={test.container} />
+                <div className={`w-3 h-3 rounded-full flex-shrink-0`} style={{ backgroundColor: test.containerColor === 'Purple/Lavender' ? '#6f4a8e' : test.containerColor === 'Light Blue' ? '#767676' : test.containerColor === 'Black' ? '#2f2f31' : '#8f3f3f' }} title={test.container} />
               </button>
             )) : (
               <div className="py-6 text-center text-[var(--kl-text-muted)] text-[13px]">
@@ -181,10 +194,10 @@ export default function StaffDashboard() {
         <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <GraduationCap size={18} className="text-[#1c5eff]" />
+              <GraduationCap size={18} className="text-[var(--text-primary)]" />
               <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">My Training</h2>
             </div>
-            <button onClick={() => navigate('/staff/training')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
+            <button onClick={() => navigate('/staff/training')} className="text-[var(--text-primary)] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               View all <ChevronRight size={14} />
             </button>
           </div>
@@ -228,10 +241,10 @@ export default function StaffDashboard() {
         <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Bell size={18} className="text-[#1c5eff]" />
+              <Bell size={18} className="text-[var(--text-primary)]" />
               <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Recent Alerts</h2>
             </div>
-            <button onClick={() => navigate('/staff/alerts')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
+            <button onClick={() => navigate('/staff/alerts')} className="text-[var(--text-primary)] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               View all <ChevronRight size={14} />
             </button>
           </div>
@@ -241,13 +254,13 @@ export default function StaffDashboard() {
                 <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
                   alert.type === 'danger' ? 'bg-[#b14343]' :
                   alert.type === 'warning' ? 'bg-[#9a6115]' :
-                  alert.type === 'success' ? 'bg-[#1c7b56]' : 'bg-[#1c5eff]'
+                  alert.type === 'success' ? 'bg-[#1c7b56]' : 'bg-[var(--text-primary)]'
                 }`} />
                 <div className="flex-1 min-w-0">
                   <p className={`text-[13px] font-medium truncate ${alert.read ? 'text-[var(--kl-text-muted)]' : 'text-[var(--kl-text)]'}`}>{alert.title}</p>
                   <p className="text-[var(--kl-text-muted)] text-[11px]">{new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} - {alert.category}</p>
                 </div>
-                {!alert.read && <div className="w-2 h-2 bg-[#1c5eff] rounded-full flex-shrink-0 mt-1.5" />}
+                {!alert.read && <div className="w-2 h-2 bg-[var(--text-primary)] rounded-full flex-shrink-0 mt-1.5" />}
               </div>
             ))}
           </div>

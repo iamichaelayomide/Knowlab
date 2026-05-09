@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Plus, Save, Send } from 'lucide-react';
+import { ArrowLeft2 as ArrowLeft, Add as Plus, Save2 as Save, Send2 as Send } from 'iconsax-react';
 import { useAuth } from '../../context/AuthContext';
 import { createSOPDraft, submitSOPForReview, updateSOPDraft } from '../../services/workflowStore';
 import { USERS } from '../../data/mockData';
@@ -83,7 +83,7 @@ export default function SOPCreatePage() {
     <div className="kl-page">
       <button
         onClick={() => navigate('/staff/sops')}
-        className="flex items-center gap-2 text-[var(--kl-text-muted)] text-[13px] font-medium mb-4 hover:text-[#1c5eff]"
+        className="flex items-center gap-2 text-[var(--kl-text-muted)] text-[13px] font-medium mb-4 hover:text-[var(--text-primary)]"
       >
         <ArrowLeft size={14} /> Back to SOPs
       </button>
@@ -138,14 +138,14 @@ export default function SOPCreatePage() {
             <button
               type="button"
               onClick={() => setSteps(prev => [...prev, { stepNo: prev.length + 1, title: '', description: '' }])}
-              className="inline-flex items-center gap-1 text-[12px] text-[#1c5eff] font-medium"
+              className="inline-flex items-center gap-1 text-[12px] text-[var(--text-primary)] font-medium"
             >
               <Plus size={12} /> Add step
             </button>
           </div>
           <div className="space-y-2">
             {steps.map((step, idx) => (
-              <div key={idx} className="border border-[#e3edff] rounded-[12px] p-3">
+              <div key={idx} className="border border-[var(--surface-border)] rounded-[12px] p-3">
                 <div className="grid md:grid-cols-[120px_1fr] gap-2">
                   <input
                     value={step.title}
@@ -192,7 +192,7 @@ export default function SOPCreatePage() {
         </div>
 
         {statusMessage && (
-          <div className="mt-4 text-[12px] bg-[#eef5ff] border border-[#bdd3ff] text-[#1c5eff] rounded-[12px] px-3 py-2.5">
+          <div className="mt-4 text-[12px] bg-[var(--kl-surface-tinted)] border border-[var(--surface-border)] text-[var(--text-primary)] rounded-[12px] px-3 py-2.5">
             {statusMessage}
           </div>
         )}
@@ -201,7 +201,7 @@ export default function SOPCreatePage() {
           <button onClick={saveDraft} className="inline-flex items-center gap-1.5 bg-[var(--kl-surface-tinted)] border border-[var(--kl-border)] text-[var(--kl-text)] rounded-[12px] px-4 py-2 text-[13px]">
             <Save size={14} /> Save draft
           </button>
-          <button onClick={submitForReview} className="inline-flex items-center gap-1.5 bg-[#1c5eff] text-white rounded-[12px] px-4 py-2 text-[13px]">
+          <button onClick={submitForReview} className="btn-primary inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px]">
             <Send size={14} /> Submit for review
           </button>
         </div>
