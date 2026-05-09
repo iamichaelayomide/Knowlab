@@ -110,7 +110,7 @@ function HODStaffDetail({ staffId }: { staffId: string }) {
 
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
         <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
-          <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Training</p>
+          <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Readiness</p>
           <p className="text-sm text-[var(--kl-text)] font-medium">{completed}/{TRAINING_MODULES.length}</p>
         </div>
           <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
@@ -132,8 +132,8 @@ function HODStaffDetail({ staffId }: { staffId: string }) {
 
       <div className="mt-4 rounded-[16px] border border-[var(--kl-border)] bg-[var(--kl-surface)] p-4">
         <div className="flex items-center gap-2 mb-2">
-          <AppIcon name="training" size={16} className="text-[var(--kl-primary)]" />
-          <p className="text-sm font-semibold text-[var(--kl-text)]">Courses completed</p>
+          <AppIcon name="staff" size={16} className="text-[var(--text-primary)]" />
+          <p className="text-sm font-semibold text-[var(--kl-text)]">Competency records</p>
         </div>
         {completedModules.length === 0 ? (
           <p className="text-xs text-[var(--kl-text-muted)]">No completed courses yet.</p>

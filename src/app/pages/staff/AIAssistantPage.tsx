@@ -16,7 +16,7 @@ import {
 import { JOB_AIDS, LAB_TESTS, SOPS } from '../../data/mockData';
 import { useAuth } from '../../context/AuthContext';
 import { useDepartment } from '../../context/DepartmentContext';
-import { askKnowledgeAssistant, type AssistantSource } from '../../services/aiAssistant';
+import { askKnowledgeAssistant, type AssistantAttachment, type AssistantSource } from '../../services/aiAssistant';
 import {
   createChatSession,
   deriveChatTitle,
@@ -31,8 +31,8 @@ import {
 const QUICK_PROMPTS = [
   'Can you show me the glucose reference range?',
   'Which tube and ratio should I use for PT and APTT?',
-  'What CAPA item should I look at next?',
-  'Who is below 80% competency in this bench?',
+  'What should I do if QC fails twice?',
+  'Summarize the held patient results in my current scope.',
 ];
 
 const MAX_ATTACHMENTS = 6;
@@ -70,10 +70,39 @@ function formatBytes(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function fileKind(file: File): AssistantAttachment['kind'] {
+  if (file.type.startsWith('image/')) return 'image';
+  if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) return 'pdf';
+  return 'document';
+}
+
+function readFileAsAttachment(file: File): Promise<AssistantAttachment & { type: string; previewUrl?: string }> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error);
+    reader.onload = () => {
+      const dataUrl = String(reader.result || '');
+      const dataBase64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+      const kind = fileKind(file);
+      resolve({
+        id: `file_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        name: file.name,
+        size: file.size,
+        type: file.type || 'application/octet-stream',
+        mimeType: file.type || 'application/octet-stream',
+        kind,
+        dataBase64,
+        previewUrl: kind === 'image' ? dataUrl : undefined,
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 function buildWelcomeMessage(name?: string) {
   return makeWelcomeMessage(
     `Hi ${name?.split(' ')[0] ?? 'there'} - I'm Knowlab AI.\n\n` +
-      'Ask me about a test, SOP, training item, or lab ops question, and I will answer with the closest verified source.',
+      'Ask me about a test, SOP, QC issue, patient result, image, PDF, or lab operations question.',
   );
 }
 
@@ -111,7 +140,7 @@ export default function AIAssistantPage() {
   const streamRunRef = useRef(0);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [queuedAttachments, setQueuedAttachments] = useState<{ id: string; name: string; size: number; type: string }[]>([]);
+  const [queuedAttachments, setQueuedAttachments] = useState<(AssistantAttachment & { type: string; previewUrl?: string })[]>([]);
   const [sessions, setSessions] = useState<AiChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -232,7 +261,7 @@ export default function AIAssistantPage() {
     }
 
     if (source.type === 'ops') {
-      const to = base === '/hod' ? `${base}/reports` : `${base}/capa`;
+      const to = base === '/hod' ? `${base}/reports` : `${base}/qc-log`;
       return { label: 'Open Operations View', to };
     }
 
@@ -306,18 +335,23 @@ export default function AIAssistantPage() {
       streaming: true,
     });
 
-    const attachmentHint = userMsg.attachments?.length
-      ? `\n\nAttached materials provided by user: ${userMsg.attachments.map((a) => a.name).join(', ')}.`
-      : '';
-
     try {
       const result = await askKnowledgeAssistant({
-        query: `${contentText}${attachmentHint}`,
+        query: contentText,
         role: user.role,
         unit: user.unit,
         department: activeDepartment.name,
         bench: activeBench.name,
         conversation,
+        context: { page: 'Full AI chat' },
+        attachments: queuedAttachments.map((attachment) => ({
+          id: attachment.id,
+          name: attachment.name,
+          size: attachment.size,
+          mimeType: attachment.mimeType,
+          kind: attachment.kind,
+          dataBase64: attachment.dataBase64,
+        })),
       });
 
       if (streamRunRef.current !== runId) return;
@@ -396,7 +430,7 @@ export default function AIAssistantPage() {
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[var(--kl-text)] font-semibold text-[14px]">Chat history</p>
-            <p className="text-[var(--kl-text-muted)] text-[11px]">Old chats stay here until you clear the browser data.</p>
+            <p className="text-[var(--kl-text-muted)] text-[11px]">Files are used only for the current answer.</p>
           </div>
           <button
             onClick={newChat}
@@ -417,7 +451,7 @@ export default function AIAssistantPage() {
               onClick={() => selectSession(session.id)}
               className={`kl-card-interactive w-full text-left rounded-[22px] border px-3 py-3 transition-all ${
                 active
-                  ? 'kl-selected border-[var(--accent-blue)] bg-[var(--accent-glow)]'
+                  ? 'kl-selected border-[var(--surface-border-strong)] bg-[var(--accent-glow)]'
                   : 'border-[var(--surface-border)] bg-[var(--surface-raised)] hover:bg-[var(--surface-card)]'
               }`}
             >
@@ -452,7 +486,7 @@ export default function AIAssistantPage() {
       )}
 
       <main className="flex-1 min-w-0 flex flex-col">
-        <div className="shrink-0 px-3 sm:px-6 py-4 border-b border-[var(--surface-border)] bg-[var(--surface-overlay)] backdrop-blur-xl">
+        <div className="shrink-0 px-3 sm:px-6 py-4 border-b border-[var(--surface-border)] bg-[var(--surface-card)]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <div className="bg-[linear-gradient(180deg,#2b2b2b,#080808)] rounded-[18px] p-2.5 shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_22px_rgba(0,0,0,0.2)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.07))]">
@@ -510,9 +544,9 @@ export default function AIAssistantPage() {
 
                 {msg.role === 'assistant' && msg.streaming && !msg.content && (
                   <div className="mt-1.5 flex h-4 items-center gap-1">
-                    <div className="h-1.5 w-1.5 rounded-full bg-[var(--accent-blue)] animate-pulse" style={{ animationDelay: '0ms' }} />
-                    <div className="h-1.5 w-1.5 rounded-full bg-[var(--accent-blue)] animate-pulse" style={{ animationDelay: '150ms' }} />
-                    <div className="h-1.5 w-1.5 rounded-full bg-[var(--accent-blue)] animate-pulse" style={{ animationDelay: '300ms' }} />
+                    <div className="h-1.5 w-1.5 rounded-full bg-[var(--text-primary)] animate-pulse" style={{ animationDelay: '0ms' }} />
+                    <div className="h-1.5 w-1.5 rounded-full bg-[var(--text-primary)] animate-pulse" style={{ animationDelay: '150ms' }} />
+                    <div className="h-1.5 w-1.5 rounded-full bg-[var(--text-primary)] animate-pulse" style={{ animationDelay: '300ms' }} />
                   </div>
                 )}
 
@@ -551,7 +585,7 @@ export default function AIAssistantPage() {
                               }}
                               disabled={!target}
                               className={`kl-filter-pill inline-flex items-center gap-1 bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] text-[11px] px-2.5 py-1 rounded-full ${
-                                target ? 'hover:bg-[#dce9ff]' : 'opacity-60 cursor-not-allowed'
+                                target ? 'hover:bg-[var(--surface-raised)]' : 'opacity-60 cursor-not-allowed'
                               }`}
                               title={target?.label || 'Source route unavailable in current workspace'}
                             >
@@ -632,14 +666,9 @@ export default function AIAssistantPage() {
                 const files = Array.from(event.target.files ?? []);
                 if (!files.length) return;
 
-                const mapped = files.slice(0, MAX_ATTACHMENTS - queuedAttachments.length).map((file) => ({
-                  id: `file_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-                  name: file.name,
-                  size: file.size,
-                  type: file.type,
-                }));
-
-                setQueuedAttachments((prev) => [...prev, ...mapped]);
+                void Promise.all(files.slice(0, MAX_ATTACHMENTS - queuedAttachments.length).map(readFileAsAttachment)).then((mapped) => {
+                  setQueuedAttachments((prev) => [...prev, ...mapped]);
+                });
                 event.target.value = '';
               }}
             />
@@ -655,7 +684,7 @@ export default function AIAssistantPage() {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask Knowlab AI about SOPs, tests, definitions, CAPA, competency, or staffing..."
+              placeholder="Ask Knowlab AI about SOPs, tests, QC, patients, images, or PDFs..."
               className="input flex-1 h-[44px] bg-transparent border-transparent rounded-full px-4 text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:outline-none focus:border-transparent focus:shadow-none"
             />
             <button

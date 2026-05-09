@@ -13,7 +13,7 @@
   --surface-raised: rgba(250, 250, 250, 0.88);
   --surface-overlay: rgba(255, 255, 255, 0.82);
   --surface-border: rgba(0, 0, 0, 0.04);
-  --surface-border-strong: rgba(0, 0, 0, 0.10);
+  --surface-border-strong: rgba(0, 0, 0, 0.08);
 
   /* --- TEXT --- */
   --text-primary: #111111;
@@ -32,7 +32,7 @@
   --success: #34c759;
   --warning: #f5a623;
   --destructive: #ff3b30;
-  --info: #555555;
+  --info: #6b6b6f;
 
   /* --- GLASS --- */
   --glass-bg: rgba(255, 255, 255, 0.62);
@@ -73,7 +73,7 @@
   --kl-bg: var(--surface-base);
   --kl-surface: var(--surface-card);
   --kl-surface-soft: var(--surface-raised);
-  --kl-surface-tinted: #eeeeee;
+  --kl-surface-tinted: rgba(0, 0, 0, 0.045);
   --kl-border: var(--surface-border);
   --kl-text: var(--text-primary);
   --kl-text-muted: var(--text-secondary);
@@ -145,4 +145,6 @@
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
   --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.7);
+
+  --kl-surface-tinted: rgba(255, 255, 255, 0.075);
 }

@@ -5,6 +5,9 @@ export interface AiChatAttachment {
   name: string;
   size: number;
   type: string;
+  kind?: "image" | "pdf" | "document";
+  previewUrl?: string;
+  dataBase64?: string;
 }
 
 export interface AiChatMessage {
@@ -83,7 +86,19 @@ export function normalizeSessions(input: unknown, welcomeFactory: () => AiChatMe
           mode: item.mode,
           accessDenied: item.accessDenied,
           quickActions: Array.isArray(item.quickActions) ? item.quickActions : undefined,
-          attachments: Array.isArray(item.attachments) ? item.attachments : undefined,
+          attachments: Array.isArray(item.attachments)
+            ? item.attachments.map((attachment) => {
+                const entry = attachment as Partial<AiChatAttachment>;
+                return {
+                  id: entry.id || `attachment_${idx}_${messageIdx}`,
+                  name: entry.name || "Attachment",
+                  size: typeof entry.size === "number" ? entry.size : 0,
+                  type: entry.type || "application/octet-stream",
+                  kind: entry.kind,
+                  previewUrl: entry.previewUrl,
+                };
+              })
+            : undefined,
         } satisfies AiChatMessage;
       });
 

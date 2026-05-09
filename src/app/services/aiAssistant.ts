@@ -2,12 +2,15 @@ import {
   CAPA_ITEMS,
   JOB_AIDS,
   LAB_TESTS,
+  QC_LOGS,
   SOPS,
   TRAINING_MODULES,
   TRAINING_RECORDS,
   getDepartmentForUser,
   getStaffUsers,
 } from "../data/mockData";
+import { LAB_ORDERS, PATIENTS } from "../data/patients";
+import { buildKnowlabContextBlock, KNOWLAB_AI_SYSTEM_PROMPT, type KnowlabAIContext } from "./aiSystemPrompt";
 
 export interface AssistantSource {
   id: string;
@@ -26,6 +29,15 @@ export interface AssistantQuickAction {
 export interface AssistantConversationTurn {
   role: "user" | "assistant";
   content: string;
+}
+
+export interface AssistantAttachment {
+  id: string;
+  name: string;
+  mimeType: string;
+  size: number;
+  kind: "image" | "pdf" | "document";
+  dataBase64?: string;
 }
 
 export interface AssistantAnswer {
@@ -103,7 +115,7 @@ function buildAlternativeSuggestions(query: string) {
 function matchesLocalIntent(query: string) {
   const q = query.toLowerCase().trim();
   if (!q) return false;
-  const exactDefinitions = ["glucose", "capa", "qc", "sop"];
+  const exactDefinitions = ["glucose", "qc", "sop", "patient", "bilirubin", "lft"];
   if (exactDefinitions.some((term) => q === term || q.includes(term))) return true;
 
   const testHit = LAB_TESTS.some((test) => {
@@ -160,15 +172,15 @@ function deniedAnswer(role: "staff" | "supervisor" | "hod"): AssistantAnswer {
       sources: [],
       mode: "clarify",
       quickActions: [
-        { label: "Ask for CAPA summary", path: "/supervisor/capa" },
-        { label: "Ask for team competency", path: "/supervisor/staff" },
+        { label: "Ask for QC summary", path: "/supervisor/qc-log" },
+        { label: "Ask for patient workload", path: "/supervisor/patients" },
       ],
     };
   }
 
   return {
     answer:
-      "That request is outside staff-level access.\n\nI can still help with SOPs, tests, and training here, but admin or supervisor-level data needs the right role.",
+      "That request is outside staff-level access.\n\nI can still help with SOPs, tests, patient result handling, and QC entry guidance here, but admin or supervisor-level data needs the right role.",
     confidence: 0.91,
     sources: [],
     mode: "denied",
@@ -176,7 +188,7 @@ function deniedAnswer(role: "staff" | "supervisor" | "hod"): AssistantAnswer {
     quickActions: [
       { label: "Ask SOP guidance", path: "/staff/sops" },
       { label: "Ask test guidance", path: "/staff/tests" },
-      { label: "Open training", path: "/staff/training" },
+      { label: "Open patients", path: "/staff/patients" },
     ],
   };
 }
@@ -194,7 +206,6 @@ function staffAskingRestrictedScope(query: string) {
     "who is under",
     "who is below",
     "competency",
-    "capa",
     "incident trend",
     "operations report",
   ];
@@ -229,16 +240,6 @@ function tryGeneralDefinition(query: string): AssistantAnswer | null {
       ],
     },
     {
-      key: "capa",
-      text:
-        "CAPA means Corrective and Preventive Action: a structured workflow used to investigate a problem, fix root causes, and prevent recurrence.",
-      follow: [
-        "Ask for the latest CAPA in your authorized scope.",
-        "Ask for open CAPA items that are overdue.",
-        "Ask for CAPA trends by category and priority.",
-      ],
-    },
-    {
       key: "qc",
       text:
         "QC means Quality Control: routine control checks that confirm analyzer performance is acceptable before patient result release.",
@@ -264,7 +265,7 @@ function tryGeneralDefinition(query: string): AssistantAnswer | null {
   if (!hit) {
     return {
       answer:
-        "I can give a quick concept explanation, but exact lab values and procedure steps should come from verified SOP/test sources.\n\nTry a specific term like: define glucose, define CAPA, define QC, or define SOP.",
+    "I can give a quick concept explanation, but exact lab values and procedure steps should come from verified SOP/test sources.\n\nTry a specific term like: define glucose, define QC, define SOP, bilirubin, or LFT.",
       confidence: 0.38,
       sources: [],
       mode: "teaching",
@@ -302,6 +303,33 @@ function tryOperationalAnswer(input: {
     input.bench && input.bench.toLowerCase() !== "all"
       ? scopedByDepartment.filter((entry) => entry.unit.toLowerCase().includes(input.bench!.toLowerCase()))
       : scopedByDepartment;
+
+  if (q.includes("qc") && (q.includes("prioritize") || q.includes("issue") || q.includes("risk") || q.includes("trend"))) {
+    const relevantQc =
+      input.bench && input.bench.toLowerCase() !== "all"
+        ? QC_LOGS.filter((entry) => entry.bench.toLowerCase().includes(input.bench!.toLowerCase()))
+        : QC_LOGS;
+    const warnings = relevantQc.filter((entry) => entry.overallStatus === "warning");
+    const failed = relevantQc.filter((entry) => entry.overallStatus === "failed");
+    const focus = [...failed, ...warnings][0];
+    return {
+      answer:
+        "Executive summary:\n" +
+        (focus
+          ? `Prioritize ${focus.analyzer} ${focus.level} because its QC status is ${focus.overallStatus}.\n\n`
+          : "No failed or warning QC entries are visible in the current register.\n\n") +
+        "What the data shows:\n" +
+        `- ${relevantQc.length} QC entries in scope\n` +
+        `- ${failed.length} failed\n` +
+        `- ${warnings.length} warning\n\n` +
+        "Recommended action:\nConfirm QC status, reagent/control lot, calibration, maintenance state, and operator steps. Do not release patient results from an unacceptable QC run until resolved according to SOP.\n\n" +
+        `Priority level: ${failed.length ? "High" : warnings.length ? "Medium" : "Low"}`,
+      confidence: 0.86,
+      sources: [{ id: "ops-qc-log", type: "ops", title: "QC Log" }],
+      mode: "direct",
+      quickActions: [{ label: "Open QC Log", path: "qc-log" }],
+    };
+  }
 
   const unitStats = unique(scopedByDepartment.map((entry) => entry.unit)).map((unit) => {
     const unitStaff = scopedByDepartment.filter((entry) => entry.unit === unit);
@@ -351,7 +379,7 @@ function tryOperationalAnswer(input: {
       confidence: 0.9,
       sources: [{ id: "ops-training", type: "ops", title: "Training Compliance Register" }],
       mode: teaching ? "teaching" : "direct",
-      quickActions: [{ label: "Open training board", path: "training" }, { label: "Open staff view", path: "staff" }],
+      quickActions: [{ label: "Open staff view", path: "staff" }],
     };
   }
 
@@ -364,11 +392,11 @@ function tryOperationalAnswer(input: {
     return {
       answer:
         "Here are the key risk signals right now:\n" +
-        `1) Critical open CAPAs: ${criticalOpen}\n` +
-        `2) Overdue training records: ${overdueTraining}\n` +
+        `1) Critical follow-up items: ${criticalOpen}\n` +
+        `2) Readiness gaps: ${overdueTraining}\n` +
         `3) Staff below 80% competency: ${below80}\n` +
         (teaching
-          ? "\nQuick actions:\n- Triage critical CAPAs by due date/owner.\n- Schedule catch-up training for overdue cohorts.\n- Run targeted coaching for low-competency units."
+          ? "\nQuick actions:\n- Triage critical follow-ups by due date/owner.\n- Schedule readiness catch-up for overdue cohorts.\n- Run targeted coaching for low-competency units."
           : ""),
       confidence: 0.88,
       sources: [
@@ -377,11 +405,11 @@ function tryOperationalAnswer(input: {
         { id: "ops-competency", type: "ops", title: "Staff Competency Register" },
       ],
       mode: teaching ? "teaching" : "direct",
-      quickActions: [{ label: "Open CAPA board", path: "capa" }, { label: "Open training board", path: "training" }],
+      quickActions: [{ label: "Open QC Log", path: "qc-log" }, { label: "Open staff view", path: "staff" }],
     };
   }
 
-  if ((q.includes("executive") || q.includes("narrative")) && (q.includes("sop") || q.includes("capa"))) {
+  if ((q.includes("executive") || q.includes("narrative")) && (q.includes("sop") || q.includes("qc") || q.includes("patient"))) {
     const activeSops = SOPS.filter((sop) => sop.status === "active").length;
     const openCapas = CAPA_ITEMS.filter((item) => item.status !== "completed").length;
     const completedCapas = CAPA_ITEMS.filter((item) => item.status === "completed").length;
@@ -391,9 +419,9 @@ function tryOperationalAnswer(input: {
       answer:
         "Here’s a clean executive summary you can reuse:\n\n" +
         `SOPs: ${activeSops} active SOPs in scope with review controls in place.\n` +
-        `CAPA: ${openCapas} open items, ${completedCapas} closed.\n` +
-        `Readiness: ${overdueTraining} overdue training items.\n\n` +
-        "Priority message: keep CAPA closure velocity high while reducing overdue training to protect SOP execution.",
+        `QC follow-up: ${openCapas} open items, ${completedCapas} closed.\n` +
+        `Readiness: ${overdueTraining} overdue readiness items.\n\n` +
+        "Priority message: keep QC follow-up moving while reducing readiness gaps to protect SOP execution.",
       confidence: 0.86,
       sources: [
         { id: "ops-sop", type: "ops", title: "SOP Register" },
@@ -401,7 +429,7 @@ function tryOperationalAnswer(input: {
         { id: "ops-training", type: "ops", title: "Training Compliance Register" },
       ],
       mode: "direct",
-      quickActions: [{ label: "Open reports", path: "reports" }, { label: "Open CAPA board", path: "capa" }],
+      quickActions: [{ label: "Open reports", path: "reports" }, { label: "Open QC Log", path: "qc-log" }],
     };
   }
 
@@ -428,7 +456,7 @@ function tryOperationalAnswer(input: {
       confidence: 0.93,
       sources: [{ id: last.id, type: "ops", title: `CAPA ${last.code}` }],
       mode: teaching ? "teaching" : "direct",
-      quickActions: [{ label: "Open CAPA board", path: "capa" }],
+      quickActions: [{ label: "Open QC Log", path: "qc-log" }],
     };
   }
 
@@ -739,18 +767,35 @@ export async function askKnowledgeAssistant(input: {
   department?: string;
   bench?: string;
   conversation?: AssistantConversationTurn[];
+  context?: Partial<KnowlabAIContext>;
+  attachments?: AssistantAttachment[];
+  modeHint?: AssistantMode | "image" | "qc" | "patient";
 }): Promise<AssistantAnswer> {
   const normalizedQuery = input.query.trim();
   const conversationContext = buildConversationContext(input.conversation);
+  const appContext = buildKnowlabContextBlock({
+    role: input.role,
+    unit: input.unit,
+    department: input.department,
+    bench: input.bench,
+    ...input.context,
+  });
+  const attachmentContext = input.attachments?.length
+    ? input.attachments
+        .map((attachment) => `${attachment.kind.toUpperCase()}: ${attachment.name} (${attachment.mimeType}, ${attachment.size} bytes)`)
+        .join("\n")
+    : "";
   const contextualQuery = conversationContext
-    ? `${normalizedQuery}\n\nConversation context:\n${conversationContext}`
+    ? `${normalizedQuery}\n\nApp context:\n${appContext}\n\nAttachment context:\n${attachmentContext}\n\nConversation context:\n${conversationContext}`
+    : appContext || attachmentContext
+      ? `${normalizedQuery}\n\nApp context:\n${appContext}\n\nAttachment context:\n${attachmentContext}`
     : normalizedQuery;
 
   if (input.role === "staff" && staffAskingRestrictedScope(normalizedQuery)) {
     return deniedAnswer(input.role);
   }
 
-  if (shouldClarify(contextualQuery)) {
+  if (shouldClarify(normalizedQuery)) {
     return clarificationAnswer();
   }
 
@@ -791,6 +836,9 @@ export async function askKnowledgeAssistant(input: {
       body: JSON.stringify({
         ...input,
         query: normalizedQuery,
+        systemPrompt: KNOWLAB_AI_SYSTEM_PROMPT,
+        appContext,
+        attachments: input.attachments,
         conversationContext,
         contextualQuery,
       }),

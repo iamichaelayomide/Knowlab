@@ -71,20 +71,20 @@ export default function FloatingAIWidget() {
       return [
         "Teach me this SOP step by step with practical checkpoints.",
         "What sample type, tube, and turnaround should I expect for this test?",
-        "Can you break this into beginner, intermediate, and advanced levels?",
+        "What should I check before releasing a patient result?",
       ];
     }
     if (user.role === "supervisor") {
       return [
-        "Who is below 80% competency in this bench and why?",
-        "Summarize CAPA priorities with next actions for this unit.",
-        "Prepare a coaching checklist for today's shift handover.",
+        "Which QC issue should this bench prioritize?",
+        "Summarize held patient results for my bench.",
+        "Prepare a supervisor handover summary.",
       ];
     }
     return [
       "Summarize department risk signals and top interventions this week.",
-      "Which units need immediate training escalation and why?",
-      "Give me an executive-ready SOP/CAPA status narrative.",
+        "Which units need immediate QC attention and why?",
+        "Give me an executive-ready SOP/QC/patient workload narrative.",
     ];
   }, [user]);
 
@@ -162,7 +162,7 @@ export default function FloatingAIWidget() {
     }
 
     if (source.type === "ops") {
-      return base === "/hod" ? `${base}/reports` : `${base}/capa`;
+      return base === "/hod" ? `${base}/reports` : `${base}/qc-log`;
     }
 
     return null;
@@ -201,6 +201,7 @@ export default function FloatingAIWidget() {
       unit: user.unit,
       department: activeDepartment.name,
       bench: activeBench.name,
+      context: { page: "Floating AI widget" },
     });
 
     const aiMessage: ChatMessage = {
@@ -235,10 +236,11 @@ export default function FloatingAIWidget() {
 
       {open && (
         <div
-          className="kl-ai-panel fixed z-50 inset-x-3 sm:inset-x-auto sm:right-6 flex flex-col overflow-hidden sm:w-[410px]"
+            className="kl-ai-panel fixed z-50 inset-x-2 sm:inset-x-auto sm:right-6 flex flex-col overflow-hidden sm:w-[410px]"
           style={{
             bottom: "calc(env(safe-area-inset-bottom) + 12px)",
-            height: "min(72dvh, 680px)",
+            height: "min(78dvh, 680px)",
+            maxWidth: "calc(100vw - 16px)",
           }}
         >
           <div className="shrink-0 px-4 py-3 border-b border-[var(--surface-border)] bg-[var(--surface-raised)] flex items-center justify-between gap-2">
@@ -269,12 +271,12 @@ export default function FloatingAIWidget() {
           </div>
 
           <div className="shrink-0 border-b border-[var(--surface-border)] bg-[var(--surface-card)] px-3 py-2.5">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
               {quickCards.map((card) => (
                 <button
                   key={card}
                   onClick={() => void send(card)}
-                  className="kl-card-interactive text-left rounded-[18px] border border-[var(--surface-border)] bg-[var(--glass-bg)] px-2.5 py-2 transition-all hover:border-[var(--accent-blue)] hover:bg-[var(--surface-raised)]"
+                  className="kl-card-interactive text-left rounded-[18px] border border-[var(--surface-border)] bg-[var(--glass-bg)] px-2.5 py-2 transition-all hover:border-[var(--surface-border-strong)] hover:bg-[var(--surface-raised)]"
                 >
                   <p className="text-[11px] text-[var(--text-primary)] leading-snug">{card}</p>
                 </button>
@@ -383,8 +385,8 @@ export default function FloatingAIWidget() {
                   void send();
                 }
               }}
-              placeholder="Ask about SOPs, tests, CAPA, competency, training..."
-              className="input flex-1 h-[40px] rounded-full border border-[var(--surface-border-strong)] bg-[var(--surface-base)] px-4 text-[12px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent-blue)]"
+              placeholder="Ask about SOPs, tests, QC, patients..."
+              className="input flex-1 h-[40px] rounded-full border border-[var(--surface-border-strong)] bg-[var(--surface-base)] px-4 text-[12px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--surface-border-strong)]"
             />
             <button
               onClick={() => void send()}

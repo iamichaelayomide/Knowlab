@@ -13,8 +13,8 @@ export default function SettingsPage() {
   const [notifications, setNotifications] = useState({
     criticalValues: true,
     qcAlerts: true,
-    trainingReminders: true,
-    capaUpdates: true,
+    readinessAlerts: true,
+    followUpUpdates: true,
     documentUpdates: false,
   });
 
@@ -99,8 +99,8 @@ export default function SettingsPage() {
           {Object.entries({
             criticalValues: "Critical value notifications",
             qcAlerts: "QC failure and warning alerts",
-            trainingReminders: "Training due reminders",
-            capaUpdates: "CAPA status updates",
+            readinessAlerts: "Staff readiness alerts",
+            followUpUpdates: "Supervisor follow-up updates",
             documentUpdates: "SOP workflow notifications",
           }).map(([key, label]) => (
             <div key={key} className="rounded-[12px] border border-[var(--kl-border)] px-3 py-2.5 flex items-center justify-between">

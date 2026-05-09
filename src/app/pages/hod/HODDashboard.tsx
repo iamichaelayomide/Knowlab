@@ -1,255 +1,113 @@
 import { useNavigate } from 'react-router';
-import {
-  People as Users,
-  ShieldSecurity as ShieldAlert,
-  Teacher as GraduationCap,
-  Chart2 as BarChart2,
-  Warning2 as AlertTriangle,
-  ArrowRight2 as ChevronRight,
-} from 'iconsax-react';
+import type { ReactNode } from 'react';
+import { ArrowRight2 as ChevronRight, Chart2, ClipboardTick, People, Profile2User, Warning2 } from 'iconsax-react';
+import { ALERTS, QC_LOGS, getStaffUsers } from '../../data/mockData';
+import { LAB_ORDERS, PATIENTS } from '../../data/patients';
 import { useAuth } from '../../context/AuthContext';
-import { CAPA_ITEMS, TRAINING_RECORDS, TRAINING_MODULES, ALERTS, getStaffUsers, QC_LOGS } from '../../data/mockData';
-import { getWorkflowState } from '../../services/workflowStore';
 import { openFloatingAI } from '../../services/aiWidget';
 import { TEXT_TOKENS } from '../../utils/textTokens';
+
+function Metric({ label, value, sub, icon, onClick }: { label: string; value: string | number; sub: string; icon: ReactNode; onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="kl-gradient-card kl-card-interactive rounded-[28px] border border-[var(--surface-border)] p-5 text-left shadow-sm">
+      <div className="mb-5 grid size-11 place-items-center rounded-[18px] border border-[var(--surface-border)] bg-[var(--surface-card)] text-[var(--text-primary)]">{icon}</div>
+      <p className="mb-1 text-[12px] text-[var(--text-secondary)]">{label}</p>
+      <p className="mb-1 text-[30px] font-semibold leading-none text-[var(--text-primary)]">{value}</p>
+      <p className="text-[12px] text-[var(--text-secondary)]">{sub}</p>
+    </button>
+  );
+}
 
 export default function HODDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  if (!user) return null;
 
-  const allStaff = getStaffUsers();
-  const openCAPAs = CAPA_ITEMS.filter(c => c.status !== 'completed');
-  const criticalCAPAs = CAPA_ITEMS.filter(c => c.priority === 'critical' && c.status !== 'completed');
-  const completedTraining = TRAINING_RECORDS.filter(r => r.status === 'completed').length;
-  const totalTraining = allStaff.length * TRAINING_MODULES.length;
-  const trainingCompliance = Math.round((completedTraining / totalTraining) * 100);
-  const qcPassed = QC_LOGS.filter(q => q.overallStatus === 'passed').length;
-  const qcTotal = QC_LOGS.length;
-  const qcRate = Math.round((qcPassed / qcTotal) * 100);
-  const hodAlerts = ALERTS.filter(a => !a.read && a.targetRoles.includes('hod'));
-  const workflow = getWorkflowState();
-  const pendingValidations = workflow.validationTasks.filter(v => v.assignedHodId === user?.id && v.decision === 'pending').length;
-  const pendingUserApprovals = workflow.userRequests.filter(r => r.decision === 'pending').length;
-  const pendingValidationTask = workflow.validationTasks.find(v => v.assignedHodId === user?.id && v.decision === 'pending');
-  const firstOpenCapa = CAPA_ITEMS.find(c => c.status !== 'completed');
-  const firstUnreadAlert = ALERTS.find(a => !a.read && a.targetRoles.includes('hod'));
-  const latestQc = QC_LOGS[0];
-
-  const lowCompetency = allStaff.filter(s => (s.competencyScore ?? 75) < 80);
-  const lowestCompetencyStaff = lowCompetency.slice(0, 3).map(s => s.name).join(', ');
+  const staff = getStaffUsers();
+  const qcPassed = QC_LOGS.filter((entry) => entry.overallStatus === 'passed').length;
+  const qcRate = Math.round((qcPassed / Math.max(1, QC_LOGS.length)) * 100);
+  const heldOrders = LAB_ORDERS.filter((order) => order.status === 'held').length;
+  const alerts = ALERTS.filter((alert) => !alert.read && alert.targetRoles.includes('hod'));
+  const units = Array.from(new Set(staff.map((member) => member.unit)));
 
   return (
     <div className="kl-page">
-      {/* Hero */}
-      <div
-        className="rounded-[18px] sm:rounded-[24px] overflow-hidden mb-4 sm:mb-6"
-        style={{ background: 'linear-gradient(151deg, #0b0b0c 0%, #161617 50%, #2a2a2c 100%)' }}
-      >
-        <div className="p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-4 sm:gap-6">
-          <div className="flex-1">
-            <div className="inline-flex items-center bg-[rgba(255,255,255,0.10)] border border-[rgba(255,255,255,0.14)] rounded-full px-4 py-2 mb-4">
-              <span className="text-white/70 text-[11px] font-semibold tracking-[1.98px] uppercase">Head of Department</span>
-            </div>
-            <h1 className="text-white font-bold text-[24px] sm:text-[28px] leading-[1.2] mb-2">
-              Department Overview
-            </h1>
-            <p className="text-white/72 text-[14px] leading-relaxed max-w-[480px]">
-              {user?.department} {TEXT_TOKENS.separator.trim()} {allStaff.length} staff across {new Set(allStaff.map(s => s.unit)).size} units
+      <section className="kl-premium-card mb-5 overflow-hidden bg-[linear-gradient(145deg,#0c0c0d,#19191b_52%,#2a2a2c)] p-5 text-white sm:p-7">
+        <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+          <div>
+            <p className="mb-4 inline-flex rounded-full border border-white/12 bg-white/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/68">Head of Department</p>
+            <h1 className="text-[28px] font-semibold leading-tight sm:text-[34px]">Department Overview</h1>
+            <p className="mt-3 max-w-[620px] text-[14px] leading-relaxed text-white/68">
+              {user.department} {TEXT_TOKENS.separator.trim()} {staff.length} staff across {units.length} units with lab-wide patient and QC visibility.
             </p>
-            <div className="flex gap-3 mt-5">
-              <button onClick={() => navigate('/hod/staff')} className="bg-[var(--kl-surface)] text-[var(--kl-text)] font-medium text-[13px] px-4 py-2.5 rounded-[13px] hover:bg-[var(--kl-surface-tinted)] transition-colors">
-                Staff overview
-              </button>
-              <button onClick={() => navigate('/hod/reports')} className="bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] text-white font-medium text-[13px] px-4 py-2.5 rounded-[13px] backdrop-blur-md hover:bg-[rgba(255,255,255,0.12)] transition-all active:scale-[0.98]">
-                View reports
-              </button>
-              <button
-                onClick={() => openFloatingAI('Which haematology staff are below 80% competency?')}
-                className="bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] text-white font-medium text-[13px] px-4 py-2.5 rounded-[13px] backdrop-blur-md hover:bg-[rgba(255,255,255,0.12)] transition-all active:scale-[0.98]"
-              >
-                Ask AI insights
-              </button>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button className="btn-primary bg-white text-black" onClick={() => navigate('/hod/patients')}>Open patients</button>
+              <button className="kl-button-soft rounded-full border border-white/14 bg-white/8 px-4 text-white" onClick={() => navigate('/hod/reports')}>View reports</button>
+              <button className="kl-button-soft rounded-full border border-white/14 bg-white/8 px-4 text-white" onClick={() => openFloatingAI('Give me an executive-ready SOP, QC, and patient workload narrative.')}>Ask AI insights</button>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:w-[320px]">
+          <div className="grid gap-3">
             {[
-              {
-                label: 'TRAINING COMPLIANCE',
-                value: `${trainingCompliance}%`,
-                sub: `${completedTraining}/${totalTraining} modules completed`,
-              },
-              {
-                label: 'QC PASS RATE',
-                value: `${qcRate}%`,
-                sub: latestQc ? `Latest batch: ${latestQc.level} ${TEXT_TOKENS.separator.trim()} ${latestQc.overallStatus}` : `${qcPassed}/${qcTotal} entries passed`,
-              },
-              {
-                label: 'OPEN CAPAS',
-                value: openCAPAs.length,
-                sub: firstOpenCapa ? `${firstOpenCapa.code} ${TEXT_TOKENS.separator.trim()} ${firstOpenCapa.title}` : `${criticalCAPAs.length} critical`,
-              },
-              {
-                label: 'UNREAD ALERTS',
-                value: hodAlerts.length,
-                sub: firstUnreadAlert ? `Latest: ${firstUnreadAlert.title}` : 'Require your attention',
-              },
-              {
-                label: 'SOP VALIDATION',
-                value: pendingValidations,
-                sub: pendingValidationTask
-                  ? `Next validation: ${pendingValidationTask.sopTitle} ${TEXT_TOKENS.separator.trim()} ${pendingUserApprovals} user approvals pending`
-                  : `${pendingUserApprovals} user approvals pending`,
-              },
-            ].map(item => (
-              <div key={item.label} className="bg-[rgba(255,255,255,0.075)] border border-[rgba(255,255,255,0.12)] rounded-[18px] px-4 py-3 backdrop-blur-md">
-                <p className="text-white/62 font-semibold text-[9px] tracking-[1.5px] uppercase mb-1">{item.label}</p>
-                <p className="text-white font-bold text-[22px] leading-none mb-0.5">{item.value}</p>
-                <p className="text-white/50 text-[11px]">{item.sub}</p>
+              ['QC pass rate', `${qcRate}%`, `${QC_LOGS.length} QC entries reviewed in demo data.`],
+              ['Patient workload', `${PATIENTS.length} patients`, `${heldOrders} held order(s) across the lab.`],
+              ['Unread alerts', `${alerts.length} alerts`, 'Review safety and administrative notices.'],
+            ].map(([label, value, sub]) => (
+              <div key={label} className="rounded-[22px] border border-white/12 bg-white/8 p-4">
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/55">{label}</p>
+                <p className="text-[18px] font-semibold text-white">{value}</p>
+                <p className="mt-1 text-[12px] text-white/50">{sub}</p>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-        {[
-          { label: 'Total Staff', value: allStaff.length, sub: `Across ${new Set(allStaff.map(s => s.unit)).size} units`, color: '#2f2f31', icon: <Users size={16} />, path: '/hod/staff' },
-          { label: 'Training Compliance', value: `${trainingCompliance}%`, sub: `Team-wide average`, color: trainingCompliance >= 80 ? '#1c7b56' : '#9a6115', icon: <GraduationCap size={16} />, path: '/hod/training' },
-          { label: 'Open CAPAs', value: openCAPAs.length, sub: `${criticalCAPAs.length} critical`, color: criticalCAPAs.length > 0 ? '#b14343' : '#9a6115', icon: <ShieldAlert size={16} />, path: '/hod/capa' },
-          { label: 'QC Pass Rate', value: `${qcRate}%`, sub: `Last 7 days`, color: qcRate >= 90 ? '#1c7b56' : '#9a6115', icon: <BarChart2 size={16} />, path: '/hod/qc' },
-        ].map(item => (
-          <button
-            key={item.label}
-            onClick={() => navigate(item.path)}
-            className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-5 text-left hover:border-[var(--surface-border-strong)] hover:shadow-[var(--kl-shadow)] transition-all"
-          >
-            <div className="flex justify-between items-start mb-3">
-              <div className="h-1 w-10 rounded-full" style={{ backgroundColor: item.color }} />
-              <div className="p-2 rounded-[10px]" style={{ backgroundColor: `${item.color}18` }}>
-                <span style={{ color: item.color }}>{item.icon}</span>
-              </div>
-            </div>
-            <p className="text-[var(--kl-text-muted)] text-[13px] mb-1">{item.label}</p>
-            <p className="text-[var(--kl-text)] font-bold text-[26px] leading-none mb-1">{item.value}</p>
-            <p className="text-[var(--kl-text-muted)] text-[12px]">{item.sub}</p>
-          </button>
-        ))}
-      </div>
+      <section className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Metric label="Total Staff" value={staff.length} sub={`Across ${units.length} units`} icon={<People size={18} />} onClick={() => navigate('/hod/staff')} />
+        <Metric label="Patients" value={PATIENTS.length} sub={`${heldOrders} held orders`} icon={<Profile2User size={18} />} onClick={() => navigate('/hod/patients')} />
+        <Metric label="QC Pass Rate" value={`${qcRate}%`} sub="Current demo register" icon={<ClipboardTick size={18} />} onClick={() => navigate('/hod/qc-log')} />
+        <Metric label="Reports" value="Live" sub="Department analytics" icon={<Chart2 size={18} />} onClick={() => navigate('/hod/reports')} />
+      </section>
 
-      {/* Two column */}
-      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-        {/* Staff by unit */}
-        <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Users size={18} className="text-[var(--text-primary)]" />
-              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Staff by Unit</h2>
-            </div>
-            <button onClick={() => navigate('/hod/staff')} className="text-[var(--text-primary)] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
-              Full list <ChevronRight size={14} />
-            </button>
+      <section className="grid gap-4 lg:grid-cols-2">
+        <div className="kl-premium-card p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-[16px] font-semibold text-[var(--text-primary)]">Staff by Unit</h2>
+            <button onClick={() => navigate('/hod/staff')} className="inline-flex items-center gap-1 text-[13px] font-medium text-[var(--text-primary)]">Full list <ChevronRight size={14} /></button>
           </div>
-          {Array.from(new Set(allStaff.map(s => s.unit))).map(unit => {
-            const unitStaff = allStaff.filter(s => s.unit === unit);
-            const avgComp = Math.round(unitStaff.reduce((sum, s) => sum + (s.competencyScore ?? 75), 0) / unitStaff.length);
+          {units.map((unit) => {
+            const unitStaff = staff.filter((member) => member.unit === unit);
+            const avg = Math.round(unitStaff.reduce((sum, member) => sum + (member.competencyScore ?? 75), 0) / unitStaff.length);
             return (
-              <div key={unit} className="flex items-center gap-3 py-3 border-b border-[var(--surface-border)] last:border-0">
-                <div className="flex-1 min-w-0">
-                  <p className="text-[var(--kl-text)] font-medium text-[13px] truncate">{unit}</p>
-                  <p className="text-[var(--kl-text-muted)] text-[11px]">{unitStaff.length} staff</p>
+              <div key={unit} className="flex items-center gap-3 border-b border-[var(--surface-border)] py-3 last:border-0">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-semibold text-[var(--text-primary)]">{unit}</p>
+                  <p className="text-[11px] text-[var(--text-secondary)]">{unitStaff.length} staff</p>
                 </div>
-                <div className="text-right">
-                  <p className={`font-semibold text-[13px] ${avgComp >= 85 ? 'text-[#1c7b56] dark:text-[#88e0ba]' : avgComp >= 70 ? 'text-[#9a6115] dark:text-[#f3c26f]' : 'text-[#b14343] dark:text-[#fca5a5]'}`}>{avgComp}%</p>
-                  <p className="text-[var(--kl-text-muted)] text-[10px]">avg competency</p>
-                </div>
-                <div className="w-16">
-                  <div className="w-full bg-[var(--kl-surface-tinted)] rounded-full h-1.5">
-                    <div className="h-1.5 rounded-full" style={{ width: `${avgComp}%`, backgroundColor: avgComp >= 85 ? '#1c7b56' : avgComp >= 70 ? '#9a6115' : '#b14343' }} />
-                  </div>
-                </div>
+                <p className="text-[13px] font-semibold text-[var(--text-primary)]">{avg}%</p>
               </div>
             );
           })}
-          {/* Low competency alert */}
-          {lowCompetency.length > 0 && (
-            <div className="mt-3 bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] rounded-[12px] p-3">
-              <div className="flex items-center gap-1.5 mb-1">
-                <AlertTriangle size={12} className="text-[#b14343] dark:text-[#fca5a5]" />
-                <span className="text-[#b14343] dark:text-[#fca5a5] text-[11px] font-semibold">{lowCompetency.length} staff below 80% threshold</span>
-              </div>
-              <p className="text-[#b14343] dark:text-[#fca5a5] text-[12px]">{lowestCompetencyStaff} {TEXT_TOKENS.separator.trim()} review recommended</p>
-            </div>
-          )}
         </div>
 
-        {/* CAPA Summary */}
-        <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <ShieldAlert size={18} className="text-[var(--text-primary)]" />
-              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">CAPA Status</h2>
-            </div>
-            <button onClick={() => navigate('/hod/capa')} className="text-[var(--text-primary)] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
-              Manage <ChevronRight size={14} />
-            </button>
+        <div className="kl-premium-card p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-[16px] font-semibold text-[var(--text-primary)]">Department Alerts</h2>
+            <button onClick={() => navigate('/hod/alerts')} className="inline-flex items-center gap-1 text-[13px] font-medium text-[var(--text-primary)]">View all <ChevronRight size={14} /></button>
           </div>
-          {CAPA_ITEMS.map(capa => (
-            <div key={capa.id} className="flex items-start gap-3 py-3 border-b border-[var(--surface-border)] last:border-0">
-              <div className={`w-2.5 h-2.5 rounded-full mt-1 flex-shrink-0 ${
-                capa.priority === 'critical' ? 'bg-[#b14343]' :
-                capa.priority === 'high' ? 'bg-[#9a6115]' : 'bg-[var(--text-tertiary)]'
-              }`} />
-              <div className="flex-1 min-w-0">
-                <p className="text-[var(--kl-text)] font-medium text-[12px] leading-snug">{capa.title}</p>
-                <p className="text-[var(--kl-text-muted)] text-[10px] mt-0.5">{capa.code}</p>
+          <div className="space-y-2">
+            {ALERTS.filter((alert) => alert.targetRoles.includes('hod')).slice(0, 6).map((alert) => (
+              <div key={alert.id} className="flex items-start gap-3 rounded-[18px] bg-[var(--surface-raised)] p-3">
+                <Warning2 size={14} className={alert.type === 'danger' ? 'text-[#b14343]' : 'text-[var(--text-secondary)]'} />
+                <div className="min-w-0">
+                  <p className="truncate text-[13px] font-semibold text-[var(--text-primary)]">{alert.title}</p>
+                  <p className="text-[11px] text-[var(--text-secondary)]">{alert.category}</p>
+                </div>
               </div>
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
-                capa.status === 'completed' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' :
-                capa.status === 'open' ? 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]' :
-                'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]'
-              }`}>
-                {capa.status.replace('_', ' ').toUpperCase()}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Alerts */}
-      <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <AlertTriangle size={18} className="text-[var(--text-primary)]" />
-            <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Department Alerts</h2>
-            {hodAlerts.length > 0 && (
-              <span className="bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5] text-[11px] font-semibold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1">{hodAlerts.length}</span>
-            )}
+            ))}
           </div>
-          <button onClick={() => navigate('/hod/alerts')} className="text-[var(--text-primary)] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
-            View all <ChevronRight size={14} />
-          </button>
         </div>
-        <div className="grid sm:grid-cols-2 gap-3">
-          {ALERTS.filter(a => a.targetRoles.includes('hod')).slice(0, 6).map(alert => (
-            <div
-              key={alert.id}
-              className={`flex items-start gap-3 p-3 rounded-[14px] hover:bg-[var(--kl-surface-tinted)] transition-colors ${!alert.read ? 'bg-[var(--kl-surface-soft)]' : ''}`}
-            >
-              <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                alert.type === 'danger' ? 'bg-[#b14343]' :
-                alert.type === 'warning' ? 'bg-[#9a6115]' :
-                alert.type === 'success' ? 'bg-[#1c7b56]' : 'bg-[var(--text-tertiary)]'
-              }`} />
-              <div className="flex-1 min-w-0">
-                <p className={`text-[13px] font-medium truncate ${!alert.read ? 'text-[var(--kl-text)]' : 'text-[var(--kl-text-muted)]'}`}>{alert.title}</p>
-                <p className="text-[var(--kl-text-muted)] text-[11px]">{alert.category} {TEXT_TOKENS.separator.trim()} {new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
-              </div>
-              {!alert.read && <div className="w-2 h-2 bg-[var(--text-primary)] rounded-full flex-shrink-0 mt-1.5" />}
-            </div>
-          ))}
-        </div>
-      </div>
+      </section>
     </div>
   );
 }

@@ -7,7 +7,7 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
     <textarea
       data-slot="textarea"
       className={cn(
-        "kl-input border-[var(--surface-border-strong)] placeholder:text-[var(--text-tertiary)] focus-visible:border-[var(--accent-blue)] focus-visible:ring-[var(--accent-glow)] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive flex field-sizing-content min-h-[100px] w-full border bg-[var(--surface-card)] px-4 py-3 text-[15px] leading-[1.6] text-[var(--text-primary)] shadow-xs transition-[color,box-shadow,border-color,background] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        "kl-input border-[var(--surface-border-strong)] placeholder:text-[var(--text-tertiary)] focus-visible:border-[var(--surface-border-strong)] focus-visible:ring-[var(--accent-glow)] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive flex field-sizing-content min-h-[100px] w-full border bg-[var(--surface-card)] px-4 py-3 text-[15px] leading-[1.6] text-[var(--text-primary)] shadow-xs transition-[color,box-shadow,border-color,background] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
         className,
       )}
       {...props}

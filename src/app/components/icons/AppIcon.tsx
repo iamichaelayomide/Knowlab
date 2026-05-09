@@ -19,6 +19,7 @@ import {
   Health,
   Home2,
   Hospital,
+  DocumentUpload,
   InfoCircle,
   Key,
   Layer,
@@ -38,6 +39,7 @@ import {
   Teacher,
   TickCircle,
   Warning2,
+  NoteText,
 } from "iconsax-react";
 import { cn } from "../ui/utils";
 
@@ -55,6 +57,10 @@ export type AppIconName =
   | "qc"
   | "reports"
   | "users"
+  | "patients"
+  | "orders"
+  | "upload"
+  | "note"
   | "department"
   | "bench"
   | "haematology"
@@ -104,6 +110,10 @@ const ICONS: Record<AppIconName, Icon> = {
   qc: ClipboardTick,
   reports: Chart2,
   users: Profile2User,
+  patients: Profile2User,
+  orders: ClipboardText,
+  upload: DocumentUpload,
+  note: NoteText,
   department: Hospital,
   bench: Activity,
   haematology: Drop,

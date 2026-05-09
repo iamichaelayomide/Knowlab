@@ -1,0 +1,274 @@
+import type { UserRole } from "./mockData";
+
+export type PatientSex = "Female" | "Male";
+export type OrderStatus = "ordered" | "collected" | "processing" | "resulted" | "verified" | "held";
+export type ResultFlag = "normal" | "high" | "low" | "critical" | "pending";
+
+export interface PatientMedication {
+  name: string;
+  dose: string;
+  note?: string;
+}
+
+export interface PatientDiagnosis {
+  label: string;
+  status: "working" | "confirmed" | "history";
+  date: string;
+}
+
+export interface LabResult {
+  id: string;
+  orderId: string;
+  parameter: string;
+  value: string;
+  unit: string;
+  referenceRange: string;
+  flag: ResultFlag;
+  enteredBy: string;
+  enteredAt: string;
+  verifiedBy?: string;
+  verifiedAt?: string;
+}
+
+export interface LabOrder {
+  id: string;
+  patientId: string;
+  testCode: string;
+  testName: string;
+  department: string;
+  bench: string;
+  specimen: string;
+  priority: "routine" | "urgent" | "stat";
+  status: OrderStatus;
+  orderedAt: string;
+  collectedAt?: string;
+  clinician: string;
+  ward: string;
+  indication: string;
+}
+
+export interface PatientNote {
+  id: string;
+  patientId: string;
+  author: string;
+  createdAt: string;
+  type: "case_note" | "lab_note" | "medication" | "diagnosis";
+  text: string;
+  attachmentName?: string;
+}
+
+export interface Patient {
+  id: string;
+  hospitalNumber: string;
+  name: string;
+  age: number;
+  sex: PatientSex;
+  phone?: string;
+  ward: string;
+  clinician: string;
+  departmentScope: string;
+  summary: string;
+  allergies: string[];
+  diagnoses: PatientDiagnosis[];
+  medications: PatientMedication[];
+  lastSeen: string;
+}
+
+export interface OfflineResultDraft {
+  id: string;
+  patientId: string;
+  orderId: string;
+  parameter: string;
+  value: string;
+  unit: string;
+  referenceRange: string;
+  flag: ResultFlag;
+  createdAt: string;
+}
+
+export const PATIENTS: Patient[] = [
+  {
+    id: "pt-001",
+    hospitalNumber: "UCH-24-01982",
+    name: "Amara Okeke",
+    age: 34,
+    sex: "Female",
+    ward: "Medical Ward 2",
+    clinician: "Dr. Salami",
+    departmentScope: "Haematology",
+    summary: "Admitted for severe anaemia workup with fatigue and dizziness. Previous transfusion in 2023.",
+    allergies: ["No known drug allergy"],
+    diagnoses: [
+      { label: "Severe anaemia under evaluation", status: "working", date: "2026-05-08" },
+      { label: "Menorrhagia", status: "history", date: "2025-11-12" },
+    ],
+    medications: [
+      { name: "Ferrous sulphate", dose: "200 mg bd", note: "Started by ward team" },
+      { name: "Folic acid", dose: "5 mg daily" },
+    ],
+    lastSeen: "2026-05-09T08:40:00Z",
+  },
+  {
+    id: "pt-002",
+    hospitalNumber: "UCH-24-02114",
+    name: "Musa Danladi",
+    age: 58,
+    sex: "Male",
+    ward: "Emergency Unit",
+    clinician: "Dr. Akinola",
+    departmentScope: "Chemistry",
+    summary: "Known diabetic patient with vomiting and dehydration. Chemistry requested for renal function and glucose monitoring.",
+    allergies: ["Penicillin"],
+    diagnoses: [
+      { label: "Type 2 diabetes mellitus", status: "confirmed", date: "2020-04-18" },
+      { label: "Acute kidney injury query", status: "working", date: "2026-05-09" },
+    ],
+    medications: [
+      { name: "Metformin", dose: "500 mg bd", note: "Held on admission" },
+      { name: "Insulin soluble", dose: "Sliding scale" },
+    ],
+    lastSeen: "2026-05-09T09:15:00Z",
+  },
+  {
+    id: "pt-003",
+    hospitalNumber: "UCH-24-02201",
+    name: "Chinedu Eze",
+    age: 7,
+    sex: "Male",
+    ward: "Paediatrics",
+    clinician: "Dr. Bello",
+    departmentScope: "Microbiology & Parasitology",
+    summary: "Fever with suspected bloodstream infection. Blood culture and malaria testing requested.",
+    allergies: ["No known drug allergy"],
+    diagnoses: [{ label: "Sepsis query", status: "working", date: "2026-05-09" }],
+    medications: [{ name: "Ceftriaxone", dose: "Per weight", note: "Started after culture collection" }],
+    lastSeen: "2026-05-09T10:05:00Z",
+  },
+];
+
+export const LAB_ORDERS: LabOrder[] = [
+  {
+    id: "ord-001",
+    patientId: "pt-001",
+    testCode: "FBC",
+    testName: "Full Blood Count",
+    department: "Haematology",
+    bench: "FBC & Automated Counts",
+    specimen: "EDTA whole blood",
+    priority: "urgent",
+    status: "processing",
+    orderedAt: "2026-05-09T07:50:00Z",
+    collectedAt: "2026-05-09T08:05:00Z",
+    clinician: "Dr. Salami",
+    ward: "Medical Ward 2",
+    indication: "Severe anaemia workup",
+  },
+  {
+    id: "ord-002",
+    patientId: "pt-002",
+    testCode: "U&E",
+    testName: "Urea, Electrolytes and Creatinine",
+    department: "Chemistry",
+    bench: "Kidney Function Tests",
+    specimen: "Serum",
+    priority: "stat",
+    status: "held",
+    orderedAt: "2026-05-09T08:30:00Z",
+    collectedAt: "2026-05-09T08:42:00Z",
+    clinician: "Dr. Akinola",
+    ward: "Emergency Unit",
+    indication: "AKI query",
+  },
+  {
+    id: "ord-003",
+    patientId: "pt-003",
+    testCode: "BCULT",
+    testName: "Blood Culture",
+    department: "Microbiology & Parasitology",
+    bench: "Bacteriology",
+    specimen: "Blood culture bottle",
+    priority: "urgent",
+    status: "ordered",
+    orderedAt: "2026-05-09T09:10:00Z",
+    clinician: "Dr. Bello",
+    ward: "Paediatrics",
+    indication: "Sepsis query",
+  },
+];
+
+export const LAB_RESULTS: LabResult[] = [
+  {
+    id: "res-001",
+    orderId: "ord-001",
+    parameter: "Haemoglobin",
+    value: "6.8",
+    unit: "g/dL",
+    referenceRange: "12.0-15.0",
+    flag: "critical",
+    enteredBy: "Adaeze Nwosu",
+    enteredAt: "2026-05-09T08:56:00Z",
+  },
+  {
+    id: "res-002",
+    orderId: "ord-001",
+    parameter: "Platelets",
+    value: "118",
+    unit: "x10^9/L",
+    referenceRange: "150-400",
+    flag: "low",
+    enteredBy: "Adaeze Nwosu",
+    enteredAt: "2026-05-09T08:56:00Z",
+  },
+  {
+    id: "res-003",
+    orderId: "ord-002",
+    parameter: "Creatinine",
+    value: "241",
+    unit: "umol/L",
+    referenceRange: "60-120",
+    flag: "high",
+    enteredBy: "Chukwuemeka Eze",
+    enteredAt: "2026-05-09T09:05:00Z",
+  },
+];
+
+export const PATIENT_NOTES: PatientNote[] = [
+  {
+    id: "note-001",
+    patientId: "pt-001",
+    author: "Adaeze Nwosu",
+    createdAt: "2026-05-09T08:58:00Z",
+    type: "lab_note",
+    text: "Critical Hb requires repeat confirmation and supervisor notification according to local policy.",
+  },
+  {
+    id: "note-002",
+    patientId: "pt-002",
+    author: "Chukwuemeka Eze",
+    createdAt: "2026-05-09T09:08:00Z",
+    type: "case_note",
+    text: "Sample flagged mildly haemolysed. Potassium result should be interpreted cautiously before release.",
+    attachmentName: "case-note-renal-panel.jpg",
+  },
+];
+
+export function scopePatients(role: UserRole, unit: string | undefined, department: string | undefined) {
+  if (role === "hod") return PATIENTS;
+  const text = `${unit ?? ""} ${department ?? ""}`.toLowerCase();
+  if (role === "supervisor") {
+    return PATIENTS.filter((patient) => text.includes(patient.departmentScope.toLowerCase().split(" ")[0]));
+  }
+  return PATIENTS.filter((patient) => text.includes(patient.departmentScope.toLowerCase().split(" ")[0]));
+}
+
+export function getPatientOrders(patientId: string) {
+  return LAB_ORDERS.filter((order) => order.patientId === patientId);
+}
+
+export function getOrderResults(orderId: string) {
+  return LAB_RESULTS.filter((result) => result.orderId === orderId);
+}
+
+export function getPatientNotes(patientId: string) {
+  return PATIENT_NOTES.filter((note) => note.patientId === patientId);
+}

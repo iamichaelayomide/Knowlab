@@ -5,6 +5,16 @@ interface AskPayload {
   query: string;
   role: "staff" | "supervisor" | "hod";
   unit?: string;
+  systemPrompt?: string;
+  appContext?: string;
+  attachments?: {
+    id?: string;
+    name: string;
+    mimeType: string;
+    size?: number;
+    kind?: string;
+    dataBase64?: string;
+  }[];
 }
 
 type DomainKey = "haematology" | "chemistry" | "microbiology" | "histopathology" | "bgs";
@@ -26,7 +36,6 @@ const STAFF_RESTRICTED_TERMS = [
   "competency",
   "who is under",
   "who is below",
-  "capa",
   "incident trend",
   "headcount",
 ];
@@ -77,7 +86,7 @@ function clarificationPayload() {
 function deniedPayload() {
   return {
     answer:
-      "That request is outside staff-level access.\n\nYou can ask SOP/test/training questions here. For admin or supervisor-level information, contact your supervisor.",
+      "That request is outside staff-level access.\n\nYou can ask SOP, test, QC, patient-result, or workflow questions here. For admin or supervisor-level information, contact your supervisor.",
     confidence: 0.91,
     sources: [],
     mode: "denied",
@@ -85,7 +94,7 @@ function deniedPayload() {
     quickActions: [
       { label: "Open SOPs", path: "/staff/sops" },
       { label: "Open Tests", path: "/staff/tests" },
-      { label: "Open Training", path: "/staff/training" },
+      { label: "Open QC Log", path: "/staff/qc-log" },
     ],
   };
 }
@@ -121,7 +130,41 @@ function fallbackWithSources(query: string, sources: { id: string; type: string;
   };
 }
 
-async function callGemini(query: string, context: string) {
+function buildGeminiParts(payload: AskPayload, query: string, context: string) {
+  const prompt =
+    payload.systemPrompt?.trim() ||
+    "You are Knowlab AI, a careful hospital laboratory assistant. Explain lab tests, SOPs, QC, patient result meaning, and operational data safely. Do not diagnose, invent local policies, or approve result release. Use local context when available.";
+  const appContext = payload.appContext?.trim() ? `\n\nApp context:\n${payload.appContext.trim()}` : "";
+  const attachments = (payload.attachments ?? []).filter((file) => file.dataBase64 && file.mimeType);
+  const attachmentSummary = attachments.length
+    ? `\n\nEphemeral attachments for this answer only:\n${attachments
+        .map((file, index) => `${index + 1}. ${file.name} (${file.mimeType}, ${file.kind ?? "file"})`)
+        .join("\n")}`
+    : "";
+
+  const parts: Array<{ text: string } | { inline_data: { mime_type: string; data: string } }> = [
+    {
+      text:
+        `${prompt}\n\nRetrieved Knowlab source context:\n${context || "No source chunks retrieved."}` +
+        appContext +
+        attachmentSummary +
+        `\n\nUser question:\n${query}`,
+    },
+  ];
+
+  for (const file of attachments.slice(0, 4)) {
+    parts.push({
+      inline_data: {
+        mime_type: file.mimeType,
+        data: file.dataBase64!,
+      },
+    });
+  }
+
+  return parts;
+}
+
+async function callGemini(payload: AskPayload, query: string, context: string) {
   const apiKey = Deno.env.get("GEMINI_API_KEY");
   const model = Deno.env.get("GEMINI_MODEL") || "gemini-2.0-flash";
   if (!apiKey) {
@@ -139,20 +182,7 @@ async function callGemini(query: string, context: string) {
         contents: [
           {
             role: "user",
-            parts: [
-              {
-                text:
-                  "You are Knowlab AI.\n" +
-                  "Tone: human, warm, professional, and practical.\n" +
-                  "Hard rules:\n" +
-                  "- Numeric values, ranges, specimen requirements, procedural steps, and QC rules must come only from retrieved context.\n" +
-                  "- If missing in context, explicitly say it is not verified in current sources.\n" +
-                  "- Ask one concise clarifying question if the prompt is ambiguous.\n" +
-                  "- Do not sound like an AI. Avoid robotic headers.\n" +
-                  "- Use steps only if the user asked to be taught or asked for step-by-step.\n\n" +
-                  `Context:\n${context}\n\nQuestion:\n${query}`,
-              },
-            ],
+            parts: buildGeminiParts(payload, query, context),
           },
         ],
       }),
@@ -168,7 +198,7 @@ async function callGemini(query: string, context: string) {
   return { answer: json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "No answer generated." };
 }
 
-async function callGeminiGeneric(query: string) {
+async function callGeminiGeneric(payload: AskPayload, query: string) {
   const apiKey = Deno.env.get("GEMINI_API_KEY");
   const model = Deno.env.get("GEMINI_MODEL") || "gemini-2.0-flash";
   if (!apiKey) {
@@ -184,17 +214,7 @@ async function callGeminiGeneric(query: string) {
         contents: [
           {
             role: "user",
-            parts: [
-              {
-                text:
-                  "You are Knowlab AI.\n" +
-                  "No verified SOP/test context is currently available.\n" +
-                  "Give only a short conceptual answer.\n" +
-                  "Do not provide numeric ranges or procedural instructions.\n" +
-                  "Tell user to request verified source-backed guidance.\n\n" +
-                  `Question:\n${query}`,
-              },
-            ],
+            parts: buildGeminiParts(payload, query, ""),
           },
         ],
       }),
@@ -327,7 +347,7 @@ Deno.serve(async (req) => {
     if (ranked.length === 0) {
       let genericAnswer = "";
       try {
-        const generic = await callGeminiGeneric(query);
+        const generic = await callGeminiGeneric(payload, query);
         genericAnswer = generic.answer?.trim() ?? "";
       } catch {
         genericAnswer = "";
@@ -371,7 +391,7 @@ Deno.serve(async (req) => {
     let answer = "";
     let confidence = ranked.length >= 3 ? 0.86 : 0.62;
     try {
-      const modelResult = await callGemini(query, context);
+      const modelResult = await callGemini(payload, query, context);
       answer = modelResult.answer;
     } catch {
       const snippets = ranked.map(({ chunk }) => String(chunk.content || ""));

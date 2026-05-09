@@ -2,17 +2,15 @@ import { useNavigate } from 'react-router';
 import {
   DocumentText as FileText,
   ChemicalGlass as FlaskConical,
-  BookSaved as BookOpen,
-  Teacher as GraduationCap,
   Notification as Bell,
   ArrowRight2,
-  TickCircle as CheckCircle2,
-  Clock,
-  Warning2 as AlertTriangle,
+  ClipboardTick,
+  Profile2User,
 } from 'iconsax-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDepartment } from '../../context/DepartmentContext';
-import { SOPS, LAB_TESTS, JOB_AIDS, TRAINING_MODULES, TRAINING_RECORDS, ALERTS } from '../../data/mockData';
+import { SOPS, LAB_TESTS, ALERTS, QC_LOGS } from '../../data/mockData';
+import { LAB_ORDERS, scopePatients } from '../../data/patients';
 
 const ArrowRight = ArrowRight2;
 const ChevronRight = ArrowRight2;
@@ -35,12 +33,10 @@ export default function StaffDashboard() {
 
   if (!user) return null;
 
-  const myTraining = TRAINING_RECORDS.filter(r => r.staffId === user.id);
-  const overdueTraining = myTraining.filter(r => r.status === 'overdue').length;
-  const completedTraining = myTraining.filter(r => r.status === 'completed').length;
-  const inProgressTraining = myTraining.filter(r => r.status === 'in_progress').length;
-
   const myAlerts = ALERTS.filter(a => !a.read && a.targetRoles.includes(user.role));
+  const patientCount = scopePatients(user.role, user.unit, activeDepartment.name).length;
+  const benchOrders = LAB_ORDERS.filter(order => order.department.toLowerCase().includes(activeDepartment.name.toLowerCase().split(' ')[0]));
+  const myQcEntries = QC_LOGS.filter(q => q.staffId === user.id);
   
   // Filter by active bench strictly
   const activeSops = SOPS.filter(s => 
@@ -104,11 +100,8 @@ export default function StaffDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <MetricTile label="Active SOPs" value={activeSops.length} sublabel="In your department" accent="#171717" />
         <MetricTile label="Lab Tests" value={activeTests.length} sublabel="With full reference ranges" accent="#4a4a4a" />
-        <MetricTile label="Training Completed" value={completedTraining} sublabel={`${inProgressTraining} in progress`} accent="#1c7b56" />
-        {overdueTraining > 0
-          ? <MetricTile label="Overdue Training" value={overdueTraining} sublabel="Action required" accent="#b14343" />
-          : <MetricTile label="Unread Alerts" value={myAlerts.length} sublabel="Need your attention" accent="#9a6115" />
-        }
+        <MetricTile label="Patients" value={patientCount} sublabel="In current lab scope" accent="#1c7b56" />
+        <MetricTile label="QC Entries" value={myQcEntries.length} sublabel={`${benchOrders.length} active orders`} accent="#9a6115" />
       </div>
 
       {/* Two-column */}
@@ -188,52 +181,33 @@ export default function StaffDashboard() {
         </div>
       </div>
 
-      {/* Training status + Alerts */}
+      {/* Patient workload + Alerts */}
       <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* My Training */}
         <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <GraduationCap size={18} className="text-[var(--text-primary)]" />
-              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">My Training</h2>
+              <Profile2User size={18} className="text-[var(--text-primary)]" />
+              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Patient Workload</h2>
             </div>
-            <button onClick={() => navigate('/staff/training')} className="text-[var(--text-primary)] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
+            <button onClick={() => navigate('/staff/patients')} className="text-[var(--text-primary)] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               View all <ChevronRight size={14} />
             </button>
           </div>
           <div className="space-y-2 flex-1">
-            {TRAINING_MODULES.slice(0, 4).map(mod => {
-              const record = myTraining.find(r => r.moduleId === mod.id);
-              const status = record?.status || 'not_started';
-              return (
-                <div key={mod.id} className="flex items-center gap-3 p-3 rounded-[14px] hover:bg-[var(--kl-surface-tinted)] transition-colors">
-                  <div className={`rounded-full p-1.5 flex-shrink-0 ${
-                    status === 'completed' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' :
-                    status === 'overdue' ? 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]' :
-                    status === 'in_progress' ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]' :
-                    'bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)]'
-                  }`}>
-                    {status === 'completed' ? <CheckCircle2 size={14} /> :
-                     status === 'overdue' ? <AlertTriangle size={14} /> :
-                     <Clock size={14} />}
+            {benchOrders.slice(0, 4).map(order => (
+                <button key={order.id} onClick={() => navigate(`/staff/patients/${order.patientId}`)} className="w-full flex items-center gap-3 p-3 rounded-[14px] hover:bg-[var(--kl-surface-tinted)] transition-colors text-left">
+                  <div className="rounded-full p-1.5 flex-shrink-0 bg-[var(--kl-surface-tinted)] text-[var(--text-primary)]">
+                    <ClipboardTick size={14} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[var(--kl-text)] text-[13px] font-medium truncate">{mod.title}</p>
-                    <p className="text-[var(--kl-text-muted)] text-[11px]">{mod.duration} - {mod.mandatory ? 'Mandatory' : 'Optional'}</p>
+                    <p className="text-[var(--kl-text)] text-[13px] font-medium truncate">{order.testName}</p>
+                    <p className="text-[var(--kl-text-muted)] text-[11px]">{order.ward} - {order.priority}</p>
                   </div>
-                  <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
-                    status === 'completed' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' :
-                    status === 'overdue' ? 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]' :
-                    status === 'in_progress' ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]' :
-                    'bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)]'
-                  }`}>
-                    {status === 'completed' ? `${record?.score}%` :
-                     status === 'overdue' ? 'Overdue' :
-                     status === 'in_progress' ? 'In Progress' : 'Not Started'}
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full flex-shrink-0 bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] capitalize">
+                    {order.status}
                   </span>
-                </div>
-              );
-            })}
+                </button>
+            ))}
           </div>
         </div>
 

@@ -4,7 +4,7 @@ import { askKnowledgeAssistant } from "./aiAssistant";
 describe("aiAssistant", () => {
   it("denies staff requests that ask for restricted operations scope", async () => {
     const response = await askKnowledgeAssistant({
-      query: "Show me admin CAPA incident trends and user permissions.",
+      query: "Show me admin incident trends and user permissions.",
       role: "staff",
       department: "Haematology",
       bench: "FBC & Automated Counts",
@@ -56,16 +56,16 @@ describe("aiAssistant", () => {
     expect(response.answer.toLowerCase()).toContain("glucose");
   });
 
-  it("returns training escalation analysis for HOD operational prompts", async () => {
+  it("returns QC prioritization analysis for HOD operational prompts", async () => {
     const response = await askKnowledgeAssistant({
-      query: "Which units need immediate training escalation and why?",
+      query: "Which QC issue should the supervisor prioritize and why?",
       role: "hod",
       department: "Haematology",
       bench: "All",
       unit: "Laboratory Services",
     });
 
-    expect(response.answer.toLowerCase()).toContain("escalation");
+    expect(response.answer.toLowerCase()).toContain("qc");
     expect(response.mode === "teaching" || response.mode === "direct").toBe(true);
   });
 

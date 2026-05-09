@@ -1,236 +1,207 @@
-import { useState } from 'react';
-import {
-  ClipboardText as ClipboardList,
-  TickCircle as CheckCircle2,
-  Warning2 as AlertTriangle,
-  ArrowDown2 as ChevronDown,
-  ArrowUp2 as ChevronUp,
-  Eye,
-} from 'iconsax-react';
+import { useMemo, useState } from 'react';
+import { Add, ClipboardTick, DocumentUpload, Eye, TickCircle, Warning2 } from 'iconsax-react';
 import { QC_LOGS, getUserById } from '../../data/mockData';
 import { useAuth } from '../../context/AuthContext';
+import { useDepartment } from '../../context/DepartmentContext';
+import { openFloatingAI } from '../../services/aiWidget';
+
+type Filter = 'all' | 'passed' | 'warning' | 'failed' | 'pending_review';
 
 export default function QCLogPage() {
   const { user } = useAuth();
+  const { activeBench } = useDepartment();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set(QC_LOGS.filter((q) => q.supervisorReviewed).map((q) => q.id)));
-  const [filter, setFilter] = useState<'all' | 'passed' | 'warning' | 'failed' | 'pending_review'>('all');
+  const [filter, setFilter] = useState<Filter>('all');
+  const [dateFilter, setDateFilter] = useState('');
+  const [draftOpen, setDraftOpen] = useState(user?.role === 'staff');
+  const [drafts, setDrafts] = useState<Array<{ id: string; analyzer: string; level: string; status: string; date: string }>>([]);
 
-  const filtered = QC_LOGS.filter((q) => {
-    if (filter === 'pending_review') return !reviewedIds.has(q.id);
-    if (filter !== 'all') return q.overallStatus === filter;
-    return true;
-  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const filtered = useMemo(() => {
+    return QC_LOGS.filter((q) => {
+      if (filter === 'pending_review' && reviewedIds.has(q.id)) return false;
+      if (filter !== 'all' && filter !== 'pending_review' && q.overallStatus !== filter) return false;
+      if (dateFilter && q.date !== dateFilter) return false;
+      return true;
+    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [dateFilter, filter, reviewedIds]);
 
   const stats = {
-    total: QC_LOGS.length,
+    total: QC_LOGS.length + drafts.length,
     passed: QC_LOGS.filter((q) => q.overallStatus === 'passed').length,
-    warning: QC_LOGS.filter((q) => q.overallStatus === 'warning').length,
+    attention: QC_LOGS.filter((q) => q.overallStatus !== 'passed').length,
     pending: QC_LOGS.filter((q) => !reviewedIds.has(q.id)).length,
   };
 
+  const addDraft = () => {
+    setDrafts((prev) => [
+      {
+        id: `qc-draft-${Date.now()}`,
+        analyzer: 'Sysmex XN-350',
+        level: 'Level 2 (Normal)',
+        status: 'offline draft',
+        date: new Date().toISOString().slice(0, 10),
+      },
+      ...prev,
+    ]);
+  };
+
   const markReviewed = (id: string) => setReviewedIds((prev) => new Set([...prev, id]));
+  const canCreate = user?.role === 'staff';
+  const canReview = user?.role === 'supervisor' || user?.role === 'hod';
 
   return (
     <div className="kl-page">
-      <div className="mb-6">
-        <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">QC Log</h1>
-        <p className="text-[var(--kl-text-muted)] text-[14px]">Sysmex XN-350 quality control records - Westgard multi-rule monitoring</p>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-[24px] font-semibold text-[var(--text-primary)]">QC Log</h1>
+          <p className="text-[14px] text-[var(--text-secondary)]">
+            {canCreate ? `Log and save QC entries for ${activeBench.shortName}.` : 'Review QC records, filter by date, and interpret quality risks.'}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button className="kl-button-soft inline-flex h-10 items-center gap-2 rounded-full px-4 text-[13px]" onClick={() => openFloatingAI('Which QC issue should be prioritized from the visible QC log?')}>
+            <ClipboardTick size={15} />
+            Ask AI
+          </button>
+          {canCreate && (
+            <button className="btn-primary inline-flex h-10 items-center gap-2 rounded-full px-4 text-[13px]" onClick={() => setDraftOpen((value) => !value)}>
+              <Add size={15} />
+              Log QC
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+      <section className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: 'Total Entries', count: stats.total, color: '#2f2f31', bg: 'var(--surface-raised)', f: 'all' as const },
-          { label: 'Passed', count: stats.passed, color: '#1c7b56', bg: '#e8f8f1', f: 'passed' as const },
-          { label: 'Warnings', count: stats.warning, color: '#9a6115', bg: '#fff0db', f: 'warning' as const },
-          { label: 'Pending Review', count: stats.pending, color: '#b14343', bg: '#fde9e9', f: 'pending_review' as const },
-        ].map((stat) => (
-          <button
-            key={stat.f}
-            onClick={() => setFilter(filter === stat.f ? 'all' : stat.f)}
-            className={`rounded-[18px] p-4 text-left transition-all border-2 ${filter === stat.f ? 'border-current' : 'border-transparent'}`}
-            style={{ backgroundColor: stat.bg, borderColor: filter === stat.f ? stat.color : 'transparent' }}
-          >
-            <p className="font-bold text-[22px]" style={{ color: stat.color }}>{stat.count}</p>
-            <p className="text-[12px] font-medium" style={{ color: stat.color }}>{stat.label}</p>
+          ['all', 'Total Entries', stats.total, 'All visible QC work'],
+          ['passed', 'Passed', stats.passed, 'Accepted runs'],
+          ['warning', 'Attention', stats.attention, 'Warnings or failed runs'],
+          ['pending_review', 'Pending Review', stats.pending, 'Needs supervisor sign-off'],
+        ].map(([key, label, value, sub]) => (
+          <button key={key} onClick={() => setFilter(filter === key ? 'all' : (key as Filter))} className="kl-gradient-card kl-card-interactive rounded-[28px] border border-[var(--surface-border)] p-5 text-left">
+            <p className="mb-3 text-[12px] text-[var(--text-secondary)]">{label}</p>
+            <p className="text-[30px] font-semibold leading-none text-[var(--text-primary)]">{value}</p>
+            <p className="mt-2 text-[12px] text-[var(--text-secondary)]">{sub}</p>
           </button>
         ))}
-      </div>
+      </section>
 
-      <div className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] overflow-hidden shadow-[var(--kl-shadow)]">
-        <div className="px-4 sm:px-5 py-3 border-b border-[var(--surface-border)] bg-[var(--kl-surface-soft)] hidden sm:grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4">
+      <section className="mb-5 kl-premium-card p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="kl-filter-tray">
+            {(['all', 'passed', 'warning', 'failed', 'pending_review'] as Filter[]).map((item) => (
+              <button key={item} data-active={filter === item} className="kl-filter-control text-[12px] font-medium capitalize" onClick={() => setFilter(item)}>
+                {item.replace('_', ' ')}
+              </button>
+            ))}
+          </div>
+          <input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className="input h-10 rounded-[18px] sm:w-[180px]" />
+        </div>
+      </section>
+
+      {canCreate && draftOpen && (
+        <section className="mb-5 kl-premium-card p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-[16px] font-semibold text-[var(--text-primary)]">New QC Entry</h2>
+              <p className="text-[12px] text-[var(--text-secondary)]">Hybrid V1 saves this as an offline draft until cloud persistence is connected.</p>
+            </div>
+            <button className="kl-button-soft inline-flex h-9 items-center gap-2 rounded-full px-3 text-[12px]">
+              <DocumentUpload size={14} />
+              Attach printout
+            </button>
+          </div>
+          <div className="grid gap-3 md:grid-cols-4">
+            <input className="input h-11 rounded-[18px]" defaultValue="Sysmex XN-350" />
+            <select className="input h-11 rounded-[18px]" defaultValue="Level 2 (Normal)">
+              <option>Level 1 (Low)</option>
+              <option>Level 2 (Normal)</option>
+              <option>Level 3 (High)</option>
+            </select>
+            <input className="input h-11 rounded-[18px]" placeholder="Lot / expiry" />
+            <button onClick={addDraft} className="btn-primary h-11 rounded-full">Save draft</button>
+          </div>
+        </section>
+      )}
+
+      {!!drafts.length && (
+        <section className="mb-5 kl-premium-card p-4">
+          <h2 className="mb-3 text-[15px] font-semibold text-[var(--text-primary)]">Offline QC Drafts</h2>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {drafts.map((draft) => (
+              <div key={draft.id} className="rounded-[20px] border border-[var(--surface-border)] bg-[var(--surface-raised)] p-3">
+                <p className="text-[13px] font-semibold text-[var(--text-primary)]">{draft.level}</p>
+                <p className="text-[11px] text-[var(--text-secondary)]">{draft.analyzer} | {draft.date}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="kl-table-shell">
+        <div className="hidden grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4 border-b border-[var(--surface-border)] bg-[var(--surface-raised)] px-5 py-3 sm:grid">
           {['Date', 'Level', 'Shift | Analyst', 'Overall Status', 'Action'].map((heading) => (
-            <span key={heading} className="text-[var(--kl-text-muted)] font-semibold text-[11px] uppercase tracking-[0.8px]">
-              {heading}
-            </span>
+            <span key={heading} className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">{heading}</span>
           ))}
         </div>
-
-        {filtered.length === 0 && (
-          <div className="p-8 text-center">
-            <ClipboardList size={32} className="text-[var(--text-tertiary)] mx-auto mb-3" />
-            <p className="text-[var(--kl-text-muted)] font-medium">No QC entries</p>
-          </div>
-        )}
 
         {filtered.map((entry) => {
           const isExpanded = expandedId === entry.id;
           const isReviewed = reviewedIds.has(entry.id);
           const analyst = getUserById(entry.staffId);
-
           return (
             <div key={entry.id} className="border-b border-[var(--surface-border)] last:border-0">
-              <div className="px-4 sm:px-5 py-4 grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-3 sm:gap-4 items-start sm:items-center hover:bg-[var(--kl-surface-soft)] transition-colors">
+              <button onClick={() => setExpandedId(isExpanded ? null : entry.id)} className="grid w-full grid-cols-1 gap-3 px-5 py-4 text-left transition-colors hover:bg-[var(--surface-raised)] sm:grid-cols-[1fr_1fr_1fr_1fr_auto] sm:items-center">
                 <div>
-                  <p className="text-[var(--kl-text)] font-medium text-[13px]">
-                    {new Date(entry.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
-                  </p>
-                  <p className="text-[var(--kl-text-muted)] text-[11px]">{entry.analyzer.split(' ').slice(0, 2).join(' ')}</p>
+                  <p className="text-[13px] font-semibold text-[var(--text-primary)]">{new Date(entry.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</p>
+                  <p className="text-[11px] text-[var(--text-secondary)]">{entry.analyzer.split(' ').slice(0, 2).join(' ')}</p>
                 </div>
-
                 <div>
-                  <p className="text-[var(--kl-text)] text-[13px] font-medium">{entry.level}</p>
-                  <p className="text-[var(--kl-text-muted)] text-[11px]">{entry.results.length} parameters</p>
+                  <p className="text-[13px] font-medium text-[var(--text-primary)]">{entry.level}</p>
+                  <p className="text-[11px] text-[var(--text-secondary)]">{entry.results.length} parameters</p>
                 </div>
-
                 <div>
-                  <p className="text-[var(--kl-text)] text-[13px]">{entry.shift} shift</p>
-                  <p className="text-[var(--kl-text-muted)] text-[11px]">{analyst?.name}</p>
+                  <p className="text-[13px] text-[var(--text-primary)]">{entry.shift} shift</p>
+                  <p className="text-[11px] text-[var(--text-secondary)]">{analyst?.name}</p>
                 </div>
-
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span
-                    className={`text-[12px] font-medium px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 ${
-                      entry.overallStatus === 'passed'
-                        ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]'
-                        : entry.overallStatus === 'warning'
-                          ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]'
-                          : 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]'
-                    }`}
-                  >
-                    {entry.overallStatus === 'passed' ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
-                    {entry.overallStatus.charAt(0).toUpperCase() + entry.overallStatus.slice(1)}
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold ${entry.overallStatus === 'passed' ? 'bg-[#e8f8f1] text-[#1c7b56] dark:bg-[rgba(28,123,86,0.18)] dark:text-[#88e0ba]' : entry.overallStatus === 'warning' ? 'bg-[#fff0db] text-[#9a6115] dark:bg-[rgba(154,97,21,0.18)] dark:text-[#f3c26f]' : 'bg-[#fde9e9] text-[#b14343] dark:bg-[rgba(177,67,67,0.18)] dark:text-[#fca5a5]'}`}>
+                    {entry.overallStatus === 'passed' ? <TickCircle size={12} /> : <Warning2 size={12} />}
+                    {entry.overallStatus}
                   </span>
-                  {!isReviewed && <span className="text-[10px] bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] font-semibold px-2 py-0.5 rounded-full">NEW</span>}
+                  {!isReviewed && <span className="rounded-full bg-[var(--kl-surface-tinted)] px-2 py-0.5 text-[10px] font-semibold text-[var(--text-primary)]">New</span>}
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <button onClick={() => setExpandedId(isExpanded ? null : entry.id)} className="text-[var(--kl-text-muted)] hover:text-[var(--text-primary)] transition-colors">
-                    {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                  </button>
-                </div>
-              </div>
+                <Eye size={16} className="text-[var(--text-tertiary)]" />
+              </button>
 
               {isExpanded && (
-                <div className="border-t border-[var(--surface-border)] bg-[var(--kl-surface-soft)] p-4 sm:p-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                    <div className="bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[10px] px-3 py-2">
-                      <p className="text-[var(--kl-text-muted)] text-[10px] font-semibold uppercase tracking-[0.8px]">Westgard Trigger</p>
-                      <p className="text-[var(--kl-text)] text-[12px] font-medium">
-                        {entry.overallStatus === 'passed'
-                          ? 'No rejection rule triggered'
-                          : entry.overallStatus === 'warning'
-                            ? 'Warning trend detected'
-                            : 'Reject rule triggered'}
-                      </p>
-                    </div>
-                    <div className="bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[10px] px-3 py-2">
-                      <p className="text-[var(--kl-text-muted)] text-[10px] font-semibold uppercase tracking-[0.8px]">Action Scope</p>
-                      <p className="text-[var(--kl-text)] text-[12px] font-medium">
-                        {entry.overallStatus === 'passed' ? 'Routine release allowed' : 'Hold and rerun before release'}
-                      </p>
-                    </div>
-                    <div className="bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[10px] px-3 py-2">
-                      <p className="text-[var(--kl-text-muted)] text-[10px] font-semibold uppercase tracking-[0.8px]">Documentation</p>
-                      <p className="text-[var(--kl-text)] text-[12px] font-medium">QC register and LIS trace required</p>
-                    </div>
+                <div className="border-t border-[var(--surface-border)] bg-[var(--surface-raised)] p-5">
+                  <div className="mb-4 grid gap-3 sm:grid-cols-3">
+                    {[
+                      ['Westgard Trigger', entry.overallStatus === 'passed' ? 'No rejection rule triggered' : 'Warning or reject rule requires review'],
+                      ['Action Scope', entry.overallStatus === 'passed' ? 'Routine release allowed if all checks pass' : 'Hold patient release until resolved by SOP'],
+                      ['Documentation', 'QC register, analyzer status, and supervisor note required'],
+                    ].map(([label, value]) => (
+                      <div key={label} className="rounded-[18px] border border-[var(--surface-border)] bg-[var(--surface-card)] p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">{label}</p>
+                        <p className="mt-1 text-[12px] font-medium text-[var(--text-primary)]">{value}</p>
+                      </div>
+                    ))}
                   </div>
-
-                  <h3 className="text-[var(--kl-text)] font-semibold text-[14px] mb-3">Parameter Results</h3>
-                  <div className="overflow-x-auto mb-4">
-                    <table className="w-full text-left min-w-[500px]">
-                      <thead>
-                        <tr className="border-b border-[var(--surface-border)]">
-                          {['Parameter', 'Measured', 'Target', 'SD Value', 'Deviation (SD)', 'Status'].map((heading) => (
-                            <th key={heading} className="text-[var(--kl-text-muted)] font-semibold text-[10px] uppercase tracking-[0.8px] pb-2 pr-4">
-                              {heading}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {entry.results.map((result, index) => (
-                          <tr key={index} className="border-b border-[var(--surface-border)] last:border-0">
-                            <td className="py-2.5 pr-4 text-[var(--kl-text)] font-medium text-[12px]">{result.parameter}</td>
-                            <td className="py-2.5 pr-4 text-[var(--kl-text)] font-mono text-[12px]">{result.measuredValue}</td>
-                            <td className="py-2.5 pr-4 text-[var(--kl-text-muted)] font-mono text-[12px]">{result.targetValue}</td>
-                            <td className="py-2.5 pr-4 text-[var(--kl-text-muted)] font-mono text-[12px]">+/-{result.sdValue}</td>
-                            <td
-                              className={`py-2.5 pr-4 font-mono font-semibold text-[12px] ${
-                                Math.abs(result.sdDeviation) > 2
-                                  ? 'text-[#b14343] dark:text-[#fca5a5]'
-                                  : Math.abs(result.sdDeviation) > 1.5
-                                    ? 'text-[#9a6115] dark:text-[#f3c26f]'
-                                    : 'text-[#1c7b56] dark:text-[#88e0ba]'
-                              }`}
-                            >
-                              {result.sdDeviation > 0 ? '+' : ''}
-                              {result.sdDeviation.toFixed(2)}
-                            </td>
-                            <td className="py-2.5">
-                              <span
-                                className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                                  result.status === 'pass'
-                                    ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]'
-                                    : result.status === 'warning'
-                                      ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]'
-                                      : 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]'
-                                }`}
-                              >
-                                {result.status.toUpperCase()}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {entry.comment && (
-                    <div className="bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] border border-[#f5d99a] dark:border-[rgba(245,217,154,0.25)] rounded-[12px] p-3 mb-4">
-                      <p className="text-[#9a6115] dark:text-[#f3c26f] text-[11px] font-semibold uppercase tracking-[0.8px] mb-1">Analyst Comment</p>
-                      <p className="text-[#7a4f10] text-[13px] leading-relaxed">{entry.comment}</p>
-                    </div>
-                  )}
-
-                  {!isReviewed && (
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <button
-                        onClick={() => markReviewed(entry.id)}
-                        className="btn-primary text-[13px] font-medium px-4 py-2.5 rounded-full transition-colors flex items-center gap-2"
-                      >
-                        <Eye size={14} /> Mark as Reviewed
-                      </button>
-                      {entry.overallStatus !== 'passed' && (
-                        <button className="bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f] text-[13px] font-medium px-4 py-2.5 rounded-[12px] hover:bg-[#f5d99a] dark:bg-[rgba(245,217,154,0.25)] transition-colors">
-                          Raise CAPA
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {isReviewed && (
-                    <p className="text-[#1c7b56] dark:text-[#88e0ba] text-[12px] flex items-center gap-1.5">
-                      <CheckCircle2 size={13} /> Reviewed by {user?.name}
-                      {entry.reviewedAt && ` | ${new Date(entry.reviewedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`}
-                    </p>
+                  {canReview && !isReviewed && (
+                    <button onClick={() => markReviewed(entry.id)} className="btn-primary inline-flex h-10 items-center gap-2 rounded-full px-4 text-[13px]">
+                      <Eye size={14} />
+                      Mark supervisor reviewed
+                    </button>
                   )}
                 </div>
               )}
             </div>
           );
         })}
-      </div>
+      </section>
     </div>
   );
 }

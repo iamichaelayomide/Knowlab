@@ -96,7 +96,7 @@ export default function LoginPage() {
       <div className="w-full max-w-[420px]">
         <div className="kl-page-enter flex items-center gap-3 mb-8">
           <div className="auth-logo-mark bg-[linear-gradient(180deg,#2c2c2c,#050505)] rounded-[22px] size-[52px] flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_10px_24px_rgba(0,0,0,0.2)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.07))]">
-            <span className="text-white font-bold text-[15px]">LK</span>
+            <span className="text-white font-bold text-[15px]">KL</span>
           </div>
           <div>
             <div className="text-[var(--text-primary)] font-bold text-[20px] leading-tight">Knowlab</div>
@@ -152,12 +152,12 @@ export default function LoginPage() {
 
                 {detectedUser && (
                   <div className="kl-card bg-[var(--accent-glow)] border border-[var(--surface-border)] rounded-[24px] p-4 flex items-start gap-3">
-                    <AppIcon name="tests" size={16} className="text-[var(--accent-blue)] mt-0.5" />
+                    <AppIcon name="tests" size={16} className="text-[var(--text-primary)] mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <p className="text-[var(--text-primary)] font-semibold text-[14px]">{detectedUser.unit}</p>
                       <p className="text-[var(--text-secondary)] text-[12px]">{detectedUser.name}</p>
                     </div>
-                    <div className="bg-[var(--surface-card)] text-[var(--accent-blue)] font-medium text-[11px] px-3 py-1 rounded-full flex-shrink-0 border border-[var(--surface-border)]">
+                    <div className="bg-[var(--surface-card)] text-[var(--text-primary)] font-medium text-[11px] px-3 py-1 rounded-full flex-shrink-0 border border-[var(--surface-border)]">
                       {detectedUser.role}
                     </div>
                   </div>
@@ -188,7 +188,7 @@ export default function LoginPage() {
                 <div className="flex justify-end">
                   <button
                     type="button"
-                    className="text-[var(--accent-blue)] text-[12px] font-medium hover:underline"
+                    className="text-[var(--text-primary)] text-[12px] font-medium hover:underline"
                     onClick={() => setMode('forgot')}
                   >
                     Forgot password?

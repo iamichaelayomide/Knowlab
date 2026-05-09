@@ -76,15 +76,15 @@ export default function SOPsPage() {
       </div>
 
       {/* Category Filters */}
-      <div className="flex gap-2 flex-wrap mb-5">
+      <div className="kl-filter-tray mb-5">
         {CATEGORIES.map(cat => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`px-4 py-2 rounded-full text-[12px] font-medium transition-colors border ${
+            className={`kl-filter-control ${
               activeCategory === cat
-                ? 'bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] border-[var(--surface-border-strong)]'
-                : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--kl-primary)]'
+                ? 'is-active'
+                : ''
             }`}
           >
             {cat}
@@ -116,9 +116,9 @@ export default function SOPsPage() {
                 </div>
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-[var(--kl-text-muted)] text-[12px]">{sop.code}</span>
-                  <span className="text-[#c4d2ef]">·</span>
+                  <span className="text-[var(--text-tertiary)]">·</span>
                   <span className="text-[var(--kl-text-muted)] text-[12px]">v{sop.version}</span>
-                  <span className="text-[#c4d2ef]">·</span>
+                  <span className="text-[var(--text-tertiary)]">·</span>
                   <span className="text-[var(--kl-text-muted)] text-[12px]">Owner: {sop.ownerName}</span>
                 </div>
                 <p className="text-[var(--kl-text-muted)] text-[13px] line-clamp-2 leading-relaxed">{sop.content.purpose}</p>
@@ -150,9 +150,9 @@ export default function SOPsPage() {
               </div>
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-[var(--kl-text-muted)] text-[12px]">{sop.code}</span>
-                <span className="text-[#c4d2ef]">·</span>
+                <span className="text-[var(--text-tertiary)]">·</span>
                 <span className="text-[var(--kl-text-muted)] text-[12px]">Rev.{sop.revision}</span>
-                <span className="text-[#c4d2ef]">·</span>
+                <span className="text-[var(--text-tertiary)]">·</span>
                 <span className="text-[var(--kl-text-muted)] text-[12px]">Effective {sop.effectiveDate}</span>
               </div>
               <p className="text-[var(--kl-text-muted)] text-[13px] line-clamp-2 leading-relaxed">{sop.purpose}</p>

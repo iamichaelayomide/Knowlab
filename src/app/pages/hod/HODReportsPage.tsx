@@ -1,170 +1,119 @@
-import { Chart2 as BarChart2, TrendUp as TrendingUp, TickCircle as CheckCircle2, Warning2 as AlertTriangle } from 'iconsax-react';
-import { TRAINING_RECORDS, TRAINING_MODULES, QC_LOGS, CAPA_ITEMS, getStaffUsers, ALERTS } from '../../data/mockData';
+import { Chart2 as BarChart2, ClipboardTick, Profile2User, TickCircle as CheckCircle2, Warning2 as AlertTriangle } from 'iconsax-react';
+import { ALERTS, QC_LOGS, getStaffUsers } from '../../data/mockData';
+import { LAB_ORDERS, PATIENTS } from '../../data/patients';
 
 export default function HODReportsPage() {
   const allStaff = getStaffUsers();
-  const completedTraining = TRAINING_RECORDS.filter(r => r.status === 'completed').length;
-  const totalTraining = allStaff.length * TRAINING_MODULES.length;
-  const trainingCompliance = Math.round((completedTraining / totalTraining) * 100);
-  const qcPassRate = Math.round((QC_LOGS.filter(q => q.overallStatus === 'passed').length / QC_LOGS.length) * 100);
-  const avgCompetency = Math.round(allStaff.reduce((sum, s) => sum + (s.competencyScore ?? 75), 0) / allStaff.length);
-  const openCAPAs = CAPA_ITEMS.filter(c => c.status !== 'completed').length;
-  const closedCAPAs = CAPA_ITEMS.filter(c => c.status === 'completed').length;
+  const qcPassRate = Math.round((QC_LOGS.filter((q) => q.overallStatus === 'passed').length / Math.max(1, QC_LOGS.length)) * 100);
+  const avgCompetency = Math.round(allStaff.reduce((sum, s) => sum + (s.competencyScore ?? 75), 0) / Math.max(1, allStaff.length));
+  const heldOrders = LAB_ORDERS.filter((order) => order.status === 'held').length;
+  const pendingOrders = LAB_ORDERS.filter((order) => order.status === 'pending' || order.status === 'in_progress').length;
+  const unreadAlerts = ALERTS.filter((alert) => !alert.read && alert.targetRoles.includes('hod')).length;
 
   const kpis = [
-    { label: 'Training Compliance', value: `${trainingCompliance}%`, target: '≥85%', met: trainingCompliance >= 85, trend: '+4% vs last month' },
-    { label: 'QC Pass Rate', value: `${qcPassRate}%`, target: '≥95%', met: qcPassRate >= 95, trend: 'Stable' },
-    { label: 'Avg Staff Competency', value: `${avgCompetency}%`, target: '≥80%', met: avgCompetency >= 80, trend: '+2% vs last quarter' },
-    { label: 'CAPA Closure Rate', value: `${Math.round((closedCAPAs / CAPA_ITEMS.length) * 100)}%`, target: '≥80%', met: closedCAPAs / CAPA_ITEMS.length >= 0.8, trend: `${openCAPAs} open` },
+    { label: 'QC Pass Rate', value: `${qcPassRate}%`, target: '>=95%', met: qcPassRate >= 95, trend: 'Current QC register', icon: <ClipboardTick size={18} /> },
+    { label: 'Patient Workload', value: PATIENTS.length, target: 'Lab-wide view', met: heldOrders === 0, trend: `${heldOrders} held order(s)`, icon: <Profile2User size={18} /> },
+    { label: 'Avg Staff Competency', value: `${avgCompetency}%`, target: '>=80%', met: avgCompetency >= 80, trend: 'Bench readiness score', icon: <CheckCircle2 size={18} /> },
+    { label: 'Priority Alerts', value: unreadAlerts, target: '0 unread', met: unreadAlerts === 0, trend: 'Needs HOD attention', icon: <AlertTriangle size={18} /> },
   ];
 
-  // Monthly QC summary (simulated)
   const qcByLevel = [
     { level: 'Level 1 (Low)', entries: 2, passed: 2, warned: 0, failed: 0 },
     { level: 'Level 2 (Normal)', entries: 3, passed: 2, warned: 1, failed: 0 },
     { level: 'Level 3 (High)', entries: 1, passed: 1, warned: 0, failed: 0 },
   ];
 
+  const workloadByBench = Array.from(new Set(LAB_ORDERS.map((order) => order.bench))).map((bench) => {
+    const orders = LAB_ORDERS.filter((order) => order.bench === bench);
+    return {
+      bench,
+      total: orders.length,
+      held: orders.filter((order) => order.status === 'held').length,
+      pending: orders.filter((order) => order.status === 'pending' || order.status === 'in_progress').length,
+    };
+  });
+
   return (
     <div className="kl-page">
       <div className="mb-6">
-        <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">Department Reports</h1>
-        <p className="text-[var(--kl-text-muted)] text-[14px]">Performance metrics for {new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</p>
+        <h1 className="mb-1 text-[24px] font-semibold text-[var(--kl-text)]">Department Reports</h1>
+        <p className="text-[14px] text-[var(--kl-text-muted)]">Lab-wide patient, QC, staff, and alert performance for {new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</p>
       </div>
 
-      {/* KPI Summary */}
-      <div className="grid sm:grid-cols-2 gap-4 mb-6">
-        {kpis.map(kpi => (
-          <div key={kpi.label} className={`rounded-[20px] border p-5 ${kpi.met ? 'bg-[var(--kl-surface)] border-[var(--kl-border)]' : 'bg-[#fffbf5] dark:bg-[rgba(154,97,21,0.10)] border-[#f5d99a] dark:border-[rgba(245,217,154,0.25)]'}`}>
-            <div className="flex items-start justify-between mb-3">
-              <p className="text-[var(--kl-text-muted)] text-[13px]">{kpi.label}</p>
-              <div className={`flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${kpi.met ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' : 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]'}`}>
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {kpis.map((kpi) => (
+          <div key={kpi.label} className={`kl-premium-card p-5 ${kpi.met ? '' : 'bg-[rgba(154,97,21,0.10)]'}`}>
+            <div className="mb-5 flex items-start justify-between">
+              <div className="grid size-11 place-items-center rounded-[18px] border border-[var(--surface-border)] bg-[var(--surface-raised)] text-[var(--text-primary)]">{kpi.icon}</div>
+              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${kpi.met ? 'bg-[#e8f8f1] text-[#1c7b56] dark:bg-[rgba(28,123,86,0.18)] dark:text-[#88e0ba]' : 'bg-[#fff0db] text-[#9a6115] dark:bg-[rgba(154,97,21,0.18)] dark:text-[#f3c26f]'}`}>
                 {kpi.met ? <CheckCircle2 size={11} /> : <AlertTriangle size={11} />}
-                {kpi.met ? 'On Target' : 'Below Target'}
-              </div>
+                {kpi.met ? 'On target' : 'Watch'}
+              </span>
             </div>
-            <div className="flex items-end justify-between">
-              <div>
-                <p className={`font-bold text-[32px] leading-none ${kpi.met ? 'text-[var(--kl-text)]' : 'text-[#9a6115] dark:text-[#f3c26f]'}`}>{kpi.value}</p>
-                <p className="text-[var(--kl-text-muted)] text-[12px] mt-1">Target: {kpi.target}</p>
-              </div>
-              <div className="flex items-center gap-1 text-[12px] text-[var(--kl-text-muted)]">
-                <TrendingUp size={13} />
-                {kpi.trend}
-              </div>
+            <p className="mb-1 text-[12px] text-[var(--text-secondary)]">{kpi.label}</p>
+            <p className="text-[30px] font-semibold leading-none text-[var(--text-primary)]">{kpi.value}</p>
+            <div className="mt-3 flex items-center justify-between gap-3 text-[12px] text-[var(--text-secondary)]">
+              <span>Target: {kpi.target}</span>
+              <span>{kpi.trend}</span>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Training breakdown */}
-      <div className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] p-6 mb-5">
-        <h2 className="text-[var(--kl-text)] font-semibold text-[17px] mb-4 flex items-center gap-2">
-          <BarChart2 size={18} className="text-[var(--text-primary)]" /> Training Breakdown by Module
-        </h2>
-        <div className="space-y-3">
-          {TRAINING_MODULES.map(mod => {
-            const modRecords = TRAINING_RECORDS.filter(r => r.moduleId === mod.id);
-            const completed = modRecords.filter(r => r.status === 'completed').length;
-            const overdue = modRecords.filter(r => r.status === 'overdue').length;
-            const pct = Math.round((completed / allStaff.length) * 100);
-            return (
-              <div key={mod.id}>
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[var(--kl-text)] text-[13px] font-medium">{mod.title}</span>
-                    {mod.mandatory && <span className="text-[9px] bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5] px-1.5 py-0.5 rounded-full font-semibold">REQ</span>}
-                  </div>
-                  <div className="flex items-center gap-3 text-[12px]">
-                    {overdue > 0 && <span className="text-[#b14343] dark:text-[#fca5a5]">{overdue} overdue</span>}
-                    <span className="font-semibold" style={{ color: pct >= 80 ? '#1c7b56' : pct >= 60 ? '#9a6115' : '#b14343' }}>{pct}%</span>
-                  </div>
+      <section className="mb-5 grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
+        <div className="kl-premium-card p-6">
+          <h2 className="mb-4 flex items-center gap-2 text-[17px] font-semibold text-[var(--kl-text)]">
+            <BarChart2 size={18} /> QC Performance Summary
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[460px] text-left">
+              <thead>
+                <tr className="border-b border-[var(--surface-border)]">
+                  {['QC Level', 'Total Runs', 'Passed', 'Warning', 'Failed', 'Pass Rate'].map((h) => (
+                    <th key={h} className="pb-3 pr-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--kl-text-muted)]">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {qcByLevel.map((row) => {
+                  const passRate = Math.round((row.passed / row.entries) * 100);
+                  return (
+                    <tr key={row.level} className="border-b border-[var(--surface-border)] last:border-0">
+                      <td className="py-3 pr-4 text-[13px] font-medium text-[var(--kl-text)]">{row.level}</td>
+                      <td className="py-3 pr-4 text-[13px] text-[var(--kl-text-muted)]">{row.entries}</td>
+                      <td className="py-3 pr-4 text-[13px] font-semibold text-[#1c7b56] dark:text-[#88e0ba]">{row.passed}</td>
+                      <td className="py-3 pr-4 text-[13px] font-semibold text-[#9a6115] dark:text-[#f3c26f]">{row.warned}</td>
+                      <td className="py-3 pr-4 text-[13px] font-semibold text-[#b14343] dark:text-[#fca5a5]">{row.failed}</td>
+                      <td className="py-3 text-[13px] font-semibold text-[var(--text-primary)]">{passRate}%</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="kl-gradient-card rounded-[28px] border border-[var(--surface-border)] p-6">
+          <h2 className="mb-4 text-[17px] font-semibold text-[var(--kl-text)]">Patient Workload</h2>
+          <div className="grid gap-3">
+            {workloadByBench.map((row) => (
+              <div key={row.bench} className="rounded-[22px] border border-[var(--surface-border)] bg-[var(--surface-card)] p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-[14px] font-semibold text-[var(--text-primary)]">{row.bench}</p>
+                  <span className="rounded-full bg-[var(--surface-raised)] px-2.5 py-1 text-[11px] font-semibold text-[var(--text-secondary)]">{row.total} orders</span>
                 </div>
-                <div className="w-full bg-[var(--kl-surface-tinted)] rounded-full h-2">
-                  <div
-                    className="h-2 rounded-full transition-all"
-                    style={{ width: `${pct}%`, backgroundColor: pct >= 80 ? '#1c7b56' : pct >= 60 ? '#9a6115' : '#b14343' }}
-                  />
-                </div>
-                <p className="text-[var(--kl-text-muted)] text-[10px] mt-0.5">{completed}/{allStaff.length} staff completed</p>
+                <p className="text-[12px] text-[var(--text-secondary)]">{row.pending} active / {row.held} held for review</p>
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* QC Performance */}
-      <div className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] p-6 mb-5">
-        <h2 className="text-[var(--kl-text)] font-semibold text-[17px] mb-4 flex items-center gap-2">
-          <BarChart2 size={18} className="text-[var(--text-primary)]" /> QC Performance Summary
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left min-w-[400px]">
-            <thead>
-              <tr className="border-b border-[var(--surface-border)]">
-                {['QC Level', 'Total Runs', 'Passed', 'Warning', 'Failed', 'Pass Rate'].map(h => (
-                  <th key={h} className="text-[var(--kl-text-muted)] font-semibold text-[11px] uppercase tracking-[0.8px] pb-3 pr-4">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {qcByLevel.map(row => {
-                const passRate = Math.round((row.passed / row.entries) * 100);
-                return (
-                  <tr key={row.level} className="border-b border-[var(--surface-border)] last:border-0">
-                    <td className="py-3 pr-4 text-[var(--kl-text)] font-medium text-[13px]">{row.level}</td>
-                    <td className="py-3 pr-4 text-[var(--kl-text-muted)] text-[13px]">{row.entries}</td>
-                    <td className="py-3 pr-4 text-[#1c7b56] dark:text-[#88e0ba] font-semibold text-[13px]">{row.passed}</td>
-                    <td className="py-3 pr-4 text-[#9a6115] dark:text-[#f3c26f] font-semibold text-[13px]">{row.warned}</td>
-                    <td className="py-3 pr-4 text-[#b14343] dark:text-[#fca5a5] font-semibold text-[13px]">{row.failed}</td>
-                    <td className="py-3">
-                      <span className={`font-semibold text-[13px] ${passRate === 100 ? 'text-[#1c7b56] dark:text-[#88e0ba]' : passRate >= 80 ? 'text-[#9a6115] dark:text-[#f3c26f]' : 'text-[#b14343] dark:text-[#fca5a5]'}`}>
-                        {passRate}%
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* CAPA summary */}
-      <div className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] p-6">
-        <h2 className="text-[var(--kl-text)] font-semibold text-[17px] mb-4 flex items-center gap-2">
-          <AlertTriangle size={18} className="text-[var(--text-primary)]" /> CAPA Summary
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-          {[
-            { label: 'Total CAPAs', value: CAPA_ITEMS.length, color: '#2f2f31', bg: 'var(--surface-raised)' },
-            { label: 'Open', value: CAPA_ITEMS.filter(c => c.status === 'open').length, color: '#b14343', bg: '#fde9e9' },
-            { label: 'In Progress', value: CAPA_ITEMS.filter(c => c.status === 'in_progress').length, color: '#9a6115', bg: '#fff0db' },
-            { label: 'Completed', value: CAPA_ITEMS.filter(c => c.status === 'completed').length, color: '#1c7b56', bg: '#e8f8f1' },
-          ].map(item => (
-            <div key={item.label} className="rounded-[14px] p-4 text-center" style={{ backgroundColor: item.bg }}>
-              <p className="font-bold text-[24px]" style={{ color: item.color }}>{item.value}</p>
-              <p className="text-[12px] font-medium" style={{ color: item.color }}>{item.label}</p>
+            ))}
+            <div className="rounded-[22px] border border-[var(--surface-border)] bg-[var(--surface-card)] p-4">
+              <p className="text-[14px] font-semibold text-[var(--text-primary)]">Operational note</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
+                Prioritize held patient orders, unresolved QC warnings, and unread safety alerts before routine reporting.
+              </p>
             </div>
-          ))}
+          </div>
         </div>
-        <div className="space-y-2">
-          {CAPA_ITEMS.map(capa => (
-            <div key={capa.id} className="flex items-center gap-3 py-2">
-              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                capa.priority === 'critical' ? 'bg-[#b14343]' : capa.priority === 'high' ? 'bg-[#9a6115]' : 'bg-[var(--text-tertiary)]'
-              }`} />
-              <span className="text-[var(--kl-text)] text-[13px] flex-1">{capa.title}</span>
-              <span className="text-[var(--kl-text-muted)] text-[12px]">{capa.code}</span>
-              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                capa.status === 'completed' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' :
-                capa.status === 'open' ? 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]' :
-                'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]'
-              }`}>{capa.status.replace('_', ' ')}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      </section>
     </div>
   );
 }

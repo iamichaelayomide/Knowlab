@@ -83,7 +83,7 @@ function StaffDetailView({ staffId }: { staffId: string }) {
                 </p>
               </div>
               <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
-                <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Training</p>
+                <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Readiness</p>
                 <p className="text-sm text-[var(--kl-text)] font-medium">{completed}/{TRAINING_MODULES.length}</p>
               </div>
             </div>
@@ -117,8 +117,8 @@ function StaffDetailView({ staffId }: { staffId: string }) {
 
       <div className="mt-4 rounded-[20px] border border-[var(--kl-border)] bg-[var(--kl-surface)] p-5">
         <h2 className="text-[var(--kl-text)] text-base font-semibold inline-flex items-center gap-2 mb-3">
-          <AppIcon name="training" size={16} className="text-[var(--kl-primary)]" />
-          Training status
+          <AppIcon name="staff" size={16} className="text-[var(--text-primary)]" />
+          Readiness status
         </h2>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
@@ -171,8 +171,8 @@ function StaffDetailView({ staffId }: { staffId: string }) {
 
       <div className="mt-4 rounded-[20px] border border-[var(--kl-border)] bg-[var(--kl-surface)] p-5">
         <h2 className="text-[var(--kl-text)] text-base font-semibold inline-flex items-center gap-2 mb-3">
-          <AppIcon name="training" size={16} className="text-[var(--kl-primary)]" />
-          Courses completed
+          <AppIcon name="staff" size={16} className="text-[var(--text-primary)]" />
+          Competency records
         </h2>
         {completedModules.length === 0 ? (
           <p className="text-xs text-[var(--kl-text-muted)]">No completed courses yet.</p>
@@ -246,7 +246,7 @@ export default function MyStaffPage() {
       <div className="flex gap-2 flex-wrap mb-4">
         {[
           { label: "Total Staff", count: allDepartmentStaff.length, tone: "text-[var(--text-primary)] bg-[var(--kl-surface-tinted)]" },
-          { label: "Overdue Training", count: overdueCount, tone: "text-[#b14343] dark:text-[#fca5a5] bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]" },
+          { label: "Readiness Gaps", count: overdueCount, tone: "text-[#b14343] dark:text-[#fca5a5] bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]" },
           { label: "Below 80% Competency", count: belowThreshold, tone: "text-[#9a6115] dark:text-[#f3c26f] bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)]" },
         ].map((pill) => (
           <div key={pill.label} className={`rounded-full px-3.5 py-2 inline-flex items-center gap-1.5 ${pill.tone}`}>
@@ -336,7 +336,7 @@ export default function MyStaffPage() {
                         {competency}% competency
                       </span>
                       <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)]">
-                        {completed}/{TRAINING_MODULES.length} modules
+                        {completed}/{TRAINING_MODULES.length} readiness checks
                       </span>
                       {overdue > 0 && (
                         <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]">

@@ -65,3 +65,120 @@ button, input, textarea, select {
   background: var(--accent-glow);
   color: var(--text-primary);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* [DESIGN] Shared tactile primitives keep interaction polish consistent without one-off blue states. */
+.kl-page {
+  padding: 24px 28px;
+}
+
+@media (max-width: 640px) {
+  .kl-page {
+    padding: 18px 14px;
+  }
+}
+
+.kl-card,
+.kl-premium-card {
+  background: var(--surface-card);
+  border: var(--line-hairline) solid var(--surface-border);
+  border-radius: var(--radius-3xl);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.46);
+}
+
+[data-theme="dark"] .kl-card,
+[data-theme="dark"] .kl-premium-card {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.kl-card-interactive {
+  transition:
+    transform var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard),
+    background var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.kl-card-interactive:hover {
+  transform: translateY(-2px);
+  border-color: var(--surface-border-strong);
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.48);
+}
+
+.kl-card-interactive:active {
+  transform: translateY(0) scale(0.99);
+  box-shadow: var(--shadow-xs);
+}
+
+.kl-gradient-card {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.88), transparent 34%),
+    radial-gradient(circle at 84% 16%, rgba(255, 255, 255, 0.42), transparent 30%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(238, 238, 238, 0.82));
+}
+
+[data-theme="dark"] .kl-gradient-card {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.13), transparent 34%),
+    linear-gradient(150deg, #242426 0%, #18181a 58%, #101011 100%);
+}
+
+.kl-filter-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  border: var(--line-hairline) solid var(--surface-border);
+  border-radius: var(--radius-2xl);
+  background: rgba(255, 255, 255, 0.36);
+}
+
+[data-theme="dark"] .kl-filter-tray {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.kl-filter-control {
+  min-height: 36px;
+  border: var(--line-hairline) solid transparent;
+  border-radius: 16px;
+  padding: 7px 12px;
+  color: var(--text-secondary);
+  background: transparent;
+  transition: all var(--duration-base) var(--ease-standard);
+}
+
+.kl-filter-control:hover {
+  color: var(--text-primary);
+  background: var(--surface-raised);
+  border-color: var(--surface-border);
+}
+
+.kl-filter-control[data-active="true"] {
+  color: var(--text-primary);
+  background: var(--surface-card);
+  border-color: var(--surface-border-strong);
+  box-shadow: var(--shadow-xs), inset 0 1px 0 rgba(255, 255, 255, 0.52);
+}
+
+.kl-table-shell {
+  border: var(--line-hairline) solid var(--surface-border);
+  border-radius: var(--radius-3xl);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.kl-mobile-solid {
+  background: var(--surface-card);
+  backdrop-filter: none;
+}

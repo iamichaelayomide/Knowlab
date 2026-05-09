@@ -15,6 +15,7 @@ interface NavItem {
   label: string;
   icon: AppIconName;
   path: string;
+  end?: boolean;
 }
 
 interface ContextPanelConfig {
@@ -31,10 +32,11 @@ function getNavItems(role: string, base: string): { section: string; items: NavI
         section: "CORE",
         items: [
           { label: "Dashboard", icon: "dashboard", path: `${base}/dashboard` },
-          { label: "SOPs", icon: "sops", path: `${base}/sops` },
-          { label: "Tests", icon: "tests", path: `${base}/tests` },
+          { label: "Patients", icon: "patients", path: `${base}/patients` },
+          { label: "SOPs", icon: "sops", path: `${base}/sops`, end: true },
+          { label: "Tests", icon: "tests", path: `${base}/tests`, end: true },
           { label: "Job Aids", icon: "jobAids", path: `${base}/job-aids` },
-          { label: "Training", icon: "training", path: `${base}/training` },
+          { label: "QC Log", icon: "qc", path: `${base}/qc-log` },
         ],
       },
       {
@@ -53,11 +55,11 @@ function getNavItems(role: string, base: string): { section: string; items: NavI
         section: "CORE",
         items: [
           { label: "Dashboard", icon: "dashboard", path: `${base}/dashboard` },
-          { label: "SOPs", icon: "sops", path: `${base}/sops` },
+          { label: "Patients", icon: "patients", path: `${base}/patients` },
+          { label: "SOPs", icon: "sops", path: `${base}/sops`, end: true },
           { label: "SOP Reviews", icon: "qc", path: `${base}/sops/review` },
-          { label: "Tests", icon: "tests", path: `${base}/tests` },
+          { label: "Tests", icon: "tests", path: `${base}/tests`, end: true },
           { label: "Job Aids", icon: "jobAids", path: `${base}/job-aids` },
-          { label: "Training", icon: "training", path: `${base}/training` },
           { label: "QC Log", icon: "qc", path: `${base}/qc-log` },
         ],
       },
@@ -66,7 +68,6 @@ function getNavItems(role: string, base: string): { section: string; items: NavI
         items: [
           { label: "My Staff", icon: "staff", path: `${base}/staff` },
           { label: "User Requests", icon: "users", path: `${base}/user-requests` },
-          { label: "CAPA Items", icon: "capa", path: `${base}/capa` },
           { label: "Alerts", icon: "alerts", path: `${base}/alerts` },
           { label: "Settings", icon: "settings", path: `${base}/settings` },
         ],
@@ -79,18 +80,17 @@ function getNavItems(role: string, base: string): { section: string; items: NavI
       section: "OVERVIEW",
       items: [
         { label: "Dashboard", icon: "dashboard", path: `${base}/dashboard` },
+        { label: "Patients", icon: "patients", path: `${base}/patients` },
         { label: "Staff", icon: "staff", path: `${base}/staff` },
         { label: "Users", icon: "users", path: `${base}/users` },
         { label: "SOP Validation", icon: "qc", path: `${base}/sops/validation` },
-        { label: "Training", icon: "training", path: `${base}/training` },
-        { label: "QC Overview", icon: "qc", path: `${base}/qc` },
+        { label: "QC Log", icon: "qc", path: `${base}/qc-log` },
         { label: "Reports", icon: "reports", path: `${base}/reports` },
       ],
     },
     {
       section: "MANAGEMENT",
       items: [
-        { label: "CAPA", icon: "capa", path: `${base}/capa` },
         { label: "Alerts", icon: "alerts", path: `${base}/alerts` },
         { label: "Settings", icon: "settings", path: `${base}/settings` },
       ],
@@ -160,12 +160,12 @@ export default function AppShell() {
         onCta: () => openFloatingAI("Help me find a staff member by unit and bench."),
       };
     }
-    if (routeSegment === "capa") {
+    if (routeSegment === "patients") {
       return {
-        title: "CAPA Command",
-        body: "Read-only by default. Enter edit mode to update corrective/preventive actions.",
-        ctaLabel: "Review CAPA",
-        onCta: () => navigate(`${base}/capa`),
+        title: "Patient Context",
+        body: "Search patients, review ordered tests, enter draft results, and ask AI to summarize safely.",
+        ctaLabel: "Open Patients",
+        onCta: () => navigate(`${base}/patients`),
       };
     }
     if (user.role === "supervisor") {
@@ -234,7 +234,7 @@ export default function AppShell() {
     <div className="sidebar flex h-full flex-col bg-[var(--surface-card)]">
       <div className="sidebar-logo flex h-14 items-center gap-3 border-b border-[var(--surface-border)] px-3">
         <div className="bg-[linear-gradient(180deg,#2c2c2c,#050505)] rounded-[18px] size-[44px] flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_10px_24px_rgba(0,0,0,0.22)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.06))]">
-          <span className="text-white font-bold text-[13px]">LK</span>
+          <span className="text-white font-bold text-[13px]">KL</span>
         </div>
         <div>
           <div className="text-[var(--text-primary)] font-semibold text-[15px] leading-tight">Knowlab</div>
@@ -269,6 +269,7 @@ export default function AppShell() {
                 <NavLink
                   key={item.path}
                   to={item.path}
+                  end={item.end}
                   onClick={() => setMobileSidebarOpen(false)}
                   className={({ isActive }) =>
                     `nav-${isActive ? "active" : "idle"}-pill kl-nav-item flex h-10 items-center gap-2.5 px-3 text-[14px] font-medium transition-all duration-fast ${
@@ -325,7 +326,7 @@ export default function AppShell() {
       {mobileSidebarOpen && (
         <div className="xl:hidden fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/30" onClick={() => setMobileSidebarOpen(false)} />
-          <aside className="relative w-[280px] border-r border-[var(--surface-border)] h-full overflow-hidden z-10">
+          <aside className="kl-mobile-solid relative w-[280px] border-r border-[var(--surface-border)] h-full overflow-hidden z-10">
             <button className="kl-icon-button absolute top-4 right-4 text-[var(--text-secondary)]" onClick={() => setMobileSidebarOpen(false)} aria-label="Close navigation menu">
               <AppIcon name="close" size={20} />
             </button>
