@@ -90,14 +90,12 @@ export default function PatientsPage() {
         const pDrafts = drafts.filter(d => d.patientId === p.id && d.status === 'pending_approval');
         if (pDrafts.length === 0) return false;
         
-        // For staff, we still restrict validation view to their dept
-        const isDeptMatch = user?.role === 'staff' 
-            ? getPatientOrders(p.id).some(o => o.department.toLowerCase().includes(activeDepartment.name.toLowerCase()) || activeDepartment.name.toLowerCase().includes(o.department.toLowerCase()))
-            : true;
+        // Validation view restricted to their dept
+        const isDeptMatch = getPatientOrders(p.id).some(o => o.department.toLowerCase().includes(activeDepartment.name.toLowerCase()) || activeDepartment.name.toLowerCase().includes(o.department.toLowerCase()));
             
         return isDeptMatch;
     }).length;
-  }, [scopedPatients, drafts, user?.role, activeDepartment.name]);
+  }, [scopedPatients, drafts, activeDepartment.name]);
   
   const filteredPatients = scopedPatients.filter((patient) => {
     const term = search.toLowerCase();
@@ -120,9 +118,7 @@ export default function PatientsPage() {
     }
 
     if (activeFilter === "Validating") {
-        const isDeptMatch = user?.role === 'staff' 
-            ? getPatientOrders(patient.id).some(o => o.department.toLowerCase().includes(activeDepartment.name.toLowerCase()) || activeDepartment.name.toLowerCase().includes(o.department.toLowerCase()))
-            : true;
+        const isDeptMatch = getPatientOrders(patient.id).some(o => o.department.toLowerCase().includes(activeDepartment.name.toLowerCase()) || activeDepartment.name.toLowerCase().includes(o.department.toLowerCase()));
         return isDeptMatch && drafts.some(d => d.patientId === patient.id && d.status === 'pending_approval');
     }
 
@@ -257,10 +253,7 @@ export default function PatientsPage() {
             
             <Select value={activeFilter} onValueChange={setActiveFilter}>
                 <SelectTrigger className="h-11 rounded-[20px] bg-[var(--surface-raised)] border-transparent shadow-none font-bold text-[13px] px-5">
-                    <div className="flex items-center gap-2">
-                        <Timer size={18} variant={activeFilter !== "All" ? "Bold" : "Linear"} className={activeFilter === "Pending" ? "text-[#007aff]" : activeFilter === "Validating" ? "text-[#9a6115]" : "text-[var(--text-secondary)]"} />
-                        <SelectValue placeholder="Filter Workload" />
-                    </div>
+                    <SelectValue placeholder="Filter Workload" />
                 </SelectTrigger>
                 <SelectContent className="rounded-[20px]">
                     <SelectItem value="All">All Patients</SelectItem>
@@ -276,16 +269,6 @@ export default function PatientsPage() {
               const patientOrders = getPatientOrders(patient.id);
               const count = patientOrders.length;
               
-              const isValidationMode = activeFilter === "Validating";
-              const isPendingMode = activeFilter === "Pending";
-              
-              // Dynamic indicators based on filter mode
-              const showValidating = drafts.some(d => d.patientId === patient.id && d.status === 'pending_approval');
-              const showPending = patientOrders.some(o => {
-                  const isDeptMatch = o.department.toLowerCase().includes(activeDepartment.name.toLowerCase()) || activeDepartment.name.toLowerCase().includes(o.department.toLowerCase());
-                  return isDeptMatch && ['ordered', 'collected', 'processing', 'held'].includes(o.status);
-              });
-
               return (
                 <a
                   key={patient.id}
@@ -298,14 +281,6 @@ export default function PatientsPage() {
                     boxShadow: active ? "0 10px 30px rgba(0,0,0,0.05)" : "none",
                   }}
                 >
-                  <div className="absolute top-4 right-4">
-                    {isValidationMode && showValidating && (
-                        <div className="flex items-center justify-center size-2 rounded-full bg-[#9a6115] animate-pulse shadow-glow"></div>
-                    )}
-                    {isPendingMode && showPending && (
-                        <div className="flex items-center justify-center size-2 rounded-full bg-[#007aff] shadow-glow"></div>
-                    )}
-                  </div>
                   <span className="grid size-14 place-items-center rounded-[22px] border border-[var(--surface-border)] bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-sm">
                     <Profile2User size={24} />
                   </span>
@@ -371,7 +346,7 @@ export default function PatientsPage() {
 
             <TabsContent value="overview" className="mt-0 outline-none">
               <div className="grid min-w-0 gap-8 lg:grid-cols-2">
-                <section className="kl-premium-card min-w-0 p-8 sm:p-10 shadow-xl border-[var(--surface-border)]">
+                <section className="kl-premium-card min-w-0 p-8 sm:p-10 shadow-xl border-[var(--surface-border)] rounded-[40px]">
                   <h3 className="mb-6 text-[18px] font-black text-[var(--text-primary)] flex items-center gap-3">
                     <div className="size-2.5 rounded-full bg-[var(--kl-primary)] shadow-glow"></div>
                     Suspected Diagnosis
@@ -394,7 +369,7 @@ export default function PatientsPage() {
                   </div>
                 </section>
 
-                <section className="kl-premium-card min-w-0 p-8 sm:p-10 shadow-xl border-[var(--surface-border)]">
+                <section className="kl-premium-card min-w-0 p-8 sm:p-10 shadow-xl border-[var(--surface-border)] rounded-[40px]">
                   <div className="mb-6 flex items-center justify-between">
                     <h3 className="text-[18px] font-black text-[var(--text-primary)]">Clinical Notes</h3>
                     <button className="kl-icon-button flex items-center justify-center bg-[var(--surface-raised)] size-12 rounded-[20px] border border-[var(--surface-border)] hover:bg-[var(--surface-card)] transition-all shadow-sm" aria-label="Attach case note" onClick={() => setActiveTab("patient-info")}>
@@ -423,7 +398,7 @@ export default function PatientsPage() {
             </TabsContent>
 
             <TabsContent value="patient-info" className="mt-0 outline-none">
-              <section className="kl-premium-card min-w-0 p-8 sm:p-12 shadow-2xl border-[var(--surface-border)]">
+              <section className="kl-premium-card min-w-0 p-8 sm:p-12 shadow-2xl border-[var(--surface-border)] rounded-[40px]">
                 <h3 className="mb-8 text-[24px] font-black text-[var(--text-primary)] border-b border-[var(--surface-border)] pb-6 tracking-tighter">Medical Summary</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
@@ -497,7 +472,7 @@ export default function PatientsPage() {
 
             <TabsContent value="results-entry" className="mt-0 outline-none">
               <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(340px,400px)_minmax(0,1fr)]">
-                <section className="kl-premium-card min-w-0 p-6 sm:p-8 shadow-xl border-[var(--surface-border)]">
+                <section className="kl-premium-card min-w-0 p-6 sm:p-8 shadow-xl border-[var(--surface-border)] rounded-[40px]">
                   <div className="mb-6 border-b border-[var(--surface-border)] pb-5">
                     <h3 className="text-[20px] font-black text-[var(--text-primary)] tracking-tight">Active Bench</h3>
                     <p className="kl-text-contain text-[14px] font-medium text-[var(--text-secondary)] mt-1.5 opacity-80 uppercase tracking-wide">
@@ -536,7 +511,7 @@ export default function PatientsPage() {
                   </div>
                 </section>
 
-                <section className="kl-premium-card min-w-0 p-8 sm:p-12 shadow-2xl border-[var(--surface-border)]">
+                <section className="kl-premium-card min-w-0 p-8 sm:p-12 shadow-2xl border-[var(--surface-border)] rounded-[40px]">
                   {selectedOrder ? (
                     <div>
                       <h3 className="mb-8 text-[26px] font-black text-[var(--text-primary)] flex items-center gap-4 tracking-tighter">
@@ -639,7 +614,7 @@ export default function PatientsPage() {
             </TabsContent>
 
             <TabsContent value="results-dashboard" className="mt-0 outline-none">
-              <section className="kl-premium-card min-w-0 p-8 sm:p-12 shadow-2xl border-[var(--surface-border)]">
+              <section className="kl-premium-card min-w-0 p-8 sm:p-12 shadow-2xl border-[var(--surface-border)] rounded-[40px]">
                 <div className="flex justify-between items-center mb-10 border-b border-[var(--surface-border)] pb-8 border-opacity-50">
                   <div>
                     <h3 className="text-[26px] font-black text-[var(--text-primary)] tracking-tighter uppercase">LIMS Registry</h3>
@@ -670,7 +645,7 @@ export default function PatientsPage() {
                             <div>
                               <div className="flex justify-between items-start mb-4">
                                 <span className="text-[13px] font-black uppercase tracking-[0.2em] text-[#9a6115] group-hover:tracking-[0.25em] transition-all">{draft.parameter}</span>
-                                <span className="text-[10px] font-black bg-[#f3c26f] bg-opacity-40 text-[#9a6115] px-3 py-1.5 rounded-full uppercase tracking-[0.1em]">Verification</span>
+                                <span className="text-[10px] font-black bg-[#f3c26f] bg-opacity-50 text-[#9a6115] px-3 py-1.5 rounded-full uppercase tracking-[0.1em]">Verification</span>
                               </div>
                               <div className="text-[44px] font-black text-[var(--text-primary)] mb-6 leading-none tracking-tighter">{draft.value} <span className="text-[14px] opacity-40 uppercase ml-1">{draft.unit}</span></div>
                             </div>
