@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [detectedUser, setDetectedUser] = useState<null | { name: string; unit: string; role: string }>(null);
+  const visibleRole = detectedUser?.role || 'Staff';
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -91,19 +92,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--kl-bg)] flex items-center justify-center p-4 sm:p-6">
-      <div className="w-full max-w-[520px]">
+    <div className="auth-page min-h-screen bg-[var(--surface-base)] flex items-center justify-center p-6">
+      <div className="w-full max-w-[420px]">
         <div className="flex items-center gap-3 mb-8">
-          <div className="bg-[var(--kl-primary)] rounded-[18px] size-[48px] flex items-center justify-center flex-shrink-0">
+          <div className="auth-logo-mark bg-[linear-gradient(135deg,var(--accent-primary),#6366f1)] rounded-lg size-[52px] flex items-center justify-center flex-shrink-0 shadow-[0_4px_16px_rgba(58,110,232,0.30)]">
             <span className="text-white font-bold text-[15px]">LK</span>
           </div>
           <div>
-            <div className="text-[var(--kl-text)] font-bold text-[20px] leading-tight">Knowlab</div>
-            <div className="text-[var(--kl-text-muted)] text-[13px]">Laboratory Knowledge Management</div>
+            <div className="text-[var(--text-primary)] font-bold text-[20px] leading-tight">Knowlab</div>
+            <div className="text-[var(--text-secondary)] text-[13px]">Laboratory Knowledge Management</div>
           </div>
         </div>
 
-        <div className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-5 sm:p-8">
+        <div className="auth-card bg-[var(--surface-card)] rounded-2xl border border-[var(--surface-border)] shadow-xl p-8 sm:p-10">
           {mode !== 'signin' && (
             <button
               onClick={() => {
@@ -119,36 +120,51 @@ export default function LoginPage() {
 
           {mode === 'signin' && (
             <>
-              <h1 className="text-[var(--kl-text)] font-semibold text-[26px] mb-1">Sign in to continue.</h1>
-              <p className="text-[var(--kl-text-muted)] text-[14px] mb-6">Secure workspace sign in with role-aware access.</p>
+              <h1 className="auth-heading text-[var(--text-primary)] font-bold text-[28px] mb-1">Sign in to Knowlab</h1>
+              <p className="auth-subheading text-[var(--text-secondary)] text-[14px] mb-6 leading-[1.5]">Secure workspace sign in with role-aware access.</p>
+              <div className="role-tabs mb-6 flex gap-0.5 rounded-md bg-[var(--surface-base)] p-[3px]">
+                {['Staff', 'Supervisor', 'HOD'].map((role) => (
+                  <div
+                    key={role}
+                    className={`role-tab flex-1 rounded-[10px] px-3 py-2 text-center text-[13px] font-medium transition-all duration-base ease-spring ${
+                      visibleRole === role
+                        ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-sm'
+                        : 'text-[var(--text-secondary)]'
+                    }`}
+                    aria-current={visibleRole === role ? 'true' : undefined}
+                  >
+                    {role}
+                  </div>
+                ))}
+              </div>
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div>
-                  <label className="block text-[var(--kl-text)] font-medium text-[13px] mb-1.5">Work email</label>
+                  <label className="block text-[var(--text-secondary)] font-medium text-[13px] mb-1.5">Work email</label>
                   <input
                     type="email"
                     value={email}
                     onChange={e => handleEmailChange(e.target.value)}
                     placeholder="you@knowlab.com"
                     required
-                    className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] px-4 py-3.5 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--kl-primary)] focus:ring-2 focus:ring-[var(--kl-primary)]/10 transition-all"
+                    className="input w-full h-[42px] rounded-md px-[14px] text-[15px]"
                   />
                 </div>
 
                 {detectedUser && (
-                  <div className="bg-[var(--kl-surface-tinted)] border border-[var(--kl-border)] rounded-[18px] p-4 flex items-start gap-3">
-                    <FlaskConical size={16} className="text-[var(--kl-primary)] mt-0.5" />
+                  <div className="bg-[var(--accent-glow)] border border-[var(--surface-border)] rounded-lg p-4 flex items-start gap-3">
+                    <FlaskConical size={16} className="text-[var(--accent-primary)] mt-0.5" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[var(--kl-text)] font-semibold text-[14px]">{detectedUser.unit}</p>
-                      <p className="text-[var(--kl-text-muted)] text-[12px]">{detectedUser.name}</p>
+                      <p className="text-[var(--text-primary)] font-semibold text-[14px]">{detectedUser.unit}</p>
+                      <p className="text-[var(--text-secondary)] text-[12px]">{detectedUser.name}</p>
                     </div>
-                    <div className="bg-[var(--kl-surface)] text-[var(--kl-primary)] font-medium text-[11px] px-3 py-1 rounded-full flex-shrink-0 border border-[var(--kl-border)]">
+                    <div className="bg-[var(--surface-card)] text-[var(--accent-primary)] font-medium text-[11px] px-3 py-1 rounded-full flex-shrink-0 border border-[var(--surface-border)]">
                       {detectedUser.role}
                     </div>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-[var(--kl-text)] font-medium text-[13px] mb-1.5">Password</label>
+                  <label className="block text-[var(--text-secondary)] font-medium text-[13px] mb-1.5">Password</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -156,12 +172,12 @@ export default function LoginPage() {
                       onChange={e => { setPassword(e.target.value); setError(''); }}
                       placeholder="Enter your password"
                       required
-                      className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] px-4 py-3.5 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--kl-primary)] focus:ring-2 focus:ring-[var(--kl-primary)]/10 transition-all pr-12"
+                      className="input w-full h-[42px] rounded-md px-[14px] pr-12 text-[15px]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--kl-text-muted)] hover:text-[var(--kl-text)]"
+                      className="absolute right-2.5 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-xs border border-[var(--surface-border)] bg-[var(--glass-bg)] text-[var(--text-tertiary)] backdrop-blur-sm transition-all hover:bg-[var(--surface-base)] hover:text-[var(--text-secondary)]"
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -171,7 +187,7 @@ export default function LoginPage() {
                 <div className="flex justify-end">
                   <button
                     type="button"
-                    className="text-[var(--kl-primary)] text-[12px] font-medium hover:underline"
+                    className="text-[var(--accent-primary)] text-[12px] font-medium hover:underline"
                     onClick={() => setMode('forgot')}
                   >
                     Forgot password?
@@ -179,13 +195,13 @@ export default function LoginPage() {
                 </div>
 
                 {error && (
-                  <div className="flex items-center gap-2 bg-[#fde9e9] text-[#b14343] text-[13px] rounded-[12px] px-4 py-3">
+                  <div className="flex items-center gap-2 bg-[rgba(255,59,48,0.12)] text-[var(--destructive)] text-[13px] rounded-md px-4 py-3">
                     <AlertCircle size={14} />
                     {error}
                   </div>
                 )}
                 {message && (
-                  <div className="flex items-center gap-2 bg-[#e8f8f1] text-[#1c7b56] text-[13px] rounded-[12px] px-4 py-3">
+                  <div className="flex items-center gap-2 bg-[rgba(52,199,89,0.12)] text-[var(--success)] text-[13px] rounded-md px-4 py-3">
                     <KeyRound size={14} />
                     {message}
                   </div>
@@ -194,7 +210,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-[var(--kl-primary)] hover:bg-[var(--kl-primary-hover)] text-white font-medium text-[14px] py-4 rounded-[16px] transition-colors shadow-[0px_8px_20px_0px_rgba(28,94,255,0.24)] disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+                  className="btn-primary w-full h-[46px] justify-center rounded-lg px-4 text-[14px] font-semibold disabled:opacity-60 disabled:cursor-not-allowed mt-2"
                 >
                   {isLoading ? `Signing in${TEXT_TOKENS.ellipsis}` : 'Sign in to Knowlab'}
                 </button>
@@ -219,7 +235,7 @@ export default function LoginPage() {
                   />
                 </div>
                 {message && (
-                  <div className="flex items-center gap-2 bg-[#e8f8f1] text-[#1c7b56] text-[13px] rounded-[12px] px-4 py-3">
+                  <div className="flex items-center gap-2 bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba] text-[13px] rounded-[12px] px-4 py-3">
                     <KeyRound size={14} />
                     {message}
                   </div>
@@ -266,7 +282,7 @@ export default function LoginPage() {
                   />
                 </div>
                 {error && (
-                  <div className="flex items-center gap-2 bg-[#fde9e9] text-[#b14343] text-[13px] rounded-[12px] px-4 py-3">
+                  <div className="flex items-center gap-2 bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5] text-[13px] rounded-[12px] px-4 py-3">
                     <AlertCircle size={14} />
                     {error}
                   </div>
@@ -286,4 +302,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

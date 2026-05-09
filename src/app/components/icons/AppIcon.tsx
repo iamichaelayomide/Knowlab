@@ -183,5 +183,5 @@ export function AppIcon({ name, size = 16, className, title, forceFallback = fal
   }
 
   const FallbackIcon = fallback;
-  return FallbackIcon ? <FallbackIcon size={size} className={className} aria-hidden={title ? undefined : true} /> : null;
+  return FallbackIcon ? <FallbackIcon size={size} strokeWidth={1.5} className={className} aria-hidden={title ? undefined : true} /> : null;
 }

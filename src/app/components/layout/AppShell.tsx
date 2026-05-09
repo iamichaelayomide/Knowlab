@@ -141,7 +141,7 @@ export default function AppShell() {
         title: "SOP Context",
         body: `Focused on ${activeBench.shortName}. Ask AI to break down procedure steps before execution.`,
         ctaLabel: "Ask SOP AI",
-        onCta: () => openFloatingAI(`Teach me ${activeBench.name} SOP steps with checkpoints.`),
+        onCta: () => openFloatingAI(`Walk me through ${activeBench.name} SOP steps with practical checkpoints.`),
       };
     }
     if (routeSegment === "tests") {
@@ -149,7 +149,7 @@ export default function AppShell() {
         title: "Test Support",
         body: `Need quick ranges or sample requirements for ${activeBench.shortName}?`,
         ctaLabel: "Ask Test AI",
-        onCta: () => openFloatingAI(`Explain ${activeBench.name} tests step by step with specimen notes.`),
+        onCta: () => openFloatingAI(`Walk me through ${activeBench.name} tests with specimen notes.`),
       };
     }
     if (routeSegment === "staff") {
@@ -157,7 +157,7 @@ export default function AppShell() {
         title: "People Insights",
         body: "Use AI to locate staff by unit/bench and jump directly to a profile.",
         ctaLabel: "Find Staff",
-        onCta: () => openFloatingAI("Find a staff member by unit and bench and share profile links."),
+        onCta: () => openFloatingAI("Help me find a staff member by unit and bench."),
       };
     }
     if (routeSegment === "capa") {
@@ -193,8 +193,8 @@ export default function AppShell() {
     return {
       title: "Bench Focus",
       body: `${activeDepartment.shortName} / ${activeBench.shortName} context is active. Ask AI for guided help any time.`,
-      ctaLabel: "Open AI",
-      onCta: () => openFloatingAI(),
+      ctaLabel: "Open chat",
+      onCta: () => navigate(`${base}/ai-assistant/legacy`),
     };
   }, [
     activeBench.name,
@@ -231,28 +231,28 @@ export default function AppShell() {
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-[var(--kl-surface-soft)]">
-      <div className="flex items-center gap-3 px-5 pt-6 pb-4">
-        <div className="bg-[var(--kl-primary)] rounded-[18px] size-[44px] flex items-center justify-center flex-shrink-0">
+    <div className="sidebar flex h-full flex-col bg-[var(--surface-card)]">
+      <div className="sidebar-logo flex h-14 items-center gap-3 border-b border-[var(--surface-border)] px-3">
+        <div className="bg-[linear-gradient(135deg,var(--accent-primary),#6366f1)] rounded-lg size-[44px] flex items-center justify-center flex-shrink-0 shadow-[0_4px_16px_rgba(58,110,232,0.30)]">
           <span className="text-white font-bold text-[13px]">LK</span>
         </div>
         <div>
-          <div className="text-[var(--kl-text)] font-semibold text-[15px] leading-tight">Knowlab</div>
-          <div className="text-[var(--kl-text-muted)] text-[12px]">{roleLabel(user.role)}</div>
+          <div className="text-[var(--text-primary)] font-semibold text-[15px] leading-tight">Knowlab</div>
+          <div className="text-[var(--text-secondary)] text-[12px]">{roleLabel(user.role)}</div>
         </div>
       </div>
 
       <DepartmentSwitcher />
 
       <div className="px-3 mb-4">
-        <div className="rounded-[16px] border border-[var(--kl-border)] bg-[var(--kl-surface)] p-3.5">
-          <p className="text-[11px] uppercase tracking-[1.2px] text-[var(--kl-text-muted)] font-semibold mb-1.5">
+        <div className="rounded-lg border border-[var(--surface-border)] bg-[var(--surface-raised)] p-3.5 shadow-xs">
+          <p className="text-[11px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-semibold mb-1.5">
             {contextPanel.title}
           </p>
-          <p className="text-[12px] text-[var(--kl-text)] leading-relaxed">{contextPanel.body}</p>
+          <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{contextPanel.body}</p>
           <button
             onClick={contextPanel.onCta}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-[10px] bg-[var(--kl-primary)] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[var(--kl-primary-hover)] transition-colors"
+            className="btn-primary mt-3 inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-[11px] font-semibold"
           >
             <AppIcon name="ai" size={12} />
             {contextPanel.ctaLabel}
@@ -263,7 +263,7 @@ export default function AppShell() {
       <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-5">
         {navSections.map((section) => (
           <div key={section.section}>
-            <p className="text-[var(--kl-text-muted)] font-semibold text-[11px] tracking-[1.98px] px-2 mb-2">{section.section}</p>
+            <p className="text-[var(--text-tertiary)] font-semibold text-[11px] uppercase tracking-[0.06em] px-3 mb-2">{section.section}</p>
             <div className="space-y-1">
               {section.items.map((item) => (
                 <NavLink
@@ -271,17 +271,17 @@ export default function AppShell() {
                   to={item.path}
                   onClick={() => setMobileSidebarOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3.5 py-3 rounded-[18px] text-[14px] font-medium transition-colors ${
+                    `flex h-9 items-center gap-2.5 rounded-sm px-3 text-[14px] font-medium transition-all duration-fast ${
                       isActive
-                        ? "bg-[var(--kl-surface-tinted)] text-[var(--kl-primary)]"
-                        : "text-[var(--kl-text)]/85 hover:bg-[var(--kl-surface)] hover:text-[var(--kl-primary)]"
+                        ? "bg-[var(--accent-glow)] text-[var(--accent-primary)]"
+                        : "text-[var(--text-secondary)] hover:bg-[var(--surface-base)] hover:text-[var(--text-primary)]"
                     }`
                   }
                 >
                   <AppIcon name={item.icon} size={16} />
                   <span className="flex-1">{item.label}</span>
                   {item.label === "Alerts" && unreadAlerts > 0 && (
-                    <span className="bg-[#b14343] text-white text-[11px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                    <span className="bg-[var(--destructive)] text-white text-[11px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
                       {unreadAlerts}
                     </span>
                   )}
@@ -293,7 +293,7 @@ export default function AppShell() {
       </div>
 
       <div className="px-3 pb-5">
-        <div className="bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[18px] p-3.5 flex items-center gap-3">
+        <div className="bg-[var(--surface-raised)] border border-[var(--surface-border)] rounded-lg p-3.5 flex items-center gap-3 shadow-xs">
           <div
             className="rounded-full size-[40px] flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0"
             style={{ backgroundColor: user.color }}
@@ -301,10 +301,10 @@ export default function AppShell() {
             {user.initials}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[var(--kl-text)] font-semibold text-[13px] truncate">{user.name}</div>
-            <div className="text-[var(--kl-text-muted)] text-[11px] truncate">{user.unit}</div>
+            <div className="text-[var(--text-primary)] font-semibold text-[13px] truncate">{user.name}</div>
+            <div className="text-[var(--text-secondary)] text-[11px] truncate">{user.unit}</div>
           </div>
-          <button onClick={handleLogout} className="text-[var(--kl-text-muted)] hover:text-[#b14343] transition-colors p-1" title="Log out">
+          <button onClick={handleLogout} className="text-[var(--text-tertiary)] hover:text-[var(--destructive)] transition-colors p-1" title="Log out">
             <AppIcon name="logout" size={16} />
           </button>
         </div>
@@ -313,16 +313,16 @@ export default function AppShell() {
   );
 
   return (
-    <div className="flex h-dvh min-h-dvh bg-[var(--kl-bg)] overflow-hidden">
-      <aside className="hidden xl:flex flex-col w-[280px] flex-shrink-0 border-r border-[var(--kl-border)] h-full overflow-hidden">
+    <div className="flex h-dvh min-h-dvh bg-[var(--surface-base)] overflow-hidden text-[var(--text-primary)]">
+      <aside className="hidden xl:flex flex-col w-[240px] flex-shrink-0 shadow-[1px_0_0_var(--surface-border)] h-full overflow-hidden">
         <SidebarContent />
       </aside>
 
       {mobileSidebarOpen && (
         <div className="xl:hidden fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/30" onClick={() => setMobileSidebarOpen(false)} />
-          <aside className="relative w-[280px] border-r border-[var(--kl-border)] h-full overflow-hidden z-10">
-            <button className="absolute top-4 right-4 text-[var(--kl-text-muted)] p-1" onClick={() => setMobileSidebarOpen(false)}>
+          <aside className="relative w-[280px] border-r border-[var(--surface-border)] h-full overflow-hidden z-10">
+            <button className="absolute top-4 right-4 text-[var(--text-secondary)] p-1" onClick={() => setMobileSidebarOpen(false)}>
               <AppIcon name="close" size={20} />
             </button>
             <SidebarContent />
@@ -331,8 +331,8 @@ export default function AppShell() {
       )}
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="sticky top-0 z-20 bg-[color:rgba(247,250,255,0.9)] dark:bg-[color:rgba(16,26,49,0.92)] border-b border-[var(--kl-border)] h-[68px] flex items-center px-3 sm:px-6 gap-3 sm:gap-4 flex-shrink-0 backdrop-blur-sm">
-          <button className="xl:hidden text-[var(--kl-text)] p-1" onClick={() => setMobileSidebarOpen(true)} aria-label="Open navigation menu">
+        <header className="breadcrumb-bar sticky top-0 z-20 flex h-[52px] flex-shrink-0 items-center gap-3 border-b border-[var(--surface-border)] bg-[var(--surface-overlay)] px-3 backdrop-blur-xl sm:px-6">
+          <button className="xl:hidden text-[var(--text-primary)] p-1" onClick={() => setMobileSidebarOpen(true)} aria-label="Open navigation menu">
             <AppIcon name="menu" size={20} />
           </button>
 
@@ -344,33 +344,30 @@ export default function AppShell() {
               <AppIcon name="department" size={12} />
               {activeDepartment.shortName}
             </div>
-            <AppIcon name="chevronRight" size={12} className="hidden md:inline-flex text-[var(--kl-text-muted)]" />
-            <div className="hidden md:flex items-center gap-1.5 bg-[var(--kl-surface-tinted)] text-[var(--kl-text)] text-[12px] font-medium px-2.5 py-1 rounded-[10px]">
+            <AppIcon name="chevronRight" size={12} className="hidden md:inline-flex text-[var(--text-tertiary)]" />
+            <div className="hidden md:flex items-center gap-1.5 bg-[var(--accent-glow)] text-[var(--text-primary)] text-[12px] font-medium px-2.5 py-1 rounded-[10px]">
               <span className="inline-block size-[6px] rounded-full flex-shrink-0" style={{ backgroundColor: activeBench.color }} />
               {activeBench.name}
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <ThemeToggle
-              compact
-              className="rounded-[12px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-2.5 py-2 text-[var(--kl-text)] hover:bg-[var(--kl-surface-tinted)] transition-colors"
-            />
+            <ThemeToggle compact className="shrink-0" />
             <button
               onClick={() => openFloatingAI()}
-              className="rounded-[12px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-2.5 py-2 text-[var(--kl-text)] hover:bg-[var(--kl-surface-tinted)] transition-colors"
+              className="rounded-md border border-[var(--surface-border)] bg-[var(--glass-bg)] px-2.5 py-2 text-[var(--text-primary)] shadow-glass backdrop-blur-md transition-all hover:bg-[var(--surface-card)]"
               title="Open AI assistant"
             >
               <AppIcon name="ai" size={14} />
             </button>
             <NavLink
               to={`${base}/alerts`}
-              className="relative bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] px-3 py-2 text-[var(--kl-text)] text-[14px] font-medium hover:bg-[var(--kl-surface-tinted)] transition-colors flex items-center gap-2"
+              className="relative flex items-center gap-2 rounded-md border border-[var(--surface-border)] bg-[var(--surface-card)] px-3 py-2 text-[14px] font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-raised)]"
             >
               <AppIcon name="alerts" size={14} />
               Alerts
               {unreadAlerts > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#b14343] text-white text-[10px] rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-0.5">
+                <span className="absolute -top-1 -right-1 bg-[var(--destructive)] text-white text-[10px] rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-0.5">
                   {unreadAlerts}
                 </span>
               )}
@@ -379,7 +376,7 @@ export default function AppShell() {
         </header>
 
         {!isOnline && (
-          <div className="px-3 sm:px-6 py-2 bg-[#fff0db] border-b border-[#f5d99a] text-[#9a6115] text-[12px] font-medium">
+          <div className="px-3 sm:px-6 py-2 bg-[rgba(245,166,35,0.12)] border-b border-[var(--surface-border)] text-[var(--warning)] text-[12px] font-medium">
             Offline mode: using cached app data. New cloud sync/remote AI updates will resume when internet returns.
           </div>
         )}

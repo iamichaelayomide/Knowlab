@@ -89,7 +89,7 @@ export function DepartmentSwitcher() {
       <button
         ref={triggerRef}
         onClick={() => setOpen((value) => !value)}
-        className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl border border-[var(--kl-border)] bg-[var(--kl-surface)] hover:bg-[var(--kl-surface-tinted)] active:scale-[0.995] transition-all"
+        className="w-full flex items-center gap-3 px-3 py-3 rounded-lg border border-[var(--surface-border)] bg-[var(--surface-raised)] shadow-xs hover:bg-[var(--surface-card)] active:scale-[0.995] transition-all"
       >
         <span
           className="size-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 text-[16px]"
@@ -98,25 +98,25 @@ export function DepartmentSwitcher() {
           <Icons8Glyph className={DEPARTMENT_ICON_CLASS[activeDepartment.id] ?? 'las la-layer-group'} />
         </span>
         <div className="flex-1 min-w-0 text-left">
-          <p className="text-sm font-semibold text-[var(--kl-text)] truncate">{activeDepartment.shortName}</p>
-          <p className="text-xs text-[var(--kl-text-muted)] truncate">{activeBench.shortName} bench</p>
+          <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{activeDepartment.shortName}</p>
+          <p className="text-xs text-[var(--text-secondary)] truncate">{activeBench.shortName} bench</p>
         </div>
         <AppIcon
           name="chevronDown"
           size={16}
-          className={`text-[var(--kl-text-muted)] transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`text-[var(--text-tertiary)] transition-transform ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
       {open && (
         <div
           ref={panelRef}
-          className="absolute left-0 right-0 top-[calc(100%+8px)] z-40 rounded-2xl border border-[var(--kl-border)] bg-[var(--kl-surface)] shadow-[var(--kl-shadow)] overflow-hidden"
+          className="absolute left-0 right-0 top-[calc(100%+8px)] z-40 rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] shadow-xl overflow-hidden backdrop-blur-2xl"
         >
           {view === 'departments' ? (
             <div>
-              <div className="px-4 py-3 border-b border-[var(--kl-border)] bg-[var(--kl-surface-soft)]">
-                <p className="text-[11px] font-semibold tracking-[1.2px] uppercase text-[var(--kl-text-muted)]">Select Department</p>
+              <div className="px-4 py-3 border-b border-[var(--surface-border)] bg-[var(--surface-base)]">
+                <p className="text-[11px] font-semibold tracking-[0.06em] uppercase text-[var(--text-tertiary)]">Select Department</p>
               </div>
               <div className="p-2 max-h-[360px] overflow-y-auto space-y-1">
                 {DEPARTMENTS.map((department) => {
@@ -127,8 +127,8 @@ export function DepartmentSwitcher() {
                       onClick={() => selectDepartment(department)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all active:scale-[0.99] ${
                         isActive
-                          ? 'border-[var(--kl-primary)] bg-[var(--kl-surface-tinted)] shadow-[0_0_0_2px_rgba(28,94,255,0.08)]'
-                          : 'border-transparent hover:border-[var(--kl-border)] hover:bg-[var(--kl-surface-soft)]'
+                          ? 'border-[var(--accent-primary)] bg-[var(--accent-glow)] shadow-[0_0_0_2px_var(--accent-glow)]'
+                          : 'border-transparent hover:border-[var(--surface-border)] hover:bg-[var(--surface-base)]'
                       }`}
                     >
                       <span
@@ -138,10 +138,10 @@ export function DepartmentSwitcher() {
                         <Icons8Glyph className={DEPARTMENT_ICON_CLASS[department.id] ?? 'las la-layer-group'} />
                       </span>
                       <div className="min-w-0 flex-1 text-left">
-                        <p className="text-sm font-medium text-[var(--kl-text)] truncate">{department.name}</p>
-                        <p className="text-xs text-[var(--kl-text-muted)]">{department.benches.length} benches</p>
+                        <p className="text-sm font-medium text-[var(--text-primary)] truncate">{department.name}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{department.benches.length} benches</p>
                       </div>
-                      <AppIcon name="chevronRight" size={14} className="text-[var(--kl-text-muted)]" />
+                      <AppIcon name="chevronRight" size={14} className="text-[var(--text-tertiary)]" />
                     </button>
                   );
                 })}
@@ -149,15 +149,15 @@ export function DepartmentSwitcher() {
             </div>
           ) : (
             <div>
-              <div className="px-3 py-3 border-b border-[var(--kl-border)] bg-[var(--kl-surface-soft)] flex items-center gap-2">
+              <div className="px-3 py-3 border-b border-[var(--surface-border)] bg-[var(--surface-base)] flex items-center gap-2">
                 <button
                   onClick={() => setView('departments')}
-                  className="rounded-lg p-1.5 text-[var(--kl-text-muted)] hover:bg-[var(--kl-surface)] active:scale-[0.96]"
+                  className="rounded-lg p-1.5 text-[var(--text-secondary)] hover:bg-[var(--surface-card)] active:scale-[0.96]"
                   aria-label="Back to departments"
                 >
                   <AppIcon name="arrowRight" size={14} className="rotate-180" />
                 </button>
-                <p className="text-sm font-semibold text-[var(--kl-text)] truncate">{selectedDept.name}</p>
+                <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{selectedDept.name}</p>
               </div>
               <div className="p-2 max-h-[360px] overflow-y-auto space-y-1">
                 {selectedDept.benches.map((bench) => {
@@ -168,19 +168,19 @@ export function DepartmentSwitcher() {
                       onClick={() => selectBench(bench)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all active:scale-[0.99] ${
                         isActive
-                          ? 'border-[var(--kl-primary)] bg-[var(--kl-surface-tinted)] shadow-[0_0_0_2px_rgba(28,94,255,0.08)]'
-                          : 'border-transparent hover:border-[var(--kl-border)] hover:bg-[var(--kl-surface-soft)]'
+                          ? 'border-[var(--accent-primary)] bg-[var(--accent-glow)] shadow-[0_0_0_2px_var(--accent-glow)]'
+                          : 'border-transparent hover:border-[var(--surface-border)] hover:bg-[var(--surface-base)]'
                       }`}
                     >
                       <span
-                        className="size-6 rounded-md flex items-center justify-center bg-[var(--kl-surface)] text-[var(--kl-primary)] border border-[var(--kl-border)] text-[12px]"
+                        className="size-6 rounded-md flex items-center justify-center bg-[var(--surface-card)] text-[var(--accent-primary)] border border-[var(--surface-border)] text-[12px]"
                         title={bench.name}
                       >
                         <Icons8Glyph className={BENCH_ICON_CLASS[bench.id] ?? 'las la-flask'} />
                       </span>
-                      <span className="min-w-0 flex-1 text-left text-sm text-[var(--kl-text)] truncate">{bench.name}</span>
+                      <span className="min-w-0 flex-1 text-left text-sm text-[var(--text-primary)] truncate">{bench.name}</span>
                       {isActive ? (
-                        <span className="size-5 rounded-full bg-[var(--kl-primary)] text-white flex items-center justify-center">
+                        <span className="size-5 rounded-full bg-[var(--accent-primary)] text-white flex items-center justify-center">
                           <AppIcon name="check" size={11} className="text-white" />
                         </span>
                       ) : null}

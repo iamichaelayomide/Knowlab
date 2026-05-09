@@ -70,8 +70,8 @@ export default function FloatingAIWidget() {
     if (user.role === "staff") {
       return [
         "Teach me this SOP step by step with practical checkpoints.",
-        "What sample type, tube, and turnaround apply to this bench test?",
-        "Break this topic into beginner, intermediate, and advanced understanding.",
+        "What sample type, tube, and turnaround should I expect for this test?",
+        "Can you break this into beginner, intermediate, and advanced levels?",
       ];
     }
     if (user.role === "supervisor") {
@@ -103,7 +103,7 @@ export default function FloatingAIWidget() {
         id: "f_welcome",
         role: "assistant",
         content:
-          "Hi. I am your Knowlab assistant.\n\nI can explain processes step by step, clarify SOP/test questions, and support role-appropriate operations insights.",
+          "Hi. I'm your Knowlab assistant.\n\nAsk me about a test, SOP, or lab workflow, and I'll answer with the closest verified guidance.",
         timestamp: new Date().toISOString(),
         confidence: 0.96,
         mode: "teaching",
@@ -224,7 +224,7 @@ export default function FloatingAIWidget() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed z-40 right-4 sm:right-6 bg-[var(--kl-primary)] hover:bg-[var(--kl-primary-hover)] text-white rounded-full h-12 px-4 inline-flex items-center gap-2 shadow-[var(--kl-shadow)]"
+          className="ask-ai-fab fixed z-40 right-4 sm:right-6 inline-flex h-11 items-center gap-2 rounded-full border border-[rgba(255,255,255,0.75)] bg-[rgba(255,255,255,0.55)] px-5 text-[14px] font-semibold tracking-[-0.01em] text-[var(--accent-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.90),0_8px_32px_rgba(58,110,232,0.18),0_2px_8px_rgba(0,0,0,0.10)] backdrop-blur-2xl transition-all duration-base ease-spring hover:scale-[1.04] hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_12px_40px_rgba(58,110,232,0.25),0_4px_12px_rgba(0,0,0,0.12)] active:scale-[0.97] dark:border-[rgba(255,255,255,0.12)] dark:bg-[rgba(255,255,255,0.07)] dark:text-[#93c5fd] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_8px_32px_rgba(0,0,0,0.50)]"
           style={{ bottom: "calc(env(safe-area-inset-bottom) + 14px)" }}
         >
           <AppIcon name="ai" size={16} />
@@ -234,60 +234,68 @@ export default function FloatingAIWidget() {
 
       {open && (
         <div
-          className="fixed z-50 inset-x-3 sm:inset-x-auto sm:right-6 bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[18px] shadow-[var(--kl-shadow)] flex flex-col overflow-hidden sm:w-[410px]"
+          className="fixed z-50 inset-x-3 sm:inset-x-auto sm:right-6 bg-[var(--surface-overlay)] border border-[var(--glass-border)] rounded-2xl shadow-xl backdrop-blur-2xl flex flex-col overflow-hidden sm:w-[410px]"
           style={{
             bottom: "calc(env(safe-area-inset-bottom) + 12px)",
             height: "min(72dvh, 680px)",
           }}
         >
-          <div className="shrink-0 px-4 py-3 border-b border-[var(--kl-border)] bg-[var(--kl-surface-soft)] flex items-center justify-between gap-2">
+          <div className="shrink-0 px-4 py-3 border-b border-[var(--surface-border)] bg-[var(--surface-raised)] flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="bg-gradient-to-br from-[var(--kl-primary)] to-[#0f86ff] rounded-[10px] p-1.5">
+              <div className="bg-gradient-to-br from-[var(--accent-primary)] to-[#6366f1] rounded-[10px] p-1.5 shadow-[0_4px_14px_var(--accent-glow)]">
                 <AppIcon name="ai" size={14} className="text-white" />
               </div>
               <div className="min-w-0">
-                <p className="text-[var(--kl-text)] text-[13px] font-semibold truncate">Knowlab AI</p>
-                <p className="text-[var(--kl-text-muted)] text-[11px] truncate">
+                <p className="text-[var(--text-primary)] text-[13px] font-semibold truncate">Knowlab AI</p>
+                <p className="text-[var(--text-secondary)] text-[11px] truncate">
                   {activeDepartment.shortName}
                   {TEXT_TOKENS.separator}
                   {activeBench.shortName}
                 </p>
               </div>
             </div>
-            <button onClick={() => setOpen(false)} className="text-[var(--kl-text-muted)] hover:text-[var(--kl-primary)] rounded-[8px] p-1">
-              <AppIcon name="close" size={14} />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => navigate(`${base}/ai-assistant/legacy`)}
+                className="text-[var(--text-secondary)] hover:text-[var(--accent-primary)] rounded-sm px-2 py-1 text-[11px] font-medium border border-[var(--surface-border)] bg-[var(--glass-bg)]"
+              >
+                Full chat
+              </button>
+              <button onClick={() => setOpen(false)} className="text-[var(--text-secondary)] hover:text-[var(--accent-primary)] rounded-sm p-1 hover:bg-[var(--surface-base)]">
+                <AppIcon name="close" size={14} />
+              </button>
+            </div>
           </div>
 
-          <div className="shrink-0 border-b border-[var(--kl-border)] bg-[var(--kl-surface)] px-3 py-2.5">
+          <div className="shrink-0 border-b border-[var(--surface-border)] bg-[var(--surface-card)] px-3 py-2.5">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
               {quickCards.map((card) => (
                 <button
                   key={card}
                   onClick={() => void send(card)}
-                  className="text-left rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface-tinted)] px-2.5 py-2 hover:border-[var(--kl-primary)] transition-colors"
+                  className="text-left rounded-md border border-[var(--surface-border)] bg-[var(--accent-glow)] px-2.5 py-2 transition-all hover:border-[var(--accent-primary)] hover:bg-[var(--surface-card)]"
                 >
-                  <p className="text-[11px] text-[var(--kl-text)] leading-snug">{card}</p>
+                  <p className="text-[11px] text-[var(--text-primary)] leading-snug">{card}</p>
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 bg-[var(--kl-surface-soft)] min-h-0">
+          <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 bg-[var(--surface-base)] min-h-0">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
                   className={`max-w-[90%] rounded-[14px] px-3 py-2 ${
                     msg.role === "user"
-                      ? "bg-[var(--kl-primary)] text-white"
-                      : "bg-[var(--kl-surface)] border border-[var(--kl-border)] text-[var(--kl-text)]"
+                      ? "bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-primary-hover))] text-white shadow-sm"
+                      : "bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--text-primary)] shadow-xs"
                   }`}
                 >
                   <p className="text-[12px] whitespace-pre-wrap leading-relaxed">{msg.content}</p>
 
                   {msg.role === "assistant" && (
                     <div className="mt-2 space-y-1.5">
-                      <p className="text-[10px] text-[var(--kl-text-muted)]">
+                      <p className="text-[10px] text-[var(--text-secondary)]">
                         {modeLabel(msg.mode)}
                         {TEXT_TOKENS.separator}
                         {confidenceLabel(msg.confidence)}
@@ -314,7 +322,7 @@ export default function FloatingAIWidget() {
                                   setOpen(false);
                                 }}
                                 className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] ${
-                                  to ? "bg-[#eef5ff] text-[#1c5eff]" : "bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)]"
+                                  to ? "bg-[var(--accent-glow)] text-[var(--accent-primary)]" : "bg-[var(--surface-raised)] text-[var(--text-tertiary)]"
                                 }`}
                               >
                                 <AppIcon name="sops" size={10} />
@@ -337,7 +345,7 @@ export default function FloatingAIWidget() {
                                   navigate(target, { state: { fromAi: true } });
                                   setOpen(false);
                                 }}
-                                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] bg-[#e8f8f1] text-[#1c7b56] disabled:opacity-50"
+                                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] bg-[rgba(52,199,89,0.12)] text-[var(--success)] disabled:opacity-50"
                               >
                                 <AppIcon name="arrowRight" size={10} />
                                 {action.label}
@@ -353,7 +361,7 @@ export default function FloatingAIWidget() {
             ))}
 
             {loading && (
-              <div className="inline-flex items-center gap-2 bg-[var(--kl-surface)] border border-[var(--kl-border)] text-[var(--kl-text-muted)] text-[11px] rounded-[12px] px-3 py-2">
+              <div className="inline-flex items-center gap-2 bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--text-secondary)] text-[11px] rounded-md px-3 py-2">
                 <AppIcon name="ai" size={12} />
                 Thinking...
               </div>
@@ -362,7 +370,7 @@ export default function FloatingAIWidget() {
           </div>
 
           <div
-            className="shrink-0 border-t border-[var(--kl-border)] bg-[var(--kl-surface)] p-2.5 flex items-end gap-2"
+            className="shrink-0 border-t border-[var(--surface-border)] bg-[var(--surface-card)] p-2.5 flex items-end gap-2"
             style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 10px)" }}
           >
             <input
@@ -375,12 +383,12 @@ export default function FloatingAIWidget() {
                 }
               }}
               placeholder="Ask about SOPs, tests, CAPA, competency, training..."
-              className="flex-1 h-[40px] rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface-tinted)] px-3 text-[12px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--kl-primary)]"
+              className="input flex-1 h-[40px] rounded-md border border-[var(--surface-border-strong)] bg-[var(--surface-base)] px-3 text-[12px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent-primary)]"
             />
             <button
               onClick={() => void send()}
               disabled={!input.trim() || loading}
-              className="h-[40px] w-[40px] rounded-[10px] bg-[var(--kl-primary)] hover:bg-[var(--kl-primary-hover)] text-white inline-flex items-center justify-center disabled:opacity-40"
+              className="btn-primary h-[40px] w-[40px] rounded-md p-0 inline-flex items-center justify-center disabled:opacity-40"
             >
               <AppIcon name="send" size={14} />
             </button>

@@ -1,4 +1,4 @@
-﻿import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { FileText, FlaskConical, BookOpen, GraduationCap, Bell, ArrowRight, CheckCircle2, Clock, AlertTriangle, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDepartment } from '../../context/DepartmentContext';
@@ -6,11 +6,11 @@ import { SOPS, LAB_TESTS, JOB_AIDS, TRAINING_MODULES, TRAINING_RECORDS, ALERTS }
 
 function MetricTile({ label, value, sublabel, accent }: { label: string; value: string | number; sublabel: string; accent: string }) {
   return (
-    <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-5">
+    <div className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-5">
       <div className="h-1 rounded-full mb-4" style={{ backgroundColor: accent }} />
-      <p className="text-[#475a7d] text-[14px] mb-1">{label}</p>
-      <p className="text-[#11203b] font-bold text-[30px] leading-none mb-1">{value}</p>
-      <p className="text-[#73839f] text-[12px]">{sublabel}</p>
+      <p className="text-[var(--kl-text-muted)] text-[14px] mb-1">{label}</p>
+      <p className="text-[var(--kl-text)] font-bold text-[30px] leading-none mb-1">{value}</p>
+      <p className="text-[var(--kl-text-muted)] text-[12px]">{sublabel}</p>
     </div>
   );
 }
@@ -42,7 +42,7 @@ export default function StaffDashboard() {
 
   const topSop = activeSops[0];
   const topTest = activeTests[0];
-  const benchmarkLabel = `${activeDepartment.shortName} · ${activeBench.shortName}`;
+  const benchmarkLabel = `${activeDepartment.shortName} / ${activeBench.shortName}`;
 
   return (
     <div className="kl-page min-h-full">
@@ -64,7 +64,7 @@ export default function StaffDashboard() {
             </p>
             <button
               onClick={() => navigate('/staff/sops')}
-              className="mt-5 bg-[#1c5eff] hover:bg-[#1548e8] text-white font-medium text-[14px] px-5 py-3 rounded-[14px] shadow-[0px_8px_20px_rgba(28,94,255,0.35)] transition-colors inline-flex items-center gap-2"
+              className="mt-5 bg-[#1c5eff] hover:bg-[#1548e8] text-white font-medium text-[14px] px-5 py-3 rounded-[14px] shadow-[var(--kl-shadow)] transition-colors inline-flex items-center gap-2"
             >
               Open SOP library <ArrowRight size={15} />
             </button>
@@ -101,11 +101,11 @@ export default function StaffDashboard() {
       {/* Two-column */}
       <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
         {/* Quick access SOPs */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6 flex flex-col">
+        <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <FileText size={18} className="text-[#1c5eff]" />
-              <h2 className="text-[#11203b] font-semibold text-[16px]">Quick SOPs</h2>
+              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Quick SOPs</h2>
             </div>
             <button onClick={() => navigate('/staff/sops')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               View all <ChevronRight size={14} />
@@ -116,23 +116,23 @@ export default function StaffDashboard() {
               <button
                 key={sop.id}
                 onClick={() => navigate(`/staff/sops/${sop.id}`)}
-                className="w-full flex items-center gap-3 p-3 rounded-[16px] hover:bg-[#f4f8ff] transition-colors text-left group"
+                className="w-full flex items-center gap-3 p-3 rounded-[16px] hover:bg-[var(--kl-surface-tinted)] transition-colors text-left group"
               >
-                <div className="bg-[#e3edff] rounded-[10px] p-2 flex-shrink-0">
+                <div className="bg-[var(--kl-surface-tinted)] rounded-[10px] p-2 flex-shrink-0">
                   <FileText size={14} className="text-[#1c5eff]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[#11203b] font-medium text-[13px] truncate">{sop.title}</p>
-                  <p className="text-[#73839f] text-[11px]">{sop.code} - Rev.{sop.revision}</p>
+                  <p className="text-[var(--kl-text)] font-medium text-[13px] truncate">{sop.title}</p>
+                  <p className="text-[var(--kl-text-muted)] text-[11px]">{sop.code} - Rev.{sop.revision}</p>
                 </div>
                 <div className={`text-[11px] font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
-                  sop.status === 'active' ? 'bg-[#e8f8f1] text-[#1c7b56]' : 'bg-[#fff0db] text-[#9a6115]'
+                  sop.status === 'active' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' : 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]'
                 }`}>
                   {sop.status === 'active' ? 'Active' : 'Under Review'}
                 </div>
               </button>
             )) : (
-              <div className="py-6 text-center text-[#73839f] text-[13px]">
+              <div className="py-6 text-center text-[var(--kl-text-muted)] text-[13px]">
                 No SOPs assigned to this bench yet.
               </div>
             )}
@@ -140,11 +140,11 @@ export default function StaffDashboard() {
         </div>
 
         {/* Quick access Tests */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6 flex flex-col">
+        <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <FlaskConical size={18} className="text-[#1c5eff]" />
-              <h2 className="text-[#11203b] font-semibold text-[16px]">Common Tests</h2>
+              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Common Tests</h2>
             </div>
             <button onClick={() => navigate('/staff/tests')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               View all <ChevronRight size={14} />
@@ -155,19 +155,19 @@ export default function StaffDashboard() {
               <button
                 key={test.id}
                 onClick={() => navigate(`/staff/tests/${test.id}`)}
-                className="w-full flex items-center gap-3 p-3 rounded-[16px] hover:bg-[#f4f8ff] transition-colors text-left"
+                className="w-full flex items-center gap-3 p-3 rounded-[16px] hover:bg-[var(--kl-surface-tinted)] transition-colors text-left"
               >
-                <div className="bg-[#f4f8ff] rounded-[10px] p-2 flex-shrink-0">
-                  <FlaskConical size={14} className="text-[#475a7d]" />
+                <div className="bg-[var(--kl-surface-tinted)] rounded-[10px] p-2 flex-shrink-0">
+                  <FlaskConical size={14} className="text-[var(--kl-text-muted)]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[#11203b] font-medium text-[13px] truncate">{test.name}</p>
-                  <p className="text-[#73839f] text-[11px]">{test.code} - {test.turnaround}</p>
+                  <p className="text-[var(--kl-text)] font-medium text-[13px] truncate">{test.name}</p>
+                  <p className="text-[var(--kl-text-muted)] text-[11px]">{test.code} - {test.turnaround}</p>
                 </div>
                 <div className={`w-3 h-3 rounded-full flex-shrink-0`} style={{ backgroundColor: test.containerColor === 'Purple/Lavender' ? '#9333ea' : test.containerColor === 'Light Blue' ? '#3b82f6' : test.containerColor === 'Black' ? '#374151' : '#ef4444' }} title={test.container} />
               </button>
             )) : (
-              <div className="py-6 text-center text-[#73839f] text-[13px]">
+              <div className="py-6 text-center text-[var(--kl-text-muted)] text-[13px]">
                 No tests assigned to this bench yet.
               </div>
             )}
@@ -178,11 +178,11 @@ export default function StaffDashboard() {
       {/* Training status + Alerts */}
       <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         {/* My Training */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6 flex flex-col">
+        <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <GraduationCap size={18} className="text-[#1c5eff]" />
-              <h2 className="text-[#11203b] font-semibold text-[16px]">My Training</h2>
+              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">My Training</h2>
             </div>
             <button onClick={() => navigate('/staff/training')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               View all <ChevronRight size={14} />
@@ -193,26 +193,26 @@ export default function StaffDashboard() {
               const record = myTraining.find(r => r.moduleId === mod.id);
               const status = record?.status || 'not_started';
               return (
-                <div key={mod.id} className="flex items-center gap-3 p-3 rounded-[14px] hover:bg-[#f4f8ff] transition-colors">
+                <div key={mod.id} className="flex items-center gap-3 p-3 rounded-[14px] hover:bg-[var(--kl-surface-tinted)] transition-colors">
                   <div className={`rounded-full p-1.5 flex-shrink-0 ${
-                    status === 'completed' ? 'bg-[#e8f8f1] text-[#1c7b56]' :
-                    status === 'overdue' ? 'bg-[#fde9e9] text-[#b14343]' :
-                    status === 'in_progress' ? 'bg-[#fff0db] text-[#9a6115]' :
-                    'bg-[#f4f8ff] text-[#73839f]'
+                    status === 'completed' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' :
+                    status === 'overdue' ? 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]' :
+                    status === 'in_progress' ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]' :
+                    'bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)]'
                   }`}>
                     {status === 'completed' ? <CheckCircle2 size={14} /> :
                      status === 'overdue' ? <AlertTriangle size={14} /> :
                      <Clock size={14} />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[#11203b] text-[13px] font-medium truncate">{mod.title}</p>
-                    <p className="text-[#73839f] text-[11px]">{mod.duration} - {mod.mandatory ? 'Mandatory' : 'Optional'}</p>
+                    <p className="text-[var(--kl-text)] text-[13px] font-medium truncate">{mod.title}</p>
+                    <p className="text-[var(--kl-text-muted)] text-[11px]">{mod.duration} - {mod.mandatory ? 'Mandatory' : 'Optional'}</p>
                   </div>
                   <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
-                    status === 'completed' ? 'bg-[#e8f8f1] text-[#1c7b56]' :
-                    status === 'overdue' ? 'bg-[#fde9e9] text-[#b14343]' :
-                    status === 'in_progress' ? 'bg-[#fff0db] text-[#9a6115]' :
-                    'bg-[#f4f8ff] text-[#73839f]'
+                    status === 'completed' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' :
+                    status === 'overdue' ? 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]' :
+                    status === 'in_progress' ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]' :
+                    'bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)]'
                   }`}>
                     {status === 'completed' ? `${record?.score}%` :
                      status === 'overdue' ? 'Overdue' :
@@ -225,11 +225,11 @@ export default function StaffDashboard() {
         </div>
 
         {/* Recent Alerts */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6 flex flex-col">
+        <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Bell size={18} className="text-[#1c5eff]" />
-              <h2 className="text-[#11203b] font-semibold text-[16px]">Recent Alerts</h2>
+              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Recent Alerts</h2>
             </div>
             <button onClick={() => navigate('/staff/alerts')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               View all <ChevronRight size={14} />
@@ -237,15 +237,15 @@ export default function StaffDashboard() {
           </div>
           <div className="space-y-2 flex-1">
             {ALERTS.filter(a => a.targetRoles.includes(user.role)).slice(0, 4).map(alert => (
-              <div key={alert.id} className="flex items-start gap-3 p-3 rounded-[14px] hover:bg-[#f4f8ff] transition-colors">
+              <div key={alert.id} className="flex items-start gap-3 p-3 rounded-[14px] hover:bg-[var(--kl-surface-tinted)] transition-colors">
                 <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
                   alert.type === 'danger' ? 'bg-[#b14343]' :
                   alert.type === 'warning' ? 'bg-[#9a6115]' :
                   alert.type === 'success' ? 'bg-[#1c7b56]' : 'bg-[#1c5eff]'
                 }`} />
                 <div className="flex-1 min-w-0">
-                  <p className={`text-[13px] font-medium truncate ${alert.read ? 'text-[#475a7d]' : 'text-[#11203b]'}`}>{alert.title}</p>
-                  <p className="text-[#73839f] text-[11px]">{new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} - {alert.category}</p>
+                  <p className={`text-[13px] font-medium truncate ${alert.read ? 'text-[var(--kl-text-muted)]' : 'text-[var(--kl-text)]'}`}>{alert.title}</p>
+                  <p className="text-[var(--kl-text-muted)] text-[11px]">{new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} - {alert.category}</p>
                 </div>
                 {!alert.read && <div className="w-2 h-2 bg-[#1c5eff] rounded-full flex-shrink-0 mt-1.5" />}
               </div>
@@ -256,7 +256,3 @@ export default function StaffDashboard() {
     </div>
   );
 }
-
-
-
-
