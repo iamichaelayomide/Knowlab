@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useLocation, useParams, useNavigate } from "react-router";
 import {
   Add,
@@ -25,6 +25,7 @@ import {
   scopePatients,
   type ResultFlag,
 } from "../../data/patients";
+import { LAB_TESTS } from "../../data/mockData";
 import { readOfflineResultDrafts, saveOfflineResultDraft, removeOfflineResultDraft } from "../../services/offlineDrafts";
 import { openFloatingAI } from "../../services/aiWidget";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
@@ -54,12 +55,13 @@ export default function PatientsPage() {
   const [search, setSearch] = useState("");
   const [filterPending, setFilterPending] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState("");
-  const [draftValue, setDraftValue] = useState("");
-  const [draftParameter, setDraftParameter] = useState("Result");
+  const [draftValues, setDraftValues] = useState<Record<string, string>>({});
   const [drafts, setDrafts] = useState(() => readOfflineResultDrafts());
   const [activeTab, setActiveTab] = useState("overview");
 
   const base = location.pathname.startsWith("/supervisor") ? "/supervisor" : location.pathname.startsWith("/hod") ? "/hod" : "/staff";
+  
+  // Department-wide scoping: Everyone in the department sees all department orders
   const scopedPatients = useMemo(
     () => (user ? scopePatients(user.role, user.unit, activeDepartment.name) : []),
     [activeDepartment.name, user],
@@ -68,12 +70,11 @@ export default function PatientsPage() {
   // GLOBAL PENDING COUNTS
   const allDeptDrafts = useMemo(() => {
     return drafts.filter(d => {
-      const isDeptMatch = user?.role === 'staff' && activeDepartment.name !== 'Laboratory' 
-        ? d.parameter !== '' // Simplification: we usually don't have dept on drafts, but let's filter by status
-        : true;
+      // Logic: For staff, show pending results they likely entered or are in their dept
+      // For supervisor/hod, show all pending validation
       return d.status !== 'approved';
     });
-  }, [drafts, user?.role, activeDepartment.name]);
+  }, [drafts]);
 
   const globalPendingCount = useMemo(() => {
     let count = 0;
@@ -118,12 +119,19 @@ export default function PatientsPage() {
   const selectedPatient = PATIENTS.find((patient) => patient.id === patientId) ?? filteredPatients[0];
   const orders = selectedPatient ? getPatientOrders(selectedPatient.id) : [];
   
+  // Cross-bench visibility: Staff sees all orders in their active department
   const allowedOrders = user?.role === "staff" && activeDepartment.name !== "Laboratory"
-    ? orders.filter(o => o.department === activeDepartment.name)
+    ? orders.filter(o => o.department.toLowerCase().includes(activeDepartment.name.toLowerCase()) || activeDepartment.name.toLowerCase().includes(o.department.toLowerCase()))
     : orders;
     
   const selectedOrder = allowedOrders.find((order) => order.id === selectedOrderId) ?? allowedOrders[0];
   
+  // Find test definition for parameters
+  const testDefinition = useMemo(() => {
+    if (!selectedOrder) return null;
+    return LAB_TESTS.find(t => t.code === selectedOrder.testCode) || null;
+  }, [selectedOrder]);
+
   const allPatientResults = orders.flatMap(o => getOrderResults(o.id));
   const results = selectedOrder ? getOrderResults(selectedOrder.id) : [];
   const notes = selectedPatient ? getPatientNotes(selectedPatient.id) : [];
@@ -131,22 +139,39 @@ export default function PatientsPage() {
   const patientDrafts = selectedPatient ? drafts.filter((draft) => draft.patientId === selectedPatient.id && draft.status !== 'approved') : [];
   const approvedDrafts = selectedPatient ? drafts.filter((draft) => draft.patientId === selectedPatient.id && draft.status === 'approved') : [];
 
-  const saveDraft = () => {
-    if (!selectedPatient || !selectedOrder || !draftValue.trim()) return;
-    const next = saveOfflineResultDraft({
-      id: `draft_${Date.now()}`,
-      patientId: selectedPatient.id,
-      orderId: selectedOrder.id,
-      parameter: draftParameter.trim() || "Result",
-      value: draftValue.trim(),
-      unit: "",
-      referenceRange: "Use local range",
-      flag: "pending",
-      status: "pending_approval",
-      createdAt: new Date().toISOString(),
+  // Reset draft values when order changes
+  useEffect(() => {
+    setDraftValues({});
+  }, [selectedOrderId]);
+
+  const handleValueChange = (parameterName: string, value: string) => {
+    setDraftValues(prev => ({ ...prev, [parameterName]: value }));
+  };
+
+  const saveAllDrafts = () => {
+    if (!selectedPatient || !selectedOrder || !testDefinition) return;
+    
+    let updatedDrafts = drafts;
+    testDefinition.parameters.forEach(param => {
+      const value = draftValues[param.name];
+      if (value && value.trim()) {
+        updatedDrafts = saveOfflineResultDraft({
+          id: `draft_${Date.now()}_${param.name.replace(/\s+/g, '')}`,
+          patientId: selectedPatient.id,
+          orderId: selectedOrder.id,
+          parameter: param.name,
+          value: value.trim(),
+          unit: param.unit || "",
+          referenceRange: param.maleRange || "N/A",
+          flag: "pending",
+          status: "pending_approval",
+          createdAt: new Date().toISOString(),
+        });
+      }
     });
-    setDrafts(next);
-    setDraftValue("");
+    
+    setDrafts(updatedDrafts);
+    setDraftValues({});
   };
 
   const approveDraft = (draftId: string) => {
@@ -169,7 +194,7 @@ export default function PatientsPage() {
       ? "Lab-wide patient, order, and result visibility."
       : user.role === "supervisor"
         ? `${activeDepartment.shortName} oversight focused on bench workload and pending LIMS approvals.`
-        : `${activeBench.shortName} LIMS workspace for result entry and validation.`;
+        : `${activeDepartment.name} LIMS workspace for result entry and validation.`;
 
   return (
     <div className="kl-page min-h-full max-w-full overflow-x-hidden p-4 sm:p-6 lg:p-8">
@@ -443,16 +468,16 @@ export default function PatientsPage() {
               <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(320px,380px)_minmax(0,1fr)]">
                 <section className="kl-premium-card min-w-0 p-5 sm:p-6 shadow-lg">
                   <div className="mb-5 border-b border-[var(--surface-border)] pb-4">
-                    <h3 className="text-[18px] font-black text-[var(--text-primary)] tracking-tight">Select Order</h3>
+                    <h3 className="text-[18px] font-black text-[var(--text-primary)] tracking-tight">Department Tests</h3>
                     <p className="kl-text-contain text-[13px] font-medium text-[var(--text-secondary)] mt-1 opacity-80">
-                      {user.role === 'staff' ? `Showing ${activeDepartment.name} orders.` : "Select order to enter results."}
+                      {user.role === 'staff' ? `Orders for ${activeDepartment.name}` : "Select test to enter results."}
                     </p>
                   </div>
 
                   <div className="space-y-4">
                     {allowedOrders.length === 0 && (
                       <div className="p-10 text-center text-[14px] font-bold text-[var(--text-tertiary)] bg-[var(--surface-raised)] rounded-[24px] border border-dashed border-[var(--surface-border)] opacity-60">
-                        No orders available.
+                        No active orders.
                       </div>
                     )}
                     {allowedOrders.map((order) => {
@@ -472,7 +497,7 @@ export default function PatientsPage() {
                             <div className="min-w-0">
                               <p className="kl-text-contain text-[15px] font-black text-[var(--text-primary)] leading-snug">{order.testName}</p>
                               <p className="kl-text-contain text-[11px] font-black text-[var(--text-tertiary)] mt-1 uppercase tracking-widest">
-                                {order.testCode} • {order.department}
+                                {order.testCode} • {order.bench}
                               </p>
                             </div>
                             <span className="shrink-0 rounded-full bg-[var(--surface-card)] border border-[var(--surface-border)] px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[var(--text-secondary)]">
@@ -490,7 +515,7 @@ export default function PatientsPage() {
                     <div>
                       <h3 className="mb-6 text-[22px] font-black text-[var(--text-primary)] flex items-center gap-3 tracking-tight">
                         <div className="size-3 rounded-full bg-[var(--kl-primary)] shadow-glow"></div>
-                        Enter Results: <span className="opacity-70 font-medium">{selectedOrder.testName}</span>
+                        Test Result Entry: <span className="opacity-70 font-medium">{selectedOrder.testName}</span>
                       </h3>
                       <div className="bg-[var(--surface-raised)] p-8 rounded-[32px] border border-[var(--surface-border)] shadow-sm">
                         
@@ -514,23 +539,55 @@ export default function PatientsPage() {
 
                         {canEnterResults ? (
                           <div className="border-t border-[var(--surface-border)] border-opacity-50 pt-10 mt-6">
-                            <h4 className="text-[15px] font-black text-[var(--text-primary)] mb-6 uppercase tracking-tight">Add Parameter Result</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr_auto] gap-5 items-end">
-                              <div className="space-y-2.5">
-                                <label className="block text-[10px] font-black text-[var(--text-tertiary)] px-2 tracking-widest uppercase">Parameter Name</label>
-                                <input className="input h-14 w-full rounded-[20px] bg-[var(--surface-card)] border-[var(--surface-border)] focus:bg-white dark:focus:bg-black focus:border-[var(--kl-primary)] focus:ring-4 focus:ring-[var(--kl-primary)] focus:ring-opacity-10 text-[15px] font-bold px-5 transition-all" value={draftParameter} onChange={(e) => setDraftParameter(e.target.value)} placeholder="e.g. Haemoglobin" />
-                              </div>
-                              <div className="space-y-2.5">
-                                <label className="block text-[10px] font-black text-[var(--text-tertiary)] px-2 tracking-widest uppercase">Measured Value</label>
-                                <input className="input h-14 w-full rounded-[20px] bg-[var(--surface-card)] border-[var(--surface-border)] focus:bg-white dark:focus:bg-black focus:border-[var(--kl-primary)] focus:ring-4 focus:ring-[var(--kl-primary)] focus:ring-opacity-10 text-[15px] font-bold px-5 transition-all" value={draftValue} onChange={(e) => setDraftValue(e.target.value)} placeholder="e.g. 14.5" />
-                              </div>
-                              <button onClick={saveDraft} className="btn-primary h-14 px-8 rounded-[20px] text-[15px] font-black shadow-lg hover:translate-y-[-2px] active:translate-y-[0px] active:scale-95 transition-all">
-                                Submit for Validation
-                              </button>
+                            <div className="mb-8">
+                                <h4 className="text-[15px] font-black text-[var(--text-primary)] mb-2 uppercase tracking-tight">Parameter Inputs</h4>
+                                <p className="text-[12px] text-[var(--text-tertiary)]">Enter measured values for all required test parameters.</p>
                             </div>
-                            <div className="mt-8 flex items-center gap-3 bg-[var(--surface-card)] w-fit px-5 py-2.5 rounded-full border border-[var(--surface-border)] shadow-xs">
-                              <TickCircle size={16} variant="Bold" className="text-[var(--kl-primary)]" />
-                              <p className="text-[12px] font-bold text-[var(--text-secondary)]">Result will be routed to supervisor for approval before release.</p>
+                            
+                            <div className="space-y-6">
+                                {testDefinition?.parameters.map(param => (
+                                    <div key={param.name} className="grid grid-cols-1 md:grid-cols-[1fr_200px_180px] gap-6 items-center bg-[var(--surface-card)] p-5 rounded-[24px] border border-[var(--surface-border)] border-opacity-40 transition-all hover:bg-white dark:hover:bg-black dark:hover:bg-opacity-10">
+                                        <div className="min-w-0">
+                                            <p className="text-[14px] font-black text-[var(--text-primary)] truncate">{param.name}</p>
+                                            <p className="text-[11px] font-medium text-[var(--text-tertiary)] mt-0.5">Range: {param.maleRange} {param.unit}</p>
+                                        </div>
+                                        <div className="relative">
+                                            <input 
+                                                className="input h-12 w-full rounded-[16px] bg-[var(--surface-raised)] border-[var(--surface-border)] focus:bg-white dark:focus:bg-black focus:border-[var(--kl-primary)] focus:ring-4 focus:ring-[var(--kl-primary)] focus:ring-opacity-5 text-[14px] font-bold px-4 transition-all"
+                                                value={draftValues[param.name] || ""}
+                                                onChange={(e) => handleValueChange(param.name, e.target.value)}
+                                                placeholder="Enter result..."
+                                            />
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-black text-[var(--text-tertiary)] pointer-events-none">
+                                                {param.unit}
+                                            </div>
+                                        </div>
+                                        <div className="hidden md:block">
+                                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-raised)] border border-[var(--surface-border)] border-opacity-60 w-fit">
+                                                <div className="size-1.5 rounded-full bg-[var(--text-tertiary)]"></div>
+                                                <span className="text-[10px] font-black text-[var(--text-tertiary)] uppercase">Ready</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-6 bg-[var(--surface-card)] p-6 rounded-[28px] border border-[var(--surface-border)] border-opacity-50">
+                                <div className="flex items-center gap-3">
+                                    <div className="size-10 rounded-full bg-[var(--kl-primary)] bg-opacity-10 flex items-center justify-center text-[var(--kl-primary)] shadow-sm">
+                                        <TickCircle size={20} variant="Bold" />
+                                    </div>
+                                    <p className="text-[12px] font-bold text-[var(--text-secondary)] leading-tight max-w-[280px]">
+                                        Results will be routed to supervisor for approval before release to clinicians.
+                                    </p>
+                                </div>
+                                <button 
+                                    onClick={saveAllDrafts} 
+                                    disabled={Object.keys(draftValues).length === 0}
+                                    className="btn-primary h-14 px-10 rounded-[22px] text-[15px] font-black shadow-lg hover:translate-y-[-2px] active:translate-y-[0px] active:scale-95 transition-all disabled:opacity-30 disabled:translate-y-0 disabled:scale-100"
+                                >
+                                    Submit All for Validation
+                                </button>
                             </div>
                           </div>
                         ) : (
@@ -585,7 +642,7 @@ export default function PatientsPage() {
                                 <span className="text-[12px] font-black uppercase tracking-[0.1em] text-[#9a6115] group-hover:tracking-[0.15em] transition-all">{draft.parameter}</span>
                                 <span className="text-[9px] font-black bg-[#f3c26f] bg-opacity-40 text-[#9a6115] px-2.5 py-1 rounded-full uppercase tracking-widest">Pending</span>
                               </div>
-                              <div className="text-[36px] font-black text-[var(--text-primary)] mb-5 leading-none tracking-tighter">{draft.value}</div>
+                              <div className="text-[36px] font-black text-[var(--text-primary)] mb-5 leading-none tracking-tighter">{draft.value} <span className="text-[12px] opacity-40">{draft.unit}</span></div>
                             </div>
                             {canApproveResults ? (
                               <button onClick={() => approveDraft(draft.id)} className="w-full bg-[#9a6115] hover:bg-[#805010] text-white py-3 rounded-[18px] text-[14px] font-black transition-all shadow-md active:scale-95 hover:shadow-lg">
