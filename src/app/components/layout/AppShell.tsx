@@ -4,7 +4,6 @@ import type { AppIconName } from "../icons/AppIcon";
 import { AppIcon } from "../icons/AppIcon";
 import { useAuth } from "../../context/AuthContext";
 import { useDepartment } from "../../context/DepartmentContext";
-import { useOfflineSync } from "../../hooks/useOfflineSync";
 import FloatingAIWidget from "../ai/FloatingAIWidget";
 
 interface NavItem {
@@ -17,7 +16,6 @@ interface NavItem {
 export default function AppShell() {
   const { user, logout } = useAuth();
   const { activeDepartment, activeBench } = useDepartment();
-  const { isOnline } = useOfflineSync();
   const location = useLocation();
   const navigate = useNavigate();
   const mainScrollRef = useRef<HTMLElement>(null);
@@ -182,8 +180,8 @@ export default function AppShell() {
           
           <div className="flex flex-1 items-center justify-end gap-3 lg:gap-4">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--surface-raised)] border border-[var(--surface-border)]">
-                <div className={`size-1.5 rounded-full ${isOnline ? 'bg-[#1c7b56] shadow-[0_0_8px_rgba(28,123,86,0.4)]' : 'bg-[#9a6115]'}`}></div>
-                <span className="text-[11px] font-black uppercase tracking-widest text-[var(--text-secondary)]">{isOnline ? 'Cloud Sync' : 'Local Mode'}</span>
+                <div className="size-1.5 rounded-full bg-[#1c7b56] shadow-[0_0_8px_rgba(28,123,86,0.4)]"></div>
+                <span className="text-[11px] font-black uppercase tracking-widest text-[var(--text-secondary)]">Cloud Sync</span>
             </div>
             
             <button className="grid size-10 place-items-center rounded-xl bg-[var(--surface-raised)] border border-[var(--surface-border)] text-[var(--text-secondary)] hover:bg-[var(--surface-card)] transition-all">
@@ -192,11 +190,6 @@ export default function AppShell() {
           </div>
         </header>
 
-        {!isOnline && (
-          <div className="bg-[#fff0db] dark:bg-[rgba(154,97,21,0.1)] px-6 py-2 text-center text-[12px] font-bold text-[#9a6115] border-b border-[#f3c26f] border-opacity-30">
-            Working offline. Data saved locally. Sync will resume when cloud connection returns.
-          </div>
-        )}
         <main ref={mainScrollRef} className="flex-1 overflow-y-auto scrollbar-none">
           <Outlet />
         </main>
