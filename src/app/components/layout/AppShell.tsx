@@ -325,8 +325,8 @@ export default function AppShell() {
 
       {mobileSidebarOpen && (
         <div className="xl:hidden fixed inset-0 z-50 flex">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileSidebarOpen(false)} />
-          <aside className="kl-mobile-solid relative w-[280px] border-r border-[var(--surface-border)] h-full overflow-hidden z-10">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-[10px]" onClick={() => setMobileSidebarOpen(false)} />
+          <aside className="kl-mobile-solid relative w-[292px] border-r border-[var(--surface-border-strong)] h-full overflow-hidden z-10 shadow-[0_24px_90px_rgba(0,0,0,0.45)]">
             <button className="kl-icon-button absolute top-4 right-4 text-[var(--text-secondary)]" onClick={() => setMobileSidebarOpen(false)} aria-label="Close navigation menu">
               <AppIcon name="close" size={20} />
             </button>

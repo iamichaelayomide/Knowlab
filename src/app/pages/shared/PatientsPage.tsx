@@ -102,14 +102,14 @@ export default function PatientsPage() {
         : `${activeBench.shortName} bench workspace for patient lookup and result entry.`;
 
   return (
-    <div className="kl-page min-h-full">
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+    <div className="kl-page min-h-full max-w-full overflow-x-hidden">
+      <div className="mb-6 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-[24px] font-semibold text-[var(--text-primary)]">Patients</h1>
-          <p className="text-[14px] text-[var(--text-secondary)]">{scopeCopy}</p>
+          <p className="kl-text-contain text-[14px] text-[var(--text-secondary)]">{scopeCopy}</p>
         </div>
         <button
-          className="btn-primary inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-[13px] font-semibold"
+          className="btn-primary inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full px-4 text-[13px] font-semibold"
           onClick={() => openFloatingAI(`Summarize patient laboratory priorities for ${selectedPatient.name} without repeating identifiers.`)}
         >
           <Health size={15} />
@@ -117,8 +117,8 @@ export default function PatientsPage() {
         </button>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[330px_1fr]">
-        <aside className="kl-premium-card p-3">
+      <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(280px,330px)_minmax(0,1fr)]">
+        <aside className="kl-premium-card min-w-0 p-3">
           <div className="relative mb-3">
             <SearchNormal1 size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
             <input
@@ -157,18 +157,18 @@ export default function PatientsPage() {
           </div>
         </aside>
 
-        <main className="space-y-4">
-          <section className="kl-gradient-card kl-premium-card p-5 sm:p-6">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div>
+        <main className="min-w-0 space-y-4">
+          <section className="kl-gradient-card kl-premium-card min-w-0 p-5 sm:p-6">
+            <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0">
                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">Patient summary</p>
-                <h2 className="text-[26px] font-semibold leading-tight text-[var(--text-primary)]">{selectedPatient.name}</h2>
-                <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
+                <h2 className="kl-text-contain text-[26px] font-semibold leading-tight text-[var(--text-primary)]">{selectedPatient.name}</h2>
+                <p className="kl-text-contain mt-1 text-[13px] text-[var(--text-secondary)]">
                   {selectedPatient.age} years | {selectedPatient.sex} | {selectedPatient.ward} | {selectedPatient.clinician}
                 </p>
-                <p className="mt-4 max-w-3xl text-[14px] leading-relaxed text-[var(--text-secondary)]">{selectedPatient.summary}</p>
+                <p className="kl-text-contain mt-4 max-w-3xl text-[14px] leading-relaxed text-[var(--text-secondary)]">{selectedPatient.summary}</p>
               </div>
-              <div className="grid min-w-[240px] grid-cols-2 gap-2">
+              <div className="grid w-full min-w-0 grid-cols-2 gap-2 lg:w-[240px] lg:shrink-0">
                 <div className="rounded-[20px] border border-[var(--surface-border)] bg-[var(--glass-bg)] p-3">
                   <p className="text-[11px] text-[var(--text-tertiary)]">Orders</p>
                   <p className="text-[24px] font-semibold text-[var(--text-primary)]">{orders.length}</p>
@@ -181,15 +181,15 @@ export default function PatientsPage() {
             </div>
           </section>
 
-          <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-            <section className="kl-premium-card p-4 sm:p-5">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
+          <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
+            <section className="kl-premium-card min-w-0 p-4 sm:p-5">
+              <div className="mb-4 flex min-w-0 items-center justify-between gap-3">
+                <div className="min-w-0">
                   <h3 className="text-[16px] font-semibold text-[var(--text-primary)]">Ordered tests</h3>
-                  <p className="text-[12px] text-[var(--text-secondary)]">Result entry stays local/offline until the real LIMS sync layer is connected.</p>
+                  <p className="kl-text-contain text-[12px] text-[var(--text-secondary)]">Result entry stays local/offline until the real LIMS sync layer is connected.</p>
                 </div>
                 {canEnterResults && (
-                  <button className="kl-button-soft inline-flex h-9 items-center gap-2 rounded-full px-3 text-[12px]">
+                  <button className="kl-button-soft inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-3 text-[12px]">
                     <Add size={14} />
                     New order
                   </button>
@@ -203,24 +203,24 @@ export default function PatientsPage() {
                     <button
                       key={order.id}
                       onClick={() => setSelectedOrderId(order.id)}
-                      className="kl-card-interactive w-full rounded-[24px] border p-4 text-left"
+                      className="kl-card-interactive w-full min-w-0 rounded-[24px] border p-4 text-left"
                       style={{
                         background: active ? "var(--surface-raised)" : "transparent",
                         borderColor: active ? "var(--surface-border-strong)" : "var(--surface-border)",
                       }}
                     >
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <p className="text-[14px] font-semibold text-[var(--text-primary)]">{order.testName}</p>
-                          <p className="text-[12px] text-[var(--text-secondary)]">
+                      <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="kl-text-contain text-[14px] font-semibold text-[var(--text-primary)]">{order.testName}</p>
+                          <p className="kl-text-contain text-[12px] text-[var(--text-secondary)]">
                             {order.testCode} | {order.specimen} | {order.ward}
                           </p>
                         </div>
-                        <span className="rounded-full bg-[var(--kl-surface-tinted)] px-2.5 py-1 text-[11px] font-semibold capitalize text-[var(--text-primary)]">
+                        <span className="shrink-0 rounded-full bg-[var(--kl-surface-tinted)] px-2.5 py-1 text-[11px] font-semibold capitalize text-[var(--text-primary)]">
                           {statusLabel(order.status)}
                         </span>
                       </div>
-                      <p className="mt-3 text-[12px] text-[var(--text-secondary)]">Indication: {order.indication}</p>
+                      <p className="kl-text-contain mt-3 text-[12px] text-[var(--text-secondary)]">Indication: {order.indication}</p>
                     </button>
                   );
                 })}
@@ -247,10 +247,10 @@ export default function PatientsPage() {
                   </div>
 
                   {canEnterResults && (
-                    <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                    <div className="mt-4 grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
                       <input className="input h-10 rounded-[18px]" value={draftParameter} onChange={(e) => setDraftParameter(e.target.value)} placeholder="Parameter" />
                       <input className="input h-10 rounded-[18px]" value={draftValue} onChange={(e) => setDraftValue(e.target.value)} placeholder="Value" />
-                      <button onClick={saveDraft} className="btn-primary h-10 rounded-full px-4 text-[12px]">
+                      <button onClick={saveDraft} className="btn-primary h-10 whitespace-nowrap rounded-full px-4 text-[12px]">
                         Save offline
                       </button>
                     </div>
@@ -259,14 +259,14 @@ export default function PatientsPage() {
               )}
             </section>
 
-            <aside className="space-y-4">
-              <section className="kl-premium-card p-4">
+            <aside className="min-w-0 space-y-4">
+              <section className="kl-premium-card min-w-0 p-4">
                 <h3 className="mb-3 text-[15px] font-semibold text-[var(--text-primary)]">Medical context</h3>
                 <div className="space-y-3">
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.08em] text-[var(--text-tertiary)]">Diagnoses</p>
                     {selectedPatient.diagnoses.map((item) => (
-                      <p key={item.label} className="mt-1 text-[13px] text-[var(--text-primary)]">
+                      <p key={item.label} className="kl-text-contain mt-1 text-[13px] text-[var(--text-primary)]">
                         {item.label} <span className="text-[var(--text-tertiary)]">({item.status})</span>
                       </p>
                     ))}
@@ -274,7 +274,7 @@ export default function PatientsPage() {
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.08em] text-[var(--text-tertiary)]">Medication</p>
                     {selectedPatient.medications.map((item) => (
-                      <p key={item.name} className="mt-1 text-[13px] text-[var(--text-primary)]">
+                      <p key={item.name} className="kl-text-contain mt-1 text-[13px] text-[var(--text-primary)]">
                         {item.name} <span className="text-[var(--text-secondary)]">{item.dose}</span>
                       </p>
                     ))}
@@ -282,7 +282,7 @@ export default function PatientsPage() {
                 </div>
               </section>
 
-              <section className="kl-premium-card p-4">
+              <section className="kl-premium-card min-w-0 p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-[15px] font-semibold text-[var(--text-primary)]">Case notes</h3>
                   <button className="kl-icon-button" aria-label="Attach case note">
@@ -296,22 +296,22 @@ export default function PatientsPage() {
                         <NoteText size={12} />
                         {formatDate(note.createdAt)}
                       </div>
-                      <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">{note.text}</p>
-                      {note.attachmentName && <p className="mt-2 text-[11px] text-[var(--text-primary)]">{note.attachmentName}</p>}
+                      <p className="kl-text-contain text-[12px] leading-relaxed text-[var(--text-secondary)]">{note.text}</p>
+                      {note.attachmentName && <p className="kl-one-line mt-2 text-[11px] text-[var(--text-primary)]">{note.attachmentName}</p>}
                     </div>
                   ))}
                 </div>
               </section>
 
-              <section className="kl-premium-card p-4">
+              <section className="kl-premium-card min-w-0 p-4">
                 <div className="mb-3 flex items-center gap-2">
                   {patientDrafts.length ? <Warning2 size={15} className="text-[#9a6115]" /> : <TickCircle size={15} className="text-[#1c7b56]" />}
                   <h3 className="text-[15px] font-semibold text-[var(--text-primary)]">Offline drafts</h3>
                 </div>
                 {patientDrafts.length ? (
-                  <div className="space-y-2">
+                  <div className="min-w-0 space-y-2">
                     {patientDrafts.map((draft) => (
-                      <div key={draft.id} className="rounded-[16px] bg-[var(--surface-raised)] p-3 text-[12px] text-[var(--text-secondary)]">
+                      <div key={draft.id} className="kl-text-contain rounded-[16px] bg-[var(--surface-raised)] p-3 text-[12px] text-[var(--text-secondary)]">
                         {draft.parameter}: <span className="font-semibold text-[var(--text-primary)]">{draft.value}</span>
                       </div>
                     ))}

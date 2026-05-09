@@ -28,6 +28,8 @@ export interface AiChatSession {
   id: string;
   title: string;
   updatedAt: string;
+  pinned?: boolean;
+  archivedAt?: string;
   messages: AiChatMessage[];
 }
 
@@ -40,10 +42,27 @@ function cleanText(value: string) {
 }
 
 export function deriveChatTitle(messages: AiChatMessage[]) {
-  const firstUserMessage = messages.find((message) => message.role === "user")?.content ?? "";
-  const title = cleanText(firstUserMessage).replace(/[.?!]+$/, "");
+  const firstUser = messages.find((message) => message.role === "user");
+  const firstUserMessage = firstUser?.content ?? "";
+  const normalized = cleanText(firstUserMessage).replace(/[.?!]+$/, "");
+  const lower = normalized.toLowerCase();
+
+  if (firstUser?.attachments?.some((attachment) => attachment.kind === "image")) return "Image result interpretation";
+  if (firstUser?.attachments?.some((attachment) => attachment.kind === "pdf")) return "PDF lab document review";
+  if (/\bbilirubin\b/.test(lower)) return "Bilirubin interpretation";
+  if (/\blft|liver function\b/.test(lower)) return "LFT teaching summary";
+  if (/\bqc\b|quality control|westgard|control fail/.test(lower)) return "QC failure guidance";
+  if (/\bsop\b|procedure|workflow/.test(lower)) return "SOP workflow summary";
+  if (/\bpatient|result|release|diagnosis|medication/.test(lower)) return "Patient result guidance";
+  if (/\bhandover|summary|priorit/.test(lower)) return "Lab priorities summary";
+
+  const title = normalized
+    .replace(/^(can you|could you|please|pls|help me|i want to|show me|tell me about)\s+/i, "")
+    .split(" ")
+    .slice(0, 7)
+    .join(" ");
   if (!title) return "New chat";
-  return title.length > 42 ? `${title.slice(0, 42).trim()}...` : title;
+  return title.length > 38 ? `${title.slice(0, 38).trim()}...` : title;
 }
 
 export function createChatSession(id: string, welcome: AiChatMessage): AiChatSession {
@@ -51,6 +70,7 @@ export function createChatSession(id: string, welcome: AiChatMessage): AiChatSes
     id,
     title: "New chat",
     updatedAt: new Date().toISOString(),
+    pinned: false,
     messages: [welcome],
   };
 }
@@ -108,6 +128,8 @@ export function normalizeSessions(input: unknown, welcomeFactory: () => AiChatMe
         id: typeof candidate.id === "string" ? candidate.id : `session_${idx}`,
         title: typeof candidate.title === "string" && candidate.title.trim() ? candidate.title : deriveChatTitle(messages),
         updatedAt: typeof candidate.updatedAt === "string" ? candidate.updatedAt : new Date().toISOString(),
+        pinned: candidate.pinned === true,
+        archivedAt: typeof candidate.archivedAt === "string" ? candidate.archivedAt : undefined,
         messages,
       } satisfies AiChatSession;
     })
@@ -123,6 +145,7 @@ export function seedSessionsFromMessages(messages: AiChatMessage[], welcomeFacto
       id: `chat_${Date.now()}`,
       title: deriveChatTitle(messages),
       updatedAt: messages[messages.length - 1]?.timestamp ?? new Date().toISOString(),
+      pinned: false,
       messages,
     },
   ] satisfies AiChatSession[];

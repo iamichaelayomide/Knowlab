@@ -42,9 +42,11 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [detectedUser, setDetectedUser] = useState<null | { name: string; unit: string; role: string }>(null);
   const [selectedDemoUserId, setSelectedDemoUserId] = useState('');
+  const [unitMenuOpen, setUnitMenuOpen] = useState(false);
   const visibleRole = detectedUser?.role || 'Staff';
   const showUnitSelector = visibleRole === 'Staff' || visibleRole === 'Supervisor';
   const visibleDemoOptions = showUnitSelector ? MAIN_LAB_DEMO_OPTIONS[visibleRole as Exclude<DemoRole, 'HOD'>] : [];
+  const selectedDemoOption = visibleDemoOptions.find((option) => option.userId === selectedDemoUserId);
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -68,6 +70,7 @@ export default function LoginPage() {
 
   const handleRoleSelect = (role: DemoRole) => {
     const credentials = DEMO_CREDENTIALS[role];
+    setUnitMenuOpen(false);
     setPassword(credentials.password);
     setShowPassword(false);
     handleEmailChange(credentials.email);
@@ -76,6 +79,7 @@ export default function LoginPage() {
   const handleDemoUserSelect = (userId: string) => {
     const selected = USERS.find((user) => user.id === userId);
     if (!selected) return;
+    setUnitMenuOpen(false);
     setPassword(selected.password);
     setShowPassword(false);
     handleEmailChange(selected.email);
@@ -198,24 +202,59 @@ export default function LoginPage() {
 
                 {showUnitSelector && (
                   <div>
-                    <label className="block text-[var(--text-secondary)] font-medium text-[13px] mb-1.5" htmlFor="demo-unit">
-                      {visibleRole} unit
+                    <label className="block text-[var(--text-secondary)] font-medium text-[13px] mb-1.5" id="demo-unit-label">
+                      {visibleRole} lab
                     </label>
-                    <div className="relative">
-                      <select
+                    <div className="relative" onKeyDown={(event) => event.key === 'Escape' && setUnitMenuOpen(false)}>
+                      <button
                         id="demo-unit"
-                        value={selectedDemoUserId}
-                        onChange={(event) => handleDemoUserSelect(event.target.value)}
-                        className="input h-[44px] w-full appearance-none rounded-full px-4 pr-11 text-[14px]"
+                        type="button"
+                        aria-haspopup="listbox"
+                        aria-expanded={unitMenuOpen}
+                        aria-labelledby="demo-unit-label demo-unit-value"
+                        onClick={() => setUnitMenuOpen((open) => !open)}
+                        className="input flex h-[46px] w-full items-center justify-between gap-3 rounded-[22px] bg-[var(--surface-raised)] px-4 pr-3 text-left text-[14px] shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_12px_30px_rgba(0,0,0,0.08)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
                       >
-                        <option value="">Choose a {visibleRole.toLowerCase()} lab</option>
-                        {visibleDemoOptions.map((option) => (
-                          <option key={option.userId} value={option.userId}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      <AppIcon name="chevronDown" size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+                        <span id="demo-unit-value" className="min-w-0 truncate text-[var(--text-primary)]">
+                          {selectedDemoOption?.label ?? `Choose a ${visibleRole.toLowerCase()} lab`}
+                        </span>
+                        <span className="grid size-8 place-items-center rounded-full border border-[var(--surface-border)] bg-[var(--surface-card)] text-[var(--text-tertiary)]">
+                          <AppIcon name="chevronDown" size={15} />
+                        </span>
+                      </button>
+
+                      {unitMenuOpen && (
+                        <div
+                          role="listbox"
+                          aria-labelledby="demo-unit-label"
+                          className="kl-login-menu absolute left-0 right-0 top-[calc(100%+8px)] z-30 max-h-[260px] overflow-y-auto rounded-[24px] border border-[var(--surface-border-strong)] bg-[var(--surface-card)] p-1.5 shadow-[0_24px_60px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.72)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.08)]"
+                        >
+                          {visibleDemoOptions.map((option) => {
+                            const selected = option.userId === selectedDemoUserId;
+                            return (
+                              <button
+                                key={option.userId}
+                                type="button"
+                                role="option"
+                                aria-selected={selected}
+                                onClick={() => handleDemoUserSelect(option.userId)}
+                                className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-[18px] px-3 text-left text-[13px] transition-all ${
+                                  selected
+                                    ? 'bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]'
+                                    : 'text-[var(--text-secondary)] hover:bg-[var(--surface-raised)] hover:text-[var(--text-primary)]'
+                                }`}
+                              >
+                                <span className="truncate">{option.label}</span>
+                                {selected && (
+                                  <span className="grid size-6 place-items-center rounded-full bg-[var(--text-primary)] text-[var(--surface-card)]">
+                                    <AppIcon name="check" size={12} />
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

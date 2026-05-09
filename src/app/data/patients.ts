@@ -86,7 +86,7 @@ export interface OfflineResultDraft {
   createdAt: string;
 }
 
-export const PATIENTS: Patient[] = [
+const BASE_PATIENTS: Patient[] = [
   {
     id: "pt-001",
     hospitalNumber: "UCH-24-01982",
@@ -146,7 +146,48 @@ export const PATIENTS: Patient[] = [
   },
 ];
 
-export const LAB_ORDERS: LabOrder[] = [
+const EXTRA_PATIENT_GROUPS = [
+  { scope: "Haematology", bench: "FBC & Automated Counts", testCode: "FBC", testName: "Full Blood Count", specimen: "EDTA whole blood" },
+  { scope: "Chemistry", bench: "Kidney Function Tests", testCode: "U&E", testName: "Urea, Electrolytes and Creatinine", specimen: "Serum" },
+  { scope: "Chemistry", bench: "Liver Function Tests", testCode: "LFT", testName: "Liver Function Tests", specimen: "Serum" },
+  { scope: "Microbiology & Parasitology", bench: "Bacteriology", testCode: "MCS", testName: "Microscopy, Culture and Sensitivity", specimen: "Urine" },
+  { scope: "Microbiology & Parasitology", bench: "Parasitology & Malaria", testCode: "MP", testName: "Malaria Parasite", specimen: "EDTA blood" },
+  { scope: "Histopathology", bench: "Histology", testCode: "HPE", testName: "Histopathology Examination", specimen: "Tissue in formalin" },
+] as const;
+
+const EXTRA_PATIENT_NAMES = [
+  ["Teniola Adeyemi", "Kelechi Nnamdi", "Fatima Umar", "Samuel Ajayi", "Ebere Obi"],
+  ["Olamide Yusuf", "Ifeoma Nwankwo", "Peter Okafor", "Zainab Musa", "Daniel Etim"],
+  ["Maryam Bello", "Victor Afolabi", "Ngozi Eze", "Haruna Sani", "Ruth Bassey"],
+  ["Amina Sule", "Ibrahim Lawal", "Grace Ojo", "Chika Onu", "David Essien"],
+  ["Blessing Umeh", "Kabiru Garba", "Folake Balogun", "Emeka Ibe", "Salma Abdullahi"],
+  ["Chisom Nwachukwu", "Bello Taiwo", "Adaora Okonkwo", "Joseph Inyang", "Halima Usman"],
+] as const;
+
+const EXTRA_PATIENTS: Patient[] = EXTRA_PATIENT_GROUPS.flatMap((group, groupIndex) =>
+  EXTRA_PATIENT_NAMES[groupIndex].map((name, itemIndex) => {
+    const number = groupIndex * 5 + itemIndex + 4;
+    return {
+      id: `pt-${String(number).padStart(3, "0")}`,
+      hospitalNumber: `UCH-24-${String(2300 + number).padStart(5, "0")}`,
+      name,
+      age: 18 + ((number * 7) % 54),
+      sex: number % 2 === 0 ? "Female" : "Male",
+      ward: ["Medical Ward 1", "Emergency Unit", "Paediatrics", "Surgical Ward", "Antenatal Clinic"][itemIndex],
+      clinician: ["Dr. Adeyemi", "Dr. Okoro", "Dr. Musa", "Dr. Ekanem", "Dr. Ibrahim"][itemIndex],
+      departmentScope: group.scope,
+      summary: `${group.testName} requested for active laboratory review. Result entry and review should use local reference ranges, QC status, and clinical context.`,
+      allergies: itemIndex === 2 ? ["Sulphonamide"] : ["No known drug allergy"],
+      diagnoses: [{ label: `${group.testName} workup`, status: "working", date: "2026-05-09" }],
+      medications: [{ name: "Medication history", dose: "See case note", note: "Verify with ward chart before interpretation" }],
+      lastSeen: `2026-05-09T${String(9 + groupIndex).padStart(2, "0")}:${String(10 + itemIndex * 7).padStart(2, "0")}:00Z`,
+    } satisfies Patient;
+  }),
+);
+
+export const PATIENTS: Patient[] = [...BASE_PATIENTS, ...EXTRA_PATIENTS];
+
+const BASE_LAB_ORDERS: LabOrder[] = [
   {
     id: "ord-001",
     patientId: "pt-001",
@@ -195,6 +236,27 @@ export const LAB_ORDERS: LabOrder[] = [
     indication: "Sepsis query",
   },
 ];
+
+const EXTRA_LAB_ORDERS: LabOrder[] = EXTRA_PATIENTS.map((patient, index) => {
+  const group = EXTRA_PATIENT_GROUPS[index % EXTRA_PATIENT_GROUPS.length];
+  return {
+    id: `ord-${String(index + 4).padStart(3, "0")}`,
+    patientId: patient.id,
+    testCode: group.testCode,
+    testName: group.testName,
+    department: group.scope,
+    bench: group.bench,
+    specimen: group.specimen,
+    priority: index % 7 === 0 ? "stat" : index % 3 === 0 ? "urgent" : "routine",
+    status: index % 5 === 0 ? "held" : index % 4 === 0 ? "processing" : index % 3 === 0 ? "collected" : "ordered",
+    orderedAt: patient.lastSeen,
+    clinician: patient.clinician,
+    ward: patient.ward,
+    indication: patient.diagnoses[0]?.label ?? "Laboratory review",
+  };
+});
+
+export const LAB_ORDERS: LabOrder[] = [...BASE_LAB_ORDERS, ...EXTRA_LAB_ORDERS];
 
 export const LAB_RESULTS: LabResult[] = [
   {

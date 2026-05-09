@@ -43,7 +43,8 @@ describe('LoginPage', () => {
   it('fills staff credentials from the unit dropdown', () => {
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: /Use Staff demo account/i }));
-    fireEvent.change(screen.getByLabelText(/Staff unit/i), { target: { value: 'u6' } });
+    fireEvent.click(screen.getByRole('button', { name: /Staff lab/i }));
+    fireEvent.click(screen.getByRole('option', { name: 'Chemistry' }));
 
     expect(screen.getByPlaceholderText(/you@knowlab.com/i)).toHaveValue('emeka.eze@knowlab.ng');
     expect(screen.getByPlaceholderText(/Enter your password/i)).toHaveValue('staff123');
@@ -53,7 +54,8 @@ describe('LoginPage', () => {
   it('fills supervisor credentials from the unit dropdown', () => {
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: /Use Supervisor demo account/i }));
-    fireEvent.change(screen.getByLabelText(/Supervisor unit/i), { target: { value: 'sup4' } });
+    fireEvent.click(screen.getByRole('button', { name: /Supervisor lab/i }));
+    fireEvent.click(screen.getByRole('option', { name: 'Histopathology' }));
 
     expect(screen.getByPlaceholderText(/you@knowlab.com/i)).toHaveValue('chinwe@knowlab.ng');
     expect(screen.getByPlaceholderText(/Enter your password/i)).toHaveValue('super123');

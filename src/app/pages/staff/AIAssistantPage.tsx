@@ -12,6 +12,9 @@ import {
   MagicStar as Sparkles,
   User,
   CloseCircle as X,
+  ArchiveTick,
+  Star1,
+  Trash,
 } from 'iconsax-react';
 import { JOB_AIDS, LAB_TESTS, SOPS } from '../../data/mockData';
 import { useAuth } from '../../context/AuthContext';
@@ -123,7 +126,13 @@ function previewMessage(messages: AiChatMessage[]) {
 }
 
 function sortSessions(sessions: AiChatSession[]) {
-  return [...sessions].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, MAX_SESSIONS);
+  const active = sessions.filter((session) => !session.archivedAt);
+  const archived = sessions.filter((session) => session.archivedAt);
+  const byPriority = (a: AiChatSession, b: AiChatSession) => {
+    if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  };
+  return [...active.sort(byPriority).slice(0, MAX_SESSIONS), ...archived.sort(byPriority)];
 }
 
 type LiveReply = AiChatMessage & { sessionId: string };
@@ -144,6 +153,7 @@ export default function AIAssistantPage() {
   const [sessions, setSessions] = useState<AiChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [liveReply, setLiveReply] = useState<LiveReply | null>(null);
 
   const base = useMemo(() => {
@@ -156,7 +166,11 @@ export default function AIAssistantPage() {
   const legacyKey = useMemo(() => `knowlab_ai_history_${user?.id || 'anon'}_${base.replace('/', '')}`, [base, user?.id]);
   const welcomeFactory = useMemo(() => () => buildWelcomeMessage(user?.name), [user?.name]);
 
-  const activeSession = useMemo(() => sessions.find((session) => session.id === activeSessionId) ?? sessions[0], [activeSessionId, sessions]);
+  const visibleSessions = useMemo(() => sessions.filter((session) => (showArchived ? !!session.archivedAt : !session.archivedAt)), [sessions, showArchived]);
+  const activeSession = useMemo(
+    () => sessions.find((session) => session.id === activeSessionId) ?? sessions.find((session) => !session.archivedAt) ?? sessions[0],
+    [activeSessionId, sessions],
+  );
   const currentMessages = activeSession?.messages ?? [];
   const displayMessages = useMemo(() => {
     if (!liveReply || liveReply.sessionId !== activeSessionId) return currentMessages;
@@ -193,7 +207,7 @@ export default function AIAssistantPage() {
 
     if (nextSessions.length > 0) {
       setSessions(nextSessions);
-      setActiveSessionId(nextSessions[0].id);
+      setActiveSessionId((nextSessions.find((session) => !session.archivedAt) ?? nextSessions[0]).id);
     } else {
       const welcomeSession = createChatSession(`chat_${Date.now()}`, welcomeFactory());
       setSessions([welcomeSession]);
@@ -282,6 +296,45 @@ export default function AIAssistantPage() {
     setInput('');
     setQueuedAttachments([]);
     setHistoryOpen(false);
+  };
+
+  const togglePinSession = (sessionId: string) => {
+    setSessions((prev) => sortSessions(prev.map((session) => (session.id === sessionId ? { ...session, pinned: !session.pinned } : session))));
+  };
+
+  const archiveSession = (sessionId: string) => {
+    cancelCurrentStream();
+    const archivedAt = new Date().toISOString();
+    const next = sortSessions(sessions.map((session) => (session.id === sessionId ? { ...session, archivedAt, updatedAt: archivedAt } : session)));
+    setSessions(next);
+    if (activeSessionId === sessionId) {
+      setActiveSessionId((next.find((session) => !session.archivedAt) ?? next[0])?.id ?? '');
+    }
+  };
+
+  const restoreSession = (sessionId: string) => {
+    const restoredAt = new Date().toISOString();
+    const next = sortSessions(
+      sessions.map((session) => (session.id === sessionId ? { ...session, archivedAt: undefined, updatedAt: restoredAt } : session)),
+    );
+    setSessions(next);
+    setShowArchived(false);
+    setActiveSessionId(sessionId);
+  };
+
+  const deleteSession = (sessionId: string) => {
+    cancelCurrentStream();
+    const next = sortSessions(sessions.filter((session) => session.id !== sessionId));
+    if (next.length) {
+      setSessions(next);
+      if (activeSessionId === sessionId) setActiveSessionId((next.find((session) => !session.archivedAt) ?? next[0]).id);
+      return;
+    }
+
+    const session = createChatSession(`chat_${Date.now()}`, welcomeFactory());
+    setSessions([session]);
+    setActiveSessionId(session.id);
+    setShowArchived(false);
   };
 
   const updateSession = (sessionId: string, updater: (session: AiChatSession) => AiChatSession) => {
@@ -434,38 +487,97 @@ export default function AIAssistantPage() {
           </div>
           <button
             onClick={newChat}
-            className="btn-primary inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[12px] font-medium text-white"
+            className="btn-primary inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[12px] font-medium text-white"
           >
             <Plus size={14} />
-            New chat
+            New
+          </button>
+        </div>
+        <div className="mt-3 grid grid-cols-2 rounded-full border border-[var(--surface-border)] bg-[var(--surface-raised)] p-1">
+          <button
+            type="button"
+            onClick={() => setShowArchived(false)}
+            className={`h-7 rounded-full text-[11px] font-medium transition-all ${!showArchived ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)]'}`}
+          >
+            Active
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowArchived(true)}
+            className={`h-7 rounded-full text-[11px] font-medium transition-all ${showArchived ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)]'}`}
+          >
+            Archived
           </button>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-2 space-y-2">
-        {sessions.map((session) => {
+        {visibleSessions.map((session) => {
           const active = session.id === activeSessionId;
           return (
-            <button
+            <div
               key={session.id}
-              onClick={() => selectSession(session.id)}
-              className={`kl-card-interactive w-full text-left rounded-[22px] border px-3 py-3 transition-all ${
+              onContextMenu={(event) => {
+                event.preventDefault();
+                if (session.archivedAt) restoreSession(session.id);
+                else archiveSession(session.id);
+              }}
+              className={`group rounded-[22px] border px-2.5 py-2.5 transition-all ${
                 active
-                  ? 'kl-selected border-[var(--surface-border-strong)] bg-[var(--accent-glow)]'
+                  ? 'kl-selected-muted'
                   : 'border-[var(--surface-border)] bg-[var(--surface-raised)] hover:bg-[var(--surface-card)]'
               }`}
             >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-[13px] font-semibold text-[var(--kl-text)] truncate">{session.title}</p>
-                  <p className="text-[11px] text-[var(--kl-text-muted)] mt-1 line-clamp-2">{previewMessage(session.messages)}</p>
+              <div className="flex items-start gap-2">
+                <button type="button" onClick={() => selectSession(session.id)} className="min-w-0 flex-1 text-left">
+                  <span className="flex items-center gap-1.5">
+                    {session.pinned && <Star1 size={12} className="shrink-0 text-[var(--text-primary)]" variant="Bold" />}
+                    <span className="kl-one-line text-[13px] font-semibold text-[var(--kl-text)]">{session.title}</span>
+                  </span>
+                  <span className="mt-1 block text-[11px] leading-snug text-[var(--kl-text-muted)] line-clamp-2">{previewMessage(session.messages)}</span>
+                  <span className="mt-2 flex items-center gap-1 text-[10px] text-[var(--kl-text-muted)]">
+                    <Clock3 size={12} />
+                    {formatSessionTime(session.updatedAt)}
+                  </span>
+                </button>
+                <div className="flex shrink-0 items-center gap-0.5 opacity-80 transition-opacity group-hover:opacity-100">
+                  <button
+                    type="button"
+                    onClick={() => togglePinSession(session.id)}
+                    className="kl-icon-button !min-h-7 !min-w-7 rounded-full text-[var(--text-secondary)]"
+                    aria-label={session.pinned ? 'Unpin chat' : 'Pin chat'}
+                    title={session.pinned ? 'Unpin chat' : 'Pin chat'}
+                  >
+                    <Star1 size={13} variant={session.pinned ? 'Bold' : 'Linear'} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => (session.archivedAt ? restoreSession(session.id) : archiveSession(session.id))}
+                    className="kl-icon-button !min-h-7 !min-w-7 rounded-full text-[var(--text-secondary)]"
+                    aria-label={session.archivedAt ? 'Restore chat' : 'Archive chat'}
+                    title={session.archivedAt ? 'Restore chat' : 'Archive chat'}
+                  >
+                    <ArchiveTick size={13} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteSession(session.id)}
+                    className="kl-icon-button !min-h-7 !min-w-7 rounded-full text-[var(--text-secondary)] hover:text-[#b14343]"
+                    aria-label="Delete chat"
+                    title="Delete chat"
+                  >
+                    <Trash size={13} />
+                  </button>
                 </div>
-                <Clock3 size={13} className="text-[var(--kl-text-muted)] shrink-0 mt-0.5" />
               </div>
-              <p className="text-[10px] text-[var(--kl-text-muted)] mt-2">{formatSessionTime(session.updatedAt)}</p>
-            </button>
+            </div>
           );
         })}
+        {!visibleSessions.length && (
+          <div className="rounded-[22px] border border-dashed border-[var(--surface-border)] p-4 text-center text-[12px] text-[var(--text-secondary)]">
+            {showArchived ? 'No archived chats yet.' : 'No active chats yet.'}
+          </div>
+        )}
       </div>
     </aside>
   );
@@ -522,7 +634,7 @@ export default function AIAssistantPage() {
             <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  msg.role === 'assistant' ? 'bg-[linear-gradient(180deg,#2b2b2b,#080808)] dark:bg-[rgba(255,255,255,0.10)]' : 'bg-[#11203b] dark:bg-[rgba(255,255,255,0.10)]'
+                  msg.role === 'assistant' ? 'bg-[linear-gradient(180deg,#2b2b2b,#080808)] dark:bg-[rgba(255,255,255,0.10)]' : 'bg-[linear-gradient(180deg,#3a3a3a,#121212)] dark:bg-[rgba(255,255,255,0.10)]'
                 }`}
               >
                 {msg.role === 'assistant' ? <Sparkles size={14} className="text-white" /> : <User size={14} className="text-white" />}
@@ -535,7 +647,7 @@ export default function AIAssistantPage() {
                     : 'bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--text-primary)] rounded-tl-[8px]'
                 }`}
               >
-                <div className="text-[13px] leading-relaxed whitespace-pre-wrap">
+                <div className="kl-ai-message text-[13px] leading-relaxed whitespace-pre-wrap">
                   {msg.content}
                   {msg.role === 'assistant' && msg.streaming && msg.content && (
                     <span className="ml-0.5 inline-block h-[1em] w-[0.5em] align-[-0.08em] rounded-[1px] bg-current animate-pulse" />
@@ -555,10 +667,10 @@ export default function AIAssistantPage() {
                     {msg.attachments.map((file) => (
                       <span
                         key={file.id}
-                        className="inline-flex items-center gap-1.5 bg-[rgba(255,255,255,0.18)] text-white text-[11px] px-2.5 py-1 rounded-full"
+                        className="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-full bg-[rgba(255,255,255,0.18)] px-2.5 py-1 text-[11px] text-white"
                       >
                         {file.type.startsWith('image/') ? <FileImage size={11} /> : <FileText size={11} />}
-                        {file.name}
+                        <span className="truncate">{file.name}</span>
                       </span>
                     ))}
                   </div>
@@ -614,7 +726,7 @@ export default function AIAssistantPage() {
                   <button
                     key={prompt}
                     onClick={() => void send(prompt)}
-                    className="kl-filter-pill bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--text-secondary)] text-[12px] px-3 py-1.5 rounded-full hover:bg-[var(--surface-raised)] hover:text-[var(--text-primary)]"
+                    className="kl-filter-pill max-w-full whitespace-normal bg-[var(--surface-card)] border border-[var(--surface-border)] text-left text-[12px] text-[var(--text-secondary)] px-3 py-1.5 rounded-full hover:bg-[var(--surface-raised)] hover:text-[var(--text-primary)]"
                   >
                     {prompt}
                   </button>
@@ -632,10 +744,10 @@ export default function AIAssistantPage() {
               {queuedAttachments.map((file) => (
                 <span
                   key={file.id}
-                  className="kl-upload-control inline-flex items-center gap-1.5 bg-[var(--surface-raised)] text-[var(--text-secondary)] text-[11px] px-2.5 py-1 rounded-full border border-[var(--surface-border)]"
+                  className="kl-upload-control inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-full border border-[var(--surface-border)] bg-[var(--surface-raised)] px-2.5 py-1 text-[11px] text-[var(--text-secondary)]"
                 >
                   {file.type.startsWith('image/') ? <FileImage size={11} /> : <FileText size={11} />}
-                  <span>{file.name}</span>
+                  <span className="max-w-[180px] truncate">{file.name}</span>
                   <span className="text-[var(--kl-text-muted)]">({formatBytes(file.size)})</span>
                   <button
                     onClick={() => setQueuedAttachments((prev) => prev.filter((item) => item.id !== file.id))}

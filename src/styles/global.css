@@ -181,4 +181,48 @@ button, input, textarea, select {
 .kl-mobile-solid {
   background: var(--surface-card);
   backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow:
+    1px 0 0 var(--surface-border-strong),
+    24px 0 80px rgba(0, 0, 0, 0.28);
+}
+
+[data-theme="dark"] .kl-mobile-solid {
+  background: #101010;
+  box-shadow:
+    1px 0 0 rgba(255, 255, 255, 0.1),
+    24px 0 90px rgba(0, 0, 0, 0.72);
+}
+
+/* [DESIGN] Login uses an app-owned menu so the demo selector never falls back to harsh native select UI. */
+.kl-login-menu {
+  backdrop-filter: blur(22px) saturate(1.08);
+  -webkit-backdrop-filter: blur(22px) saturate(1.08);
+}
+
+.kl-ai-message,
+.kl-text-contain {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.kl-one-line {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kl-selected-muted {
+  background: color-mix(in srgb, var(--surface-raised) 82%, #d8d8d8 18%);
+  border-color: var(--surface-border-strong);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.68),
+    0 10px 26px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .kl-selected-muted {
+  background: color-mix(in srgb, var(--surface-raised) 78%, #ffffff 7%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
