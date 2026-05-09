@@ -262,7 +262,12 @@
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.1));
     border: 1px solid rgba(255, 255, 255, 0.14);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 10px 28px rgba(0, 0, 0, 0.38);
-    color: #ffffff;
+    color: #ffffff !important;
+  }
+
+  [data-theme="dark"] .nav-active-pill svg,
+  [data-theme="dark"] .nav-active-pill span {
+    color: #ffffff !important;
   }
 
   [data-theme="dark"] .nav-idle-pill {
