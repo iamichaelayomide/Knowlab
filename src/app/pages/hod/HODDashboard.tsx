@@ -32,18 +32,18 @@ export default function HODDashboard() {
 
   return (
     <div className="kl-page">
-      <section className="kl-premium-card mb-5 overflow-hidden bg-[linear-gradient(145deg,#0c0c0d,#19191b_52%,#2a2a2c)] p-5 text-white sm:p-7">
+      <section className="kl-premium-card mb-5 overflow-hidden bg-[var(--surface-card)] dark:bg-[linear-gradient(145deg,#0c0c0d,#19191b_52%,#2a2a2c)] p-5 text-[var(--text-primary)] dark:text-white sm:p-7 border border-[var(--surface-border)]">
         <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
           <div>
-            <p className="mb-4 inline-flex rounded-full border border-white/12 bg-white/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/68">Head of Department</p>
+            <p className="mb-4 inline-flex rounded-full border border-[var(--surface-border)] dark:border-white/12 bg-[var(--surface-raised)] dark:bg-white/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)] dark:text-white/68">Head of Department</p>
             <h1 className="text-[28px] font-semibold leading-tight sm:text-[34px]">Department Overview</h1>
-            <p className="mt-3 max-w-[620px] text-[14px] leading-relaxed text-white/68">
+            <p className="mt-3 max-w-[620px] text-[14px] leading-relaxed text-[var(--text-secondary)] dark:text-white/68">
               {user.department} {TEXT_TOKENS.separator.trim()} {staff.length} staff across {units.length} units with lab-wide patient and QC visibility.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
-              <button className="btn-primary bg-white text-black" onClick={() => navigate('/hod/patients')}>Open patients</button>
-              <button className="kl-button-soft rounded-full border border-white/14 bg-white/8 px-4 text-white" onClick={() => navigate('/hod/reports')}>View reports</button>
-              <button className="kl-button-soft rounded-full border border-white/14 bg-white/8 px-4 text-white" onClick={() => openFloatingAI('Give me an executive-ready SOP, QC, and patient workload narrative.')}>Ask AI insights</button>
+              <button className="btn-primary" onClick={() => navigate('/hod/patients')}>Open patients</button>
+              <button className="kl-button-soft rounded-full border border-[var(--surface-border)] dark:border-white/14 bg-[var(--surface-raised)] dark:bg-white/8 px-4 text-[var(--text-primary)] dark:text-white" onClick={() => navigate('/hod/reports')}>View reports</button>
+              <button className="kl-button-soft rounded-full border border-[var(--surface-border)] dark:border-white/14 bg-[var(--surface-raised)] dark:bg-white/8 px-4 text-[var(--text-primary)] dark:text-white" onClick={() => openFloatingAI('Give me an executive-ready SOP, QC, and patient workload narrative.')}>Ask AI insights</button>
             </div>
           </div>
           <div className="grid gap-3">
@@ -52,10 +52,10 @@ export default function HODDashboard() {
               ['Patient workload', `${PATIENTS.length} patients`, `${heldOrders} held order(s) across the lab.`],
               ['Unread alerts', `${alerts.length} alerts`, 'Review safety and administrative notices.'],
             ].map(([label, value, sub]) => (
-              <div key={label} className="rounded-[22px] border border-white/12 bg-white/8 p-4">
-                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/55">{label}</p>
-                <p className="text-[18px] font-semibold text-white">{value}</p>
-                <p className="mt-1 text-[12px] text-white/50">{sub}</p>
+              <div key={label} className="rounded-[22px] border border-[var(--surface-border)] dark:border-white/12 bg-[var(--surface-raised)] dark:bg-white/8 p-4">
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-[var(--text-tertiary)] dark:text-white/55">{label}</p>
+                <p className="text-[18px] font-semibold">{value}</p>
+                <p className="mt-1 text-[12px] text-[var(--text-tertiary)] dark:text-white/50">{sub}</p>
               </div>
             ))}
           </div>

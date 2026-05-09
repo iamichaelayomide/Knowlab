@@ -13,6 +13,7 @@ import {
   Timer1 as Timer,
   StatusUp,
   Box,
+  ArrowDown2,
 } from "iconsax-react";
 import { useAuth } from "../../context/AuthContext";
 import { useDepartment } from "../../context/DepartmentContext";
@@ -29,6 +30,13 @@ import { LAB_TESTS } from "../../data/mockData";
 import { readOfflineResultDrafts, saveOfflineResultDraft, removeOfflineResultDraft } from "../../services/offlineDrafts";
 import { openFloatingAI } from "../../services/aiWidget";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
 
 const FLAG_CLASS: Record<ResultFlag, string> = {
   normal: "bg-[#e8f8f1] text-[#1c7b56] dark:bg-[rgba(28,123,86,0.18)] dark:text-[#88e0ba]",
@@ -53,7 +61,7 @@ export default function PatientsPage() {
   const { activeDepartment, activeBench } = useDepartment();
   const location = useLocation();
   const [search, setSearch] = useState("");
-  const [filterPending, setFilterPending] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("All"); // "All", "Pending", "Validating"
   const [selectedOrderId, setSelectedOrderId] = useState("");
   const [draftValues, setDraftValues] = useState<Record<string, string>>({});
   const [drafts, setDrafts] = useState(() => readOfflineResultDrafts());
@@ -66,25 +74,24 @@ export default function PatientsPage() {
     [activeDepartment.name, user],
   );
 
-  // GLOBAL PENDING COUNTS
-  const allDeptDrafts = useMemo(() => {
-    return drafts.filter(d => d.status !== 'approved');
-  }, [drafts]);
-
-  const globalPendingCount = useMemo(() => {
-    let count = 0;
-    scopedPatients.forEach(p => {
-      const pOrders = getPatientOrders(p.id);
-      const hasUnfinished = pOrders.some(o => {
-        const isDeptMatch = user?.role === 'staff' && activeDepartment.name !== 'Laboratory' 
-          ? o.department.toLowerCase().includes(activeDepartment.name.toLowerCase()) || activeDepartment.name.toLowerCase().includes(o.department.toLowerCase())
-          : true;
-        return isDeptMatch && ['ordered', 'collected', 'processing', 'held'].includes(o.status);
-      });
-      if (hasUnfinished) count++;
-    });
-    return count;
+  // GLOBAL COUNTS for notification-style badges
+  const pendingCount = useMemo(() => {
+    return scopedPatients.filter(p => {
+        const orders = getPatientOrders(p.id);
+        return orders.some(o => {
+            const isDeptMatch = user?.role === 'staff' && activeDepartment.name !== 'Laboratory' 
+              ? o.department.toLowerCase().includes(activeDepartment.name.toLowerCase()) || activeDepartment.name.toLowerCase().includes(o.department.toLowerCase())
+              : true;
+            return isDeptMatch && ['ordered', 'collected', 'processing', 'held'].includes(o.status);
+        });
+    }).length;
   }, [scopedPatients, user?.role, activeDepartment.name]);
+
+  const validatingCount = useMemo(() => {
+    return scopedPatients.filter(p => {
+        return drafts.some(d => d.patientId === p.id && d.status === 'pending_approval');
+    }).length;
+  }, [scopedPatients, drafts]);
   
   const filteredPatients = scopedPatients.filter((patient) => {
     const term = search.toLowerCase();
@@ -96,16 +103,18 @@ export default function PatientsPage() {
     
     if (!matchesSearch) return false;
 
-    if (filterPending) {
+    if (activeFilter === "Pending") {
       const patientOrders = getPatientOrders(patient.id);
-      const hasPendingInDept = patientOrders.some(o => {
+      return patientOrders.some(o => {
         const isDeptMatch = user?.role === 'staff' && activeDepartment.name !== 'Laboratory' 
           ? o.department.toLowerCase().includes(activeDepartment.name.toLowerCase()) || activeDepartment.name.toLowerCase().includes(o.department.toLowerCase())
           : true;
-        const isPending = ['ordered', 'collected', 'processing', 'held'].includes(o.status);
-        return isDeptMatch && isPending;
+        return isDeptMatch && ['ordered', 'collected', 'processing', 'held'].includes(o.status);
       });
-      return hasPendingInDept;
+    }
+
+    if (activeFilter === "Validating") {
+      return drafts.some(d => d.patientId === patient.id && d.status === 'pending_approval');
     }
 
     return true;
@@ -126,7 +135,6 @@ export default function PatientsPage() {
   }, [selectedOrder]);
 
   const allPatientResults = orders.flatMap(o => getOrderResults(o.id));
-  const results = selectedOrder ? getOrderResults(selectedOrder.id) : [];
   const notes = selectedPatient ? getPatientNotes(selectedPatient.id) : [];
   
   const patientDrafts = selectedPatient ? drafts.filter((draft) => draft.patientId === selectedPatient.id && draft.status !== 'approved') : [];
@@ -185,18 +193,28 @@ export default function PatientsPage() {
     user.role === "hod"
       ? "Lab-wide patient, order, and result visibility."
       : user.role === "supervisor"
-        ? `${activeDepartment.shortName} oversight focused on bench workload and pending LIMS approvals.`
+        ? `${activeDepartment.shortName} oversight focused on bench workload and validation queue.`
         : `${activeDepartment.name} LIMS workspace for result entry and validation.`;
 
   return (
     <div className="kl-page min-h-full max-w-full overflow-x-hidden p-6 sm:p-8 lg:p-10">
       <div className="mb-10 flex min-w-0 flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <div className="flex items-center gap-4 mb-2">
+          <div className="flex flex-wrap items-center gap-4 mb-2">
              <h1 className="text-[32px] font-bold tracking-tight text-[var(--text-primary)]">LIMS Portal</h1>
-             <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-raised)] border border-[var(--surface-border)] shadow-sm">
-                <StatusUp size={16} className="text-[var(--kl-primary)]" />
-                <span className="text-[14px] font-bold text-[var(--text-primary)]">{globalPendingCount} <span className="font-medium text-[var(--text-tertiary)]">pending tasks</span></span>
+             <div className="flex items-center gap-3">
+                <div className="relative">
+                    <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-raised)] border border-[var(--surface-border)] shadow-sm">
+                        <div className="size-2 rounded-full bg-[#007aff]"></div>
+                        <span className="text-[13px] font-bold text-[var(--text-primary)]">{pendingCount} <span className="font-medium text-[var(--text-tertiary)]">pending</span></span>
+                    </div>
+                </div>
+                <div className="relative">
+                    <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-raised)] border border-[var(--surface-border)] shadow-sm">
+                        <div className="size-2 rounded-full bg-[#9a6115] animate-pulse"></div>
+                        <span className="text-[13px] font-bold text-[var(--text-primary)]">{validatingCount} <span className="font-medium text-[var(--text-tertiary)]">validating</span></span>
+                    </div>
+                </div>
              </div>
           </div>
           <p className="kl-text-contain text-[16px] text-[var(--text-secondary)] font-medium">{scopeCopy}</p>
@@ -212,10 +230,10 @@ export default function PatientsPage() {
         </div>
       </div>
 
-      <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(320px,360px)_minmax(0,1fr)]">
+      <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(320px,380px)_minmax(0,1fr)]">
         <aside className="kl-premium-card min-w-0 p-5 h-[calc(100vh-180px)] overflow-y-auto shadow-md border-[var(--surface-border)]">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="relative flex-1">
+          <div className="flex flex-col gap-3 mb-5">
+            <div className="relative w-full">
               <SearchNormal1 size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
               <input
                 value={search}
@@ -224,28 +242,34 @@ export default function PatientsPage() {
                 placeholder="Find patient..."
               />
             </div>
-            <button
-              onClick={() => setFilterPending(!filterPending)}
-              className={`size-12 flex-shrink-0 rounded-[22px] border flex items-center justify-center transition-all ${
-                filterPending 
-                ? "bg-[var(--kl-primary)] text-white border-[var(--kl-primary)] shadow-lg" 
-                : "bg-[var(--surface-raised)] text-[var(--text-secondary)] border-[var(--surface-border)] hover:bg-[var(--surface-card)]"
-              }`}
-              title={filterPending ? "Showing pending only" : "Filter pending results"}
-            >
-              <div className="flex items-center justify-center w-full h-full">
-                <Timer size={22} variant={filterPending ? "Bold" : "Linear"} />
-              </div>
-            </button>
+            
+            <Select value={activeFilter} onValueChange={setActiveFilter}>
+                <SelectTrigger className="h-11 rounded-[20px] bg-[var(--surface-raised)] border-transparent shadow-none font-bold text-[13px] px-5">
+                    <div className="flex items-center gap-2">
+                        <Timer size={18} variant={activeFilter !== "All" ? "Bold" : "Linear"} className={activeFilter === "Pending" ? "text-[#007aff]" : activeFilter === "Validating" ? "text-[#9a6115]" : "text-[var(--text-secondary)]"} />
+                        <SelectValue placeholder="All Patients" />
+                    </div>
+                </SelectTrigger>
+                <SelectContent className="rounded-[20px]">
+                    <SelectItem value="All">All Patients</SelectItem>
+                    <SelectItem value="Pending">Pending (Unentered)</SelectItem>
+                    <SelectItem value="Validating">Validating (Awaiting Review)</SelectItem>
+                </SelectContent>
+            </Select>
           </div>
+
           <div className="space-y-4">
             {filteredPatients.map((patient) => {
               const active = patient.id === selectedPatient.id;
               const patientOrders = getPatientOrders(patient.id);
               const count = patientOrders.length;
               
-              const hasDrafts = drafts.some(d => d.patientId === patient.id && d.status === 'pending_approval');
-              const hasUnentered = patientOrders.some(o => ['ordered', 'collected', 'processing', 'held'].includes(o.status));
+              const isValidationMode = activeFilter === "Validating";
+              const isPendingMode = activeFilter === "Pending";
+              
+              // Dynamic indicators based on filter mode
+              const showValidating = drafts.some(d => d.patientId === patient.id && d.status === 'pending_approval');
+              const showPending = patientOrders.some(o => ['ordered', 'collected', 'processing', 'held'].includes(o.status));
 
               return (
                 <a
@@ -259,18 +283,12 @@ export default function PatientsPage() {
                     boxShadow: active ? "0 10px 30px rgba(0,0,0,0.05)" : "none",
                   }}
                 >
-                  <div className="absolute top-4 right-4 flex flex-col items-end gap-1.5">
-                    {hasDrafts && (
-                        <div className="flex items-center gap-1 bg-[#fff0db] dark:bg-[rgba(154,97,21,0.15)] px-2.5 py-1 rounded-full border border-[#f3c26f] border-opacity-40 shadow-xs">
-                            <div className="size-1.5 rounded-full bg-[#9a6115] animate-pulse"></div>
-                            <span className="text-[9px] font-black text-[#9a6115] uppercase tracking-wider">Validate</span>
-                        </div>
+                  <div className="absolute top-4 right-4">
+                    {isValidationMode && showValidating && (
+                        <div className="flex items-center justify-center size-2 rounded-full bg-[#9a6115] animate-pulse shadow-glow"></div>
                     )}
-                    {!hasDrafts && hasUnentered && (
-                        <div className="flex items-center gap-1 bg-[rgba(0,122,255,0.08)] px-2.5 py-1 rounded-full border border-[rgba(0,122,255,0.2)] shadow-xs">
-                            <div className="size-1.5 rounded-full bg-[#007aff]"></div>
-                            <span className="text-[9px] font-black text-[#007aff] uppercase tracking-wider">Unentered</span>
-                        </div>
+                    {isPendingMode && showPending && (
+                        <div className="flex items-center justify-center size-2 rounded-full bg-[#007aff] shadow-glow"></div>
                     )}
                   </div>
                   <span className="grid size-14 place-items-center rounded-[22px] border border-[var(--surface-border)] bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-sm">
@@ -321,7 +339,7 @@ export default function PatientsPage() {
                   <p className="text-[40px] font-black text-[var(--text-primary)] leading-none">{orders.length}</p>
                 </div>
                 <div className="rounded-[28px] border border-[var(--surface-border)] bg-[var(--glass-bg)] p-6 shadow-sm backdrop-blur-md">
-                  <p className="text-[12px] font-black uppercase tracking-widest text-[var(--text-tertiary)] mb-2">Pending</p>
+                  <p className="text-[12px] font-black uppercase tracking-widest text-[var(--text-tertiary)] mb-2">Queue</p>
                   <p className="text-[40px] font-black text-[#9a6115] leading-none">{patientDrafts.length}</p>
                 </div>
               </div>
@@ -615,7 +633,7 @@ export default function PatientsPage() {
                   {canApproveResults && (
                     <div className="bg-[var(--surface-raised)] px-6 py-3 rounded-full border-2 border-[var(--surface-border)] flex items-center gap-3 shadow-md">
                         <StatusUp size={20} className="text-[#9a6115]" />
-                        <span className="text-[15px] font-black text-[var(--text-primary)] uppercase tracking-tight">{allDeptDrafts.length} <span className="font-bold opacity-40 text-[12px] ml-1">in registry</span></span>
+                        <span className="text-[15px] font-black text-[var(--text-primary)] uppercase tracking-tight">{validatingCount} <span className="font-bold opacity-40 text-[12px] ml-1">in registry</span></span>
                     </div>
                   )}
                 </div>
@@ -696,20 +714,20 @@ export default function PatientsPage() {
                                 <div className="flex items-center gap-2.5 text-[#1c7b56] font-black text-[12px] uppercase tracking-tighter">
                                   <div className="size-2 rounded-full bg-[#1c7b56] shadow-sm"></div>
                                   CERTIFIED
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </section>
-            </TabsContent>
-          </Tabs>
-        </main>
+                </section>
+              </TabsContent>
+            </Tabs>
+          </main>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
