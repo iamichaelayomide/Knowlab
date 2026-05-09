@@ -233,7 +233,7 @@ export default function AppShell() {
   const SidebarContent = () => (
     <div className="sidebar flex h-full flex-col bg-[var(--surface-card)]">
       <div className="sidebar-logo flex h-14 items-center gap-3 border-b border-[var(--surface-border)] px-3">
-        <div className="bg-[linear-gradient(180deg,#2c2c2c,#050505)] rounded-lg size-[44px] flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_10px_24px_rgba(0,0,0,0.22)] dark:bg-[linear-gradient(180deg,#262626,#090909)]">
+        <div className="bg-[linear-gradient(180deg,#2c2c2c,#050505)] rounded-[18px] size-[44px] flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_10px_24px_rgba(0,0,0,0.22)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.06))]">
           <span className="text-white font-bold text-[13px]">LK</span>
         </div>
         <div>
@@ -245,14 +245,14 @@ export default function AppShell() {
       <DepartmentSwitcher />
 
       <div className="px-3 mb-4">
-        <div className="rounded-lg border border-[var(--surface-border)] bg-[var(--surface-raised)] p-3.5 shadow-xs">
+        <div className="kl-card rounded-[24px] border border-[var(--surface-border)] bg-[var(--surface-raised)] p-3.5 shadow-xs">
           <p className="text-[11px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-semibold mb-1.5">
             {contextPanel.title}
           </p>
           <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{contextPanel.body}</p>
           <button
             onClick={contextPanel.onCta}
-            className="btn-primary mt-3 inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-[11px] font-semibold"
+            className="btn-primary mt-3 inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] font-semibold"
           >
             <AppIcon name="ai" size={12} />
             {contextPanel.ctaLabel}
@@ -271,7 +271,7 @@ export default function AppShell() {
                   to={item.path}
                   onClick={() => setMobileSidebarOpen(false)}
                   className={({ isActive }) =>
-                    `nav-${isActive ? "active" : "idle"}-pill flex h-9 items-center gap-2.5 rounded-md px-3 text-[14px] font-medium transition-all duration-fast ${
+                    `nav-${isActive ? "active" : "idle"}-pill kl-nav-item flex h-10 items-center gap-2.5 px-3 text-[14px] font-medium transition-all duration-fast ${
                       isActive
                         ? "bg-[#e9e9e9] text-[#111111] shadow-[inset_0_1px_0_rgba(255,255,255,0.75),0_8px_20px_rgba(0,0,0,0.08)]"
                         : "text-[var(--text-secondary)] hover:bg-[var(--surface-base)] hover:text-[var(--text-primary)]"
@@ -293,7 +293,7 @@ export default function AppShell() {
       </div>
 
       <div className="px-3 pb-5">
-        <div className="bg-[var(--surface-raised)] border border-[var(--surface-border)] rounded-lg p-3.5 flex items-center gap-3 shadow-xs">
+        <div className="kl-card bg-[var(--surface-raised)] border border-[var(--surface-border)] rounded-[24px] p-3.5 flex items-center gap-3 shadow-xs">
           <div
             className="rounded-full size-[40px] flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0"
             style={{ backgroundColor: user.color }}
@@ -304,7 +304,7 @@ export default function AppShell() {
             <div className="text-[var(--text-primary)] font-semibold text-[13px] truncate">{user.name}</div>
             <div className="text-[var(--text-secondary)] text-[11px] truncate">{user.unit}</div>
           </div>
-          <button onClick={handleLogout} className="text-[var(--text-tertiary)] hover:text-[var(--destructive)] transition-colors p-1" title="Log out">
+          <button onClick={handleLogout} className="kl-icon-button text-[var(--text-tertiary)] hover:text-[var(--destructive)] transition-colors" title="Log out" aria-label="Log out">
             <AppIcon name="logout" size={16} />
           </button>
         </div>
@@ -322,7 +322,7 @@ export default function AppShell() {
         <div className="xl:hidden fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/30" onClick={() => setMobileSidebarOpen(false)} />
           <aside className="relative w-[280px] border-r border-[var(--surface-border)] h-full overflow-hidden z-10">
-            <button className="absolute top-4 right-4 text-[var(--text-secondary)] p-1" onClick={() => setMobileSidebarOpen(false)}>
+            <button className="kl-icon-button absolute top-4 right-4 text-[var(--text-secondary)]" onClick={() => setMobileSidebarOpen(false)} aria-label="Close navigation menu">
               <AppIcon name="close" size={20} />
             </button>
             <SidebarContent />
@@ -332,20 +332,20 @@ export default function AppShell() {
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="breadcrumb-bar sticky top-0 z-20 flex h-[52px] flex-shrink-0 items-center gap-3 border-b border-[var(--surface-border)] bg-[var(--surface-overlay)] px-3 backdrop-blur-xl sm:px-6">
-          <button className="xl:hidden text-[var(--text-primary)] p-1" onClick={() => setMobileSidebarOpen(true)} aria-label="Open navigation menu">
+          <button className="kl-icon-button xl:hidden text-[var(--text-primary)]" onClick={() => setMobileSidebarOpen(true)} aria-label="Open navigation menu">
             <AppIcon name="menu" size={20} />
           </button>
 
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div
-              className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] text-[12px] font-semibold"
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-semibold"
               style={{ backgroundColor: `${activeDepartment.color}18`, color: activeDepartment.color }}
             >
               <AppIcon name="department" size={12} />
               {activeDepartment.shortName}
             </div>
             <AppIcon name="chevronRight" size={12} className="hidden md:inline-flex text-[var(--text-tertiary)]" />
-            <div className="hidden md:flex items-center gap-1.5 bg-[var(--accent-glow)] text-[var(--text-primary)] text-[12px] font-medium px-2.5 py-1 rounded-[10px]">
+            <div className="hidden md:flex items-center gap-1.5 bg-[var(--accent-glow)] text-[var(--text-primary)] text-[12px] font-medium px-2.5 py-1 rounded-full">
               <span className="inline-block size-[6px] rounded-full flex-shrink-0" style={{ backgroundColor: activeBench.color }} />
               {activeBench.name}
             </div>
@@ -355,14 +355,15 @@ export default function AppShell() {
             <ThemeToggle compact className="shrink-0" />
             <button
               onClick={() => openFloatingAI()}
-              className="rounded-md border border-[var(--surface-border)] bg-[var(--glass-bg)] px-2.5 py-2 text-[var(--text-primary)] shadow-glass backdrop-blur-md transition-all hover:bg-[var(--surface-card)] dark:bg-[rgba(255,255,255,0.08)] dark:hover:bg-[rgba(255,255,255,0.13)]"
+              className="kl-icon-button border border-[var(--surface-border)] bg-[var(--glass-bg)] text-[var(--text-primary)] shadow-glass backdrop-blur-md transition-all hover:bg-[var(--surface-card)] dark:bg-[rgba(255,255,255,0.08)] dark:hover:bg-[rgba(255,255,255,0.13)]"
               title="Open AI assistant"
+              aria-label="Open AI assistant"
             >
               <AppIcon name="ai" size={14} />
             </button>
             <NavLink
               to={`${base}/alerts`}
-              className="relative flex items-center gap-2 rounded-md border border-[var(--surface-border)] bg-[var(--surface-card)] px-3 py-2 text-[14px] font-medium text-[var(--text-primary)] shadow-xs transition-colors hover:bg-[var(--surface-raised)] dark:bg-[rgba(255,255,255,0.08)] dark:hover:bg-[rgba(255,255,255,0.13)]"
+              className="kl-button-soft relative flex h-10 items-center gap-2 rounded-full border border-[var(--surface-border)] bg-[var(--glass-bg)] px-3 text-[14px] font-medium text-[var(--text-primary)] shadow-xs transition-all hover:bg-[var(--surface-raised)] dark:bg-[rgba(255,255,255,0.08)] dark:hover:bg-[rgba(255,255,255,0.13)]"
             >
               <AppIcon name="alerts" size={14} />
               Alerts

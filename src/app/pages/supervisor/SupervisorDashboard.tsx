@@ -11,16 +11,16 @@ function MetricCard({ label, value, sublabel, accent, icon, onClick }: {
   label: string; value: string | number; sublabel: string; accent: string; icon: React.ReactNode; onClick?: () => void;
 }) {
   return (
-    <button onClick={onClick} className={`bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-5 text-left w-full hover:border-[#1c5eff] hover:shadow-[0px_8px_24px_rgba(28,94,255,0.08)] transition-all ${onClick ? '' : 'pointer-events-none'}`}>
+    <button onClick={onClick} className={`bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-5 text-left w-full hover:border-[var(--kl-primary)] hover:shadow-[var(--kl-shadow)] transition-all ${onClick ? '' : 'pointer-events-none'}`}>
       <div className="flex items-start justify-between mb-4">
         <div className="h-1 w-12 rounded-full" style={{ backgroundColor: accent }} />
         <div className="p-2 rounded-[10px]" style={{ backgroundColor: `${accent}18` }}>
           <span style={{ color: accent }}>{icon}</span>
         </div>
       </div>
-      <p className="text-[#475a7d] text-[13px] mb-1">{label}</p>
-      <p className="text-[#11203b] font-bold text-[28px] leading-none mb-1">{value}</p>
-      <p className="text-[#73839f] text-[12px]">{sublabel}</p>
+      <p className="text-[var(--kl-text-muted)] text-[13px] mb-1">{label}</p>
+      <p className="text-[var(--kl-text)] font-bold text-[28px] leading-none mb-1">{value}</p>
+      <p className="text-[var(--kl-text-muted)] text-[12px]">{sublabel}</p>
     </button>
   );
 }
@@ -76,7 +76,7 @@ export default function SupervisorDashboard() {
             <div className="flex gap-3 mt-5">
               <button
                 onClick={() => navigate('/supervisor/staff')}
-                className="bg-white text-[#11203b] font-medium text-[13px] px-4 py-2.5 rounded-[13px] hover:bg-[#f4f8ff] transition-colors"
+                className="bg-[var(--kl-surface)] text-[var(--kl-text)] font-medium text-[13px] px-4 py-2.5 rounded-[13px] hover:bg-[var(--kl-surface-tinted)] transition-colors"
               >
                 Open team
               </button>
@@ -87,7 +87,7 @@ export default function SupervisorDashboard() {
                 Open QC log
               </button>
               <button
-                onClick={() => openFloatingAI('What is the last CAPA incident in my scope?')}
+                onClick={() => openFloatingAI('What CAPA item should I review in my scope?')}
                 className="bg-[rgba(40,70,111,0.8)] border border-[rgba(124,147,183,0.8)] text-white font-medium text-[13px] px-4 py-2.5 rounded-[13px] hover:bg-[rgba(40,70,111,0.9)] transition-colors"
               >
                 Ask AI insights
@@ -140,11 +140,11 @@ export default function SupervisorDashboard() {
       {/* Two Column */}
       <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
         {/* Staff Overview */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
+        <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Users size={18} className="text-[#1c5eff]" />
-              <h2 className="text-[#11203b] font-semibold text-[16px]">Staff Overview</h2>
+              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Staff Overview</h2>
             </div>
             <button onClick={() => navigate('/supervisor/staff')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               View all <ChevronRight size={14} />
@@ -159,7 +159,7 @@ export default function SupervisorDashboard() {
                 <button
                   key={staff.id}
                   onClick={() => navigate(`/supervisor/staff/${staff.id}`)}
-                  className="w-full flex items-center gap-3 p-3 rounded-[14px] hover:bg-[#f4f8ff] transition-colors text-left group"
+                  className="w-full flex items-center gap-3 p-3 rounded-[14px] hover:bg-[var(--kl-surface-tinted)] transition-colors text-left group"
                 >
                   <div
                     className="size-[34px] rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
@@ -169,18 +169,18 @@ export default function SupervisorDashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <p className="text-[#11203b] font-medium text-[13px]">{staff.name}</p>
-                      <span className={`text-[11px] font-semibold ${competency >= 85 ? 'text-[#1c7b56]' : competency >= 70 ? 'text-[#9a6115]' : 'text-[#b14343]'}`}>
+                      <p className="text-[var(--kl-text)] font-medium text-[13px]">{staff.name}</p>
+                      <span className={`text-[11px] font-semibold ${competency >= 85 ? 'text-[#1c7b56] dark:text-[#88e0ba]' : competency >= 70 ? 'text-[#9a6115] dark:text-[#f3c26f]' : 'text-[#b14343] dark:text-[#fca5a5]'}`}>
                         {competency}%
                       </span>
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <p className="text-[#73839f] text-[11px] truncate flex-1">{staff.unit}</p>
+                      <p className="text-[var(--kl-text-muted)] text-[11px] truncate flex-1">{staff.unit}</p>
                       {overdueCount > 0 && (
-                        <span className="bg-[#fde9e9] text-[#b14343] text-[10px] px-1.5 py-0.5 rounded-full">{overdueCount} overdue</span>
+                        <span className="bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5] text-[10px] px-1.5 py-0.5 rounded-full">{overdueCount} overdue</span>
                       )}
                     </div>
-                    <div className="w-full bg-[#f4f8ff] rounded-full h-1 mt-1.5">
+                    <div className="w-full bg-[var(--kl-surface-tinted)] rounded-full h-1 mt-1.5">
                       <div
                         className="h-1 rounded-full"
                         style={{
@@ -197,11 +197,11 @@ export default function SupervisorDashboard() {
         </div>
 
         {/* Recent QC Log */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
+        <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <ClipboardList size={18} className="text-[#1c5eff]" />
-              <h2 className="text-[#11203b] font-semibold text-[16px]">Recent QC Entries</h2>
+              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Recent QC Entries</h2>
             </div>
             <button onClick={() => navigate('/supervisor/qc-log')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               View all <ChevronRight size={14} />
@@ -211,29 +211,29 @@ export default function SupervisorDashboard() {
             {recentQC.map(entry => {
               const staff = USERS.find(u => u.id === entry.staffId);
               return (
-                <div key={entry.id} className="flex items-center gap-3 p-3 rounded-[14px] hover:bg-[#f4f8ff] transition-colors">
+                <div key={entry.id} className="flex items-center gap-3 p-3 rounded-[14px] hover:bg-[var(--kl-surface-tinted)] transition-colors">
                   <div className={`rounded-full p-1.5 flex-shrink-0 ${
-                    entry.overallStatus === 'passed' ? 'bg-[#e8f8f1] text-[#1c7b56]' :
-                    entry.overallStatus === 'warning' ? 'bg-[#fff0db] text-[#9a6115]' :
-                    'bg-[#fde9e9] text-[#b14343]'
+                    entry.overallStatus === 'passed' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' :
+                    entry.overallStatus === 'warning' ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]' :
+                    'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]'
                   }`}>
                     {entry.overallStatus === 'passed' ? <CheckCircle2 size={13} /> :
                      <AlertTriangle size={13} />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[#11203b] text-[13px] font-medium">{entry.level}</p>
-                    <p className="text-[#73839f] text-[11px]">{entry.date} {TEXT_TOKENS.separator.trim()} {entry.shift} {TEXT_TOKENS.separator.trim()} {staff?.name}</p>
+                    <p className="text-[var(--kl-text)] text-[13px] font-medium">{entry.level}</p>
+                    <p className="text-[var(--kl-text-muted)] text-[11px]">{entry.date} {TEXT_TOKENS.separator.trim()} {entry.shift} {TEXT_TOKENS.separator.trim()} {staff?.name}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                      entry.overallStatus === 'passed' ? 'bg-[#e8f8f1] text-[#1c7b56]' :
-                      entry.overallStatus === 'warning' ? 'bg-[#fff0db] text-[#9a6115]' :
-                      'bg-[#fde9e9] text-[#b14343]'
+                      entry.overallStatus === 'passed' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' :
+                      entry.overallStatus === 'warning' ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]' :
+                      'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]'
                     }`}>
                       {entry.overallStatus.charAt(0).toUpperCase() + entry.overallStatus.slice(1)}
                     </span>
                     {!entry.supervisorReviewed && (
-                      <span className="text-[10px] bg-[#e3edff] text-[#1c5eff] px-2 py-0.5 rounded-full">Review</span>
+                      <span className="text-[10px] bg-[var(--kl-surface-tinted)] text-[#1c5eff] px-2 py-0.5 rounded-full">Review</span>
                     )}
                   </div>
                 </div>
@@ -246,11 +246,11 @@ export default function SupervisorDashboard() {
       {/* CAPA + Alerts */}
       <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Open CAPAs */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
+        <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <ShieldAlert size={18} className="text-[#1c5eff]" />
-              <h2 className="text-[#11203b] font-semibold text-[16px]">Open CAPAs</h2>
+              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Open CAPAs</h2>
             </div>
             <button onClick={() => navigate('/supervisor/capa')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               View all <ChevronRight size={14} />
@@ -258,19 +258,19 @@ export default function SupervisorDashboard() {
           </div>
           <div className="space-y-2">
             {CAPA_ITEMS.filter(c => c.status !== 'completed').map(capa => (
-              <div key={capa.id} className="flex items-start gap-3 p-3 rounded-[14px] hover:bg-[#f4f8ff] transition-colors">
+              <div key={capa.id} className="flex items-start gap-3 p-3 rounded-[14px] hover:bg-[var(--kl-surface-tinted)] transition-colors">
                 <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
                   capa.priority === 'critical' ? 'bg-[#b14343]' :
                   capa.priority === 'high' ? 'bg-[#9a6115]' : 'bg-[#1c5eff]'
                 }`} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[#11203b] font-medium text-[13px] leading-snug">{capa.title}</p>
-                  <p className="text-[#73839f] text-[11px] mt-0.5">{capa.code} · Due {new Date(capa.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
+                  <p className="text-[var(--kl-text)] font-medium text-[13px] leading-snug">{capa.title}</p>
+                  <p className="text-[var(--kl-text-muted)] text-[11px] mt-0.5">{capa.code} · Due {new Date(capa.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
                 </div>
                 <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
-                  capa.priority === 'critical' ? 'bg-[#fde9e9] text-[#b14343]' :
-                  capa.priority === 'high' ? 'bg-[#fff0db] text-[#9a6115]' :
-                  'bg-[#e3edff] text-[#1c5eff]'
+                  capa.priority === 'critical' ? 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]' :
+                  capa.priority === 'high' ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]' :
+                  'bg-[var(--kl-surface-tinted)] text-[#1c5eff]'
                 }`}>
                   {capa.priority.toUpperCase()}
                 </span>
@@ -280,13 +280,13 @@ export default function SupervisorDashboard() {
         </div>
 
         {/* Recent Alerts */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
+        <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <AlertTriangle size={18} className="text-[#1c5eff]" />
-              <h2 className="text-[#11203b] font-semibold text-[16px]">Recent Alerts</h2>
+              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Recent Alerts</h2>
               {myAlerts.length > 0 && (
-                <span className="bg-[#fde9e9] text-[#b14343] text-[11px] font-semibold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1">
+                <span className="bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5] text-[11px] font-semibold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1">
                   {myAlerts.length}
                 </span>
               )}
@@ -297,15 +297,15 @@ export default function SupervisorDashboard() {
           </div>
           <div className="space-y-2">
             {ALERTS.filter(a => a.targetRoles.includes('supervisor')).slice(0, 5).map(alert => (
-              <div key={alert.id} className="flex items-start gap-3 p-3 rounded-[14px] hover:bg-[#f4f8ff] transition-colors">
+              <div key={alert.id} className="flex items-start gap-3 p-3 rounded-[14px] hover:bg-[var(--kl-surface-tinted)] transition-colors">
                 <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
                   alert.type === 'danger' ? 'bg-[#b14343]' :
                   alert.type === 'warning' ? 'bg-[#9a6115]' :
                   alert.type === 'success' ? 'bg-[#1c7b56]' : 'bg-[#1c5eff]'
                 }`} />
                 <div className="flex-1 min-w-0">
-                  <p className={`text-[13px] font-medium leading-snug ${!alert.read ? 'text-[#11203b]' : 'text-[#475a7d]'}`}>{alert.title}</p>
-                  <p className="text-[#73839f] text-[11px]">
+                  <p className={`text-[13px] font-medium leading-snug ${!alert.read ? 'text-[var(--kl-text)]' : 'text-[var(--kl-text-muted)]'}`}>{alert.title}</p>
+                  <p className="text-[var(--kl-text-muted)] text-[11px]">
                     {new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} {TEXT_TOKENS.separator.trim()} {alert.category}
                   </p>
                 </div>
@@ -318,4 +318,3 @@ export default function SupervisorDashboard() {
     </div>
   );
 }
-

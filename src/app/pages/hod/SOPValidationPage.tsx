@@ -5,9 +5,9 @@ import { decideValidationTask, getWorkflowState } from "../../services/workflowS
 import { TEXT_TOKENS } from "../../utils/textTokens";
 
 function decisionTone(decision: "pending" | "approved" | "changes_requested" | "rejected") {
-  if (decision === "approved") return "bg-[#e8f8f1] text-[#1c7b56]";
-  if (decision === "changes_requested") return "bg-[#fff0db] text-[#9a6115]";
-  if (decision === "rejected") return "bg-[#fde9e9] text-[#b14343]";
+  if (decision === "approved") return "bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]";
+  if (decision === "changes_requested") return "bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]";
+  if (decision === "rejected") return "bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]";
   return "bg-[#eef5ff] text-[#1c5eff]";
 }
 
@@ -99,21 +99,21 @@ export default function SOPValidationPage() {
                 <div className="mt-3 flex gap-2 flex-wrap">
                   <button
                     onClick={() => onDecision(task.id, "changes_requested")}
-                    className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#fff0db] text-[#9a6115] px-3 py-1.5 text-xs"
+                    className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f] px-3 py-1.5 text-xs"
                   >
                     <AppIcon name="warning" size={12} />
                     Return for changes
                   </button>
                   <button
                     onClick={() => onDecision(task.id, "rejected")}
-                    className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#fde9e9] text-[#b14343] px-3 py-1.5 text-xs"
+                    className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5] px-3 py-1.5 text-xs"
                   >
                     <AppIcon name="close" size={12} />
                     Reject
                   </button>
                   <button
                     onClick={() => onDecision(task.id, "approved")}
-                    className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#e8f8f1] text-[#1c7b56] px-3 py-1.5 text-xs"
+                    className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba] px-3 py-1.5 text-xs"
                   >
                     <AppIcon name="check" size={12} />
                     Validate and publish
@@ -127,4 +127,3 @@ export default function SOPValidationPage() {
     </div>
   );
 }
-

@@ -1,8 +1,8 @@
 import type { LucideIcon } from "lucide-react";
-import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   ArrowRight,
+  BarChart2,
   Bell,
   BookOpen,
   Bot,
@@ -10,9 +10,11 @@ import {
   ChevronDown,
   ChevronRight,
   ClipboardCheck,
+  FileText,
   FlaskConical,
   GraduationCap,
   Info,
+  Layers,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -23,12 +25,10 @@ import {
   Send,
   Settings,
   ShieldAlert,
+  Sparkles,
   Sun,
-  Users,
   UserCog,
-  BarChart2,
-  FileText,
-  Layers,
+  Users,
   X,
 } from "lucide-react";
 import { cn } from "../ui/utils";
@@ -65,46 +65,13 @@ export type AppIconName =
   | "warning"
   | "info";
 
-const ICONS8_PRIMARY_CLASS: Record<AppIconName, string> = {
-  dashboard: "las la-th-large",
-  sops: "las la-file-alt",
-  tests: "las la-vial",
-  jobAids: "las la-book-open",
-  training: "las la-graduation-cap",
-  ai: "las la-magic",
-  alerts: "las la-bell",
-  settings: "las la-cog",
-  staff: "las la-users",
-  capa: "las la-shield-alt",
-  qc: "las la-clipboard-check",
-  reports: "las la-chart-line",
-  users: "las la-user-cog",
-  department: "las la-layer-group",
-  bench: "las la-dna",
-  menu: "las la-bars",
-  close: "las la-times",
-  logout: "las la-sign-out-alt",
-  edit: "las la-pen",
-  save: "las la-save",
-  search: "las la-search",
-  send: "las la-paper-plane",
-  themeLight: "las la-sun",
-  themeDark: "las la-moon",
-  arrowRight: "las la-arrow-right",
-  chevronRight: "las la-angle-right",
-  chevronDown: "las la-angle-down",
-  check: "las la-check",
-  warning: "las la-exclamation-triangle",
-  info: "las la-info-circle",
-};
-
-const LUCIDE_FALLBACK: Record<AppIconName, LucideIcon> = {
+const ICONS: Record<AppIconName, LucideIcon> = {
   dashboard: LayoutDashboard,
   sops: FileText,
   tests: FlaskConical,
   jobAids: BookOpen,
   training: GraduationCap,
-  ai: Bot,
+  ai: Sparkles,
   alerts: Bell,
   settings: Settings,
   staff: Users,
@@ -139,49 +106,19 @@ interface AppIconProps {
   forceFallback?: boolean;
 }
 
-export function AppIcon({ name, size = 16, className, title, forceFallback = false }: AppIconProps) {
-  const fallback = LUCIDE_FALLBACK[name];
-  const icons8Class = ICONS8_PRIMARY_CLASS[name];
-  const [icons8Ready, setIcons8Ready] = useState(() => {
-    if (typeof document === "undefined") return false;
-    if (!("fonts" in document)) return false;
-    return document.fonts.check('1em "Line Awesome Free"') || document.fonts.check('1em "Line Awesome Brands"');
-  });
+export function AppIcon({ name, size = 16, className, title }: AppIconProps) {
+  const Icon = ICONS[name] ?? Bot;
 
-  useEffect(() => {
-    if (typeof document === "undefined" || !("fonts" in document)) {
-      setIcons8Ready(false);
-      return;
-    }
-    let isActive = true;
-    const checkReady = () => {
-      if (!isActive) return;
-      const ready =
-        document.fonts.check('1em "Line Awesome Free"') ||
-        document.fonts.check('900 1em "Line Awesome Free"') ||
-        document.fonts.check('1em "Line Awesome Brands"');
-      setIcons8Ready(ready);
-    };
-    checkReady();
-    document.fonts.ready.then(checkReady).catch(() => {});
-    return () => {
-      isActive = false;
-    };
-  }, []);
-
-  if (!forceFallback && icons8Class && icons8Ready) {
-    return (
-      <span
-        title={title}
-        aria-hidden={title ? undefined : true}
-        className={cn("inline-flex items-center justify-center leading-none", className)}
-        style={{ fontSize: size, width: size, height: size }}
-      >
-        <i className={cn(icons8Class, "la-fw")} />
-      </span>
-    );
-  }
-
-  const FallbackIcon = fallback;
-  return FallbackIcon ? <FallbackIcon size={size} strokeWidth={1.5} className={className} aria-hidden={title ? undefined : true} /> : null;
+  return (
+    <Icon
+      aria-hidden={title ? undefined : true}
+      aria-label={title}
+      className={cn("inline-flex shrink-0", className)}
+      focusable="false"
+      size={size}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.65}
+    />
+  );
 }

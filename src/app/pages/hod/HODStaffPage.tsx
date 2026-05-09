@@ -13,32 +13,14 @@ import { askKnowledgeAssistant } from "../../services/aiAssistant";
 import { filterStaffByDepartment, groupStaffByBench, resolveStaffBenchContext } from "../../utils/staffScope";
 
 function competencyColor(score: number) {
-  if (score >= 85) return "text-[#1c7b56]";
-  if (score >= 70) return "text-[#9a6115]";
-  return "text-[#b14343]";
+  if (score >= 85) return "text-[#1c7b56] dark:text-[#88e0ba]";
+  if (score >= 70) return "text-[#9a6115] dark:text-[#f3c26f]";
+  return "text-[#b14343] dark:text-[#fca5a5]";
 }
 
-const UNIT_ICON_CLASS: Record<string, string> = {
-  "FBC & Automated Counts": "las la-heartbeat",
-  "Blood Film & Morphology": "las la-search-plus",
-  "Coagulation": "las la-shield-alt",
-  "Blood Bank & Transfusion": "las la-tint",
-  "ESR & Special Haematology": "las la-dna",
-  "Glucose & Diabetes Markers": "las la-chart-line",
-  "Bilirubin & Liver Function Tests": "las la-wave-square",
-  "Kidney Function Tests": "las la-flask",
-  "Lipid Profile": "las la-chart-area",
-  "Electrolytes & Minerals": "las la-bolt",
-  "Bacteriology": "las la-flask",
-  "Mycology": "las la-spa",
-  "Virology": "las la-microscope",
-  "Parasitology": "las la-bug",
-  "Molecular Microbiology": "las la-dna",
-};
-
 function UnitIcon({ unit }: { unit: string }) {
-  const icon = UNIT_ICON_CLASS[unit] ?? "las la-layer-group";
-  return <i className={`${icon} la-fw`} />;
+  const isQualityUnit = /coagulation|bank|transfusion/i.test(unit);
+  return <AppIcon name={isQualityUnit ? "qc" : "bench"} size={16} />;
 }
 
 function findBestStaffMatch(query: string, candidates: User[]) {
@@ -115,7 +97,7 @@ function HODStaffDetail({ staffId }: { staffId: string }) {
               <span className="rounded-full bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)] px-2.5 py-1 text-xs">
                 {context.bench.name}
               </span>
-              <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${competency >= 85 ? "text-[#1c7b56] bg-[#e8f8f1]" : competency >= 70 ? "text-[#9a6115] bg-[#fff0db]" : "text-[#b14343] bg-[#fde9e9]"}`}>
+              <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${competency >= 85 ? "text-[#1c7b56] dark:text-[#88e0ba] bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)]" : competency >= 70 ? "text-[#9a6115] dark:text-[#f3c26f] bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)]" : "text-[#b14343] dark:text-[#fca5a5] bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]"}`}>
                 {competency}% competency
               </span>
             </div>
@@ -129,7 +111,7 @@ function HODStaffDetail({ staffId }: { staffId: string }) {
         </div>
           <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
             <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Overdue</p>
-            <p className={`text-sm font-medium ${overdue > 0 ? "text-[#b14343]" : "text-[#1c7b56]"}`}>{overdue}</p>
+            <p className={`text-sm font-medium ${overdue > 0 ? "text-[#b14343] dark:text-[#fca5a5]" : "text-[#1c7b56] dark:text-[#88e0ba]"}`}>{overdue}</p>
           </div>
           <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
             <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Joined</p>
@@ -378,7 +360,7 @@ export default function HODStaffPage() {
                     <div className="hidden sm:flex items-center gap-2">
                       <span className={`text-xs font-semibold ${competencyColor(competency)}`}>{competency}%</span>
                       <span className="text-xs text-[var(--kl-text-muted)]">{completed}/{TRAINING_MODULES.length} complete</span>
-                      {overdue > 0 && <span className="text-xs text-[#b14343] font-medium">{overdue} overdue</span>}
+                      {overdue > 0 && <span className="text-xs text-[#b14343] dark:text-[#fca5a5] font-medium">{overdue} overdue</span>}
                     </div>
                     <button
                       onClick={() => navigate(`/hod/staff/${member.id}`)}
@@ -397,4 +379,3 @@ export default function HODStaffPage() {
     </div>
   );
 }
-

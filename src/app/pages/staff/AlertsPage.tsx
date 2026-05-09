@@ -5,10 +5,10 @@ import { useAuth } from '../../context/AuthContext';
 import { getWorkflowState, markNotificationRead } from '../../services/workflowStore';
 
 const TYPE_CONFIG = {
-  danger: { icon: <AlertTriangle size={15} />, color: 'text-[#b14343]', bg: 'bg-[#fde9e9]', border: 'border-[#f5c0c0]' },
-  warning: { icon: <AlertTriangle size={15} />, color: 'text-[#9a6115]', bg: 'bg-[#fff0db]', border: 'border-[#f5d99a]' },
-  info: { icon: <Info size={15} />, color: 'text-[#1c5eff]', bg: 'bg-[#e3edff]', border: 'border-[#bdd3ff]' },
-  success: { icon: <CheckCircle2 size={15} />, color: 'text-[#1c7b56]', bg: 'bg-[#e8f8f1]', border: 'border-[#a3d9c0]' },
+  danger: { icon: <AlertTriangle size={15} />, color: 'text-[#b14343] dark:text-[#fca5a5]', bg: 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]', border: 'border-[#f5c0c0]' },
+  warning: { icon: <AlertTriangle size={15} />, color: 'text-[#9a6115] dark:text-[#f3c26f]', bg: 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)]', border: 'border-[#f5d99a] dark:border-[rgba(245,217,154,0.25)]' },
+  info: { icon: <Info size={15} />, color: 'text-[#1c5eff]', bg: 'bg-[var(--kl-surface-tinted)]', border: 'border-[#bdd3ff]' },
+  success: { icon: <CheckCircle2 size={15} />, color: 'text-[#1c7b56] dark:text-[#88e0ba]', bg: 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)]', border: 'border-[#a3d9c0]' },
 };
 
 export default function AlertsPage() {
@@ -54,8 +54,8 @@ export default function AlertsPage() {
     <div className="kl-page">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">Alerts</h1>
-          <p className="text-[#73839f] text-[14px]">
+          <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">Alerts</h1>
+          <p className="text-[var(--kl-text-muted)] text-[14px]">
             {unreadCount > 0 ? `${unreadCount} unread alert${unreadCount > 1 ? 's' : ''}` : 'All caught up'}
           </p>
         </div>
@@ -84,8 +84,8 @@ export default function AlertsPage() {
             onClick={() => setFilter(key as any)}
             className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors border ${
               filter === key
-                ? 'bg-[#e3edff] text-[#1c5eff] border-[#1c5eff]'
-                : 'bg-white text-[#475a7d] border-[#d3def5] hover:border-[#9bb3e5]'
+                ? 'bg-[var(--kl-surface-tinted)] text-[#1c5eff] border-[#1c5eff]'
+                : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--kl-primary)]'
             }`}
           >
             {label}
@@ -96,10 +96,10 @@ export default function AlertsPage() {
       {/* Alerts List */}
       <div className="space-y-3">
         {filtered.length === 0 && (
-          <div className="bg-white rounded-[20px] border border-[#d3def5] p-8 text-center">
+          <div className="bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-8 text-center">
             <Bell size={32} className="text-[#c4d2ef] mx-auto mb-3" />
-            <p className="text-[#475a7d] font-medium">No alerts</p>
-            <p className="text-[#73839f] text-[13px]">Check back later</p>
+            <p className="text-[var(--kl-text-muted)] font-medium">No alerts</p>
+            <p className="text-[var(--kl-text-muted)] text-[13px]">Check back later</p>
           </div>
         )}
         {filtered.map(alert => {
@@ -108,8 +108,8 @@ export default function AlertsPage() {
           return (
             <div
               key={alert.id}
-              className={`bg-white rounded-[18px] border p-5 transition-all ${
-                !isRead ? 'border-l-4 shadow-[0px_4px_12px_0px_rgba(15,40,90,0.06)]' : 'border-[#d3def5]'
+              className={`bg-[var(--kl-surface)] rounded-[18px] border p-5 transition-all ${
+                !isRead ? 'border-l-4 shadow-[0px_4px_12px_0px_rgba(15,40,90,0.06)]' : 'border-[var(--kl-border)]'
               } ${!isRead ? `border-l-[${alert.type === 'danger' ? '#b14343' : alert.type === 'warning' ? '#9a6115' : alert.type === 'success' ? '#1c7b56' : '#1c5eff'}]` : ''}`}
               style={!isRead ? { borderLeftColor: alert.type === 'danger' ? '#b14343' : alert.type === 'warning' ? '#9a6115' : alert.type === 'success' ? '#1c7b56' : '#1c5eff' } : {}}
             >
@@ -119,13 +119,13 @@ export default function AlertsPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <h3 className={`font-semibold text-[14px] leading-snug ${isRead ? 'text-[#475a7d]' : 'text-[#11203b]'}`}>{alert.title}</h3>
+                    <h3 className={`font-semibold text-[14px] leading-snug ${isRead ? 'text-[var(--kl-text-muted)]' : 'text-[var(--kl-text)]'}`}>{alert.title}</h3>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${config.bg} ${config.color}`}>{alert.category}</span>
                       {!isRead && (
                         <button
                           onClick={() => markRead(alert.id)}
-                          className="text-[#73839f] hover:text-[#475a7d] p-0.5"
+                          className="text-[var(--kl-text-muted)] hover:text-[var(--kl-text-muted)] p-0.5"
                           title="Mark as read"
                         >
                           <X size={13} />
@@ -133,9 +133,9 @@ export default function AlertsPage() {
                       )}
                     </div>
                   </div>
-                  <p className="text-[#475a7d] text-[13px] leading-relaxed">{alert.message}</p>
+                  <p className="text-[var(--kl-text-muted)] text-[13px] leading-relaxed">{alert.message}</p>
                   <div className="flex items-center gap-3 mt-2">
-                    <span className="text-[#73839f] text-[11px]">
+                    <span className="text-[var(--kl-text-muted)] text-[11px]">
                       {new Date(alert.date).toLocaleDateString('en-GB', {
                         day: 'numeric', month: 'short', year: 'numeric',
                       })} at {new Date(alert.date).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
@@ -153,4 +153,3 @@ export default function AlertsPage() {
     </div>
   );
 }
-

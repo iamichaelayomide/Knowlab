@@ -5,16 +5,16 @@ import { TEXT_TOKENS, joinWithSeparator } from '../../utils/textTokens';
 import { useAuth } from '../../context/AuthContext';
 
 const STATUS_CONFIG = {
-  completed: { label: 'Completed', color: 'bg-[#e8f8f1] text-[#1c7b56]', icon: <CheckCircle2 size={14} /> },
-  in_progress: { label: 'In Progress', color: 'bg-[#fff0db] text-[#9a6115]', icon: <Clock size={14} /> },
-  not_started: { label: 'Not Started', color: 'bg-[#f4f8ff] text-[#73839f]', icon: <Play size={14} /> },
-  overdue: { label: 'Overdue', color: 'bg-[#fde9e9] text-[#b14343]', icon: <AlertTriangle size={14} /> },
+  completed: { label: 'Completed', color: 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]', icon: <CheckCircle2 size={14} /> },
+  in_progress: { label: 'In Progress', color: 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]', icon: <Clock size={14} /> },
+  not_started: { label: 'Not Started', color: 'bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)]', icon: <Play size={14} /> },
+  overdue: { label: 'Overdue', color: 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]', icon: <AlertTriangle size={14} /> },
 };
 
 function ProgressBar({ value, max }: { value: number; max: number }) {
   const pct = Math.round((value / max) * 100);
   return (
-    <div className="w-full bg-[#f4f8ff] rounded-full h-1.5">
+    <div className="w-full bg-[var(--kl-surface-tinted)] rounded-full h-1.5">
       <div
         className="h-1.5 rounded-full transition-all"
         style={{
@@ -57,8 +57,8 @@ export default function TrainingPage() {
   return (
     <div className="kl-page">
       <div className="mb-6">
-        <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">My Training</h1>
-        <p className="text-[#73839f] text-[14px]">Mandatory and optional development modules</p>
+        <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">My Training</h1>
+        <p className="text-[var(--kl-text-muted)] text-[14px]">Mandatory and optional development modules</p>
       </div>
 
       {/* Stats */}
@@ -84,13 +84,13 @@ export default function TrainingPage() {
       </div>
 
       {/* Overall progress */}
-      <div className="bg-white rounded-[20px] border border-[#d3def5] p-5 mb-6">
+      <div className="bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-5 mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[#11203b] font-semibold text-[14px]">Overall Completion</span>
+          <span className="text-[var(--kl-text)] font-semibold text-[14px]">Overall Completion</span>
           <span className="text-[#1c5eff] font-bold text-[14px]">{stats.completed}/{TRAINING_MODULES.length} modules</span>
         </div>
         <ProgressBar value={stats.completed} max={TRAINING_MODULES.length} />
-        <p className="text-[#73839f] text-[12px] mt-1.5">
+        <p className="text-[var(--kl-text-muted)] text-[12px] mt-1.5">
           {joinWithSeparator([
             `${Math.round((stats.completed / TRAINING_MODULES.length) * 100)}% complete`,
             stats.overdue > 0 ? `${stats.overdue} overdue` : null,
@@ -109,11 +109,11 @@ export default function TrainingPage() {
           return (
             <div
               key={mod.id}
-              className="bg-white rounded-[20px] border border-[#d3def5] overflow-hidden"
+              className="bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] overflow-hidden"
             >
               <button
                 onClick={() => setActiveModule(isOpen ? null : mod.id)}
-                className="w-full p-5 flex items-start gap-4 text-left hover:bg-[#f9fbff] transition-colors"
+                className="w-full p-5 flex items-start gap-4 text-left hover:bg-[var(--kl-surface-soft)] transition-colors"
               >
                 <div className={`rounded-full p-2 flex-shrink-0 ${config.color}`}>
                   {config.icon}
@@ -121,14 +121,14 @@ export default function TrainingPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <h3 className="text-[#11203b] font-semibold text-[14px] leading-snug">{mod.title}</h3>
-                      <p className="text-[#73839f] text-[12px] mt-0.5">
+                      <h3 className="text-[var(--kl-text)] font-semibold text-[14px] leading-snug">{mod.title}</h3>
+                      <p className="text-[var(--kl-text-muted)] text-[12px] mt-0.5">
                         {joinWithSeparator([mod.category, mod.duration])}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {mod.mandatory && (
-                        <span className="bg-[#fde9e9] text-[#b14343] text-[10px] font-semibold px-2 py-0.5 rounded-full">MANDATORY</span>
+                        <span className="bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5] text-[10px] font-semibold px-2 py-0.5 rounded-full">MANDATORY</span>
                       )}
                       <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full flex items-center gap-1 ${config.color}`}>
                         {config.icon}
@@ -138,7 +138,7 @@ export default function TrainingPage() {
                     </div>
                   </div>
                   {status === 'completed' && record?.completedDate && (
-                    <p className="text-[#1c7b56] text-[11px] mt-1">
+                    <p className="text-[#1c7b56] dark:text-[#88e0ba] text-[11px] mt-1">
                       {joinWithSeparator([
                         `Completed ${new Date(record.completedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`,
                         record.score ? `Score: ${record.score}/${mod.passingScore} pass mark` : null,
@@ -146,7 +146,7 @@ export default function TrainingPage() {
                     </p>
                   )}
                   {(status === 'overdue' || status === 'not_started') && record?.dueDate && (
-                    <p className={`text-[11px] mt-1 ${status === 'overdue' ? 'text-[#b14343]' : 'text-[#9a6115]'}`}>
+                    <p className={`text-[11px] mt-1 ${status === 'overdue' ? 'text-[#b14343] dark:text-[#fca5a5]' : 'text-[#9a6115] dark:text-[#f3c26f]'}`}>
                       Due: {new Date(record.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </p>
                   )}
@@ -155,13 +155,13 @@ export default function TrainingPage() {
 
               {/* Expanded Detail */}
               {isOpen && (
-                <div className="border-t border-[#f4f8ff] p-5 bg-[#f9fbff]">
-                  <p className="text-[#475a7d] text-[13px] leading-relaxed mb-4">{mod.description}</p>
+                <div className="border-t border-[#f4f8ff] p-5 bg-[var(--kl-surface-soft)]">
+                  <p className="text-[var(--kl-text-muted)] text-[13px] leading-relaxed mb-4">{mod.description}</p>
                   <div className="mb-4">
-                    <p className="text-[#11203b] font-semibold text-[13px] mb-2">Learning Objectives</p>
+                    <p className="text-[var(--kl-text)] font-semibold text-[13px] mb-2">Learning Objectives</p>
                     <ul className="space-y-1.5">
                       {mod.objectives.map((obj, i) => (
-                        <li key={i} className="flex items-start gap-2 text-[13px] text-[#475a7d]">
+                        <li key={i} className="flex items-start gap-2 text-[13px] text-[var(--kl-text-muted)]">
                           <CheckCircle2 size={13} className="text-[#1c5eff] mt-0.5 flex-shrink-0" />
                           {obj}
                         </li>
@@ -169,13 +169,13 @@ export default function TrainingPage() {
                     </ul>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="bg-[#f4f8ff] rounded-[10px] px-3 py-2">
-                      <span className="text-[#73839f] text-[11px]">Passing score: </span>
-                      <span className="text-[#11203b] font-semibold text-[13px]">{mod.passingScore}%</span>
+                    <div className="bg-[var(--kl-surface-tinted)] rounded-[10px] px-3 py-2">
+                      <span className="text-[var(--kl-text-muted)] text-[11px]">Passing score: </span>
+                      <span className="text-[var(--kl-text)] font-semibold text-[13px]">{mod.passingScore}%</span>
                     </div>
-                    <div className="bg-[#f4f8ff] rounded-[10px] px-3 py-2">
-                      <span className="text-[#73839f] text-[11px]">Duration: </span>
-                      <span className="text-[#11203b] font-semibold text-[13px]">{mod.duration}</span>
+                    <div className="bg-[var(--kl-surface-tinted)] rounded-[10px] px-3 py-2">
+                      <span className="text-[var(--kl-text-muted)] text-[11px]">Duration: </span>
+                      <span className="text-[var(--kl-text)] font-semibold text-[13px]">{mod.duration}</span>
                     </div>
                     {status !== 'completed' && (
                       <button className="bg-[#1c5eff] text-white text-[13px] font-medium px-4 py-2 rounded-[12px] hover:bg-[#1548e8] transition-colors flex items-center gap-1.5">
@@ -184,7 +184,7 @@ export default function TrainingPage() {
                       </button>
                     )}
                     {status === 'completed' && (
-                      <button className="bg-[#e8f8f1] text-[#1c7b56] text-[13px] font-medium px-4 py-2 rounded-[12px] flex items-center gap-1.5">
+                      <button className="bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba] text-[13px] font-medium px-4 py-2 rounded-[12px] flex items-center gap-1.5">
                         <Award size={13} />
                         View Certificate
                       </button>
@@ -199,4 +199,3 @@ export default function TrainingPage() {
     </div>
   );
 }
-

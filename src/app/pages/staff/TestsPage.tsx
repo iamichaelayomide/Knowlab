@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {
   Activity,
@@ -74,17 +74,17 @@ export default function TestsPage() {
   return (
     <div className="kl-page">
       <div className="mb-6">
-        <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">Laboratory Tests</h1>
-        <p className="text-[#73839f] text-[14px]">Reference ranges, methodologies, and collection requirements</p>
+        <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">Laboratory Tests</h1>
+        <p className="text-[var(--kl-text-muted)] text-[14px]">Reference ranges, methodologies, and collection requirements</p>
       </div>
 
       <div className="relative mb-4">
-        <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#73839f]" />
+        <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--kl-text-muted)]" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search tests by name, code, or category..."
-          className="w-full bg-white border border-[#d3def5] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[#11203b] placeholder:text-[#73839f] focus:outline-none focus:border-[#1c5eff] transition-colors"
+          className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[#1c5eff] transition-colors"
         />
       </div>
 
@@ -95,8 +95,8 @@ export default function TestsPage() {
             onClick={() => setActiveCategory(cat)}
             className={`px-4 py-2 rounded-full text-[12px] font-medium transition-all border active:scale-[0.98] ${
               activeCategory === cat
-                ? 'bg-[#e3edff] text-[#1c5eff] border-[#1c5eff] shadow-[0_0_0_2px_rgba(28,94,255,0.15)]'
-                : 'bg-white text-[#475a7d] border-[#d3def5] hover:border-[#9bb3e5] hover:bg-[#f7faff]'
+                ? 'bg-[var(--kl-surface-tinted)] text-[#1c5eff] border-[#1c5eff] shadow-[0_0_0_2px_rgba(28,94,255,0.15)]'
+                : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--kl-primary)] hover:bg-[var(--kl-surface-soft)]'
             }`}
           >
             {cat}
@@ -106,9 +106,9 @@ export default function TestsPage() {
 
       <div className="grid sm:grid-cols-2 gap-4">
         {filtered.length === 0 && (
-          <div className="col-span-2 bg-white rounded-[20px] border border-[#d3def5] p-8 text-center">
+          <div className="col-span-2 bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-8 text-center">
             <FlaskConical size={32} className="text-[#c4d2ef] mx-auto mb-3" />
-            <p className="text-[#475a7d] font-medium">No tests found</p>
+            <p className="text-[var(--kl-text-muted)] font-medium">No tests found</p>
           </div>
         )}
 
@@ -116,23 +116,23 @@ export default function TestsPage() {
           <button
             key={test.id}
             onClick={() => navigate(`${base}/tests/${test.id}`)}
-            className="bg-white rounded-[20px] border border-[#d3def5] p-5 text-left hover:border-[#1c5eff] hover:shadow-[0px_10px_24px_0px_rgba(28,94,255,0.14)] active:scale-[0.995] transition-all group flex flex-col h-full"
+            className="bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-5 text-left hover:border-[var(--kl-primary)] hover:shadow-[var(--kl-shadow)] active:scale-[0.995] transition-all group flex flex-col h-full"
           >
             <div className="flex items-start justify-between mb-3 w-full">
               <div className="flex items-center gap-2">
                 <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full flex-shrink-0 ${getContainerToneClass(test.containerColor)}`}>
                   {CATEGORY_ICONS[test.category] ?? <FlaskConical size={12} />}
                 </span>
-                <span className="text-[#73839f] text-[11px] font-mono">{test.code}</span>
+                <span className="text-[var(--kl-text-muted)] text-[11px] font-mono">{test.code}</span>
               </div>
               <ChevronRight size={14} className="text-[#c4d2ef] group-hover:text-[#1c5eff] transition-colors" />
             </div>
 
-            <h3 className="text-[#11203b] font-semibold text-[15px] mb-1 group-hover:text-[#1c5eff] transition-colors leading-snug">{test.name}</h3>
-            <p className="text-[#73839f] text-[12px] mb-3 flex-1">{test.category}</p>
+            <h3 className="text-[var(--kl-text)] font-semibold text-[15px] mb-1 group-hover:text-[#1c5eff] transition-colors leading-snug">{test.name}</h3>
+            <p className="text-[var(--kl-text-muted)] text-[12px] mb-3 flex-1">{test.category}</p>
 
             <div className="space-y-1.5 w-full">
-              <div className="flex items-center gap-2 text-[12px] text-[#475a7d]">
+              <div className="flex items-center gap-2 text-[12px] text-[var(--kl-text-muted)]">
                 <div className="flex items-center gap-1.5">
                   <span
                     className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-[rgba(17,32,59,0.08)] flex-shrink-0"
@@ -146,16 +146,16 @@ export default function TestsPage() {
                 <span className="text-[#d3def5]">{TEXT_TOKENS.separator.trim()}</span>
                 <span>{test.sampleVolume}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-[12px] text-[#475a7d]">
-                <Clock size={12} className="text-[#73839f]" />
+              <div className="flex items-center gap-1.5 text-[12px] text-[var(--kl-text-muted)]">
+                <Clock size={12} className="text-[var(--kl-text-muted)]" />
                 <span>{test.turnaround}</span>
               </div>
             </div>
 
             <div className="mt-4 flex gap-2 flex-wrap w-full">
-              <span className="bg-[#f4f8ff] text-[#475a7d] text-[11px] px-2 py-0.5 rounded-full">{test.parameters.length} parameters</span>
+              <span className="bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)] text-[11px] px-2 py-0.5 rounded-full">{test.parameters.length} parameters</span>
               {test.relatedSop && (
-                <span className="bg-[#e3edff] text-[#1c5eff] text-[11px] px-2 py-0.5 rounded-full">{test.relatedSop}</span>
+                <span className="bg-[var(--kl-surface-tinted)] text-[#1c5eff] text-[11px] px-2 py-0.5 rounded-full">{test.relatedSop}</span>
               )}
             </div>
           </button>
@@ -164,4 +164,3 @@ export default function TestsPage() {
     </div>
   );
 }
-

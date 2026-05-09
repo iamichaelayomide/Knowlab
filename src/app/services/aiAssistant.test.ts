@@ -42,6 +42,20 @@ describe("aiAssistant", () => {
     expect(response.answer.toLowerCase()).toContain("glucose");
   });
 
+  it("uses chat context for follow-up questions", async () => {
+    const response = await askKnowledgeAssistant({
+      query: "what about the specimen and volume?",
+      role: "staff",
+      department: "Chemistry",
+      bench: "Glucose & Diabetes Markers",
+      unit: "Chemistry",
+      conversation: [{ role: "user", content: "Tell me about Fasting Blood Glucose (FBG)." }],
+    });
+
+    expect(response.mode).not.toBe("clarify");
+    expect(response.answer.toLowerCase()).toContain("glucose");
+  });
+
   it("returns training escalation analysis for HOD operational prompts", async () => {
     const response = await askKnowledgeAssistant({
       query: "Which units need immediate training escalation and why?",

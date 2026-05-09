@@ -94,8 +94,8 @@ export default function LoginPage() {
   return (
     <div className="auth-page min-h-screen bg-[var(--surface-base)] flex items-center justify-center p-6">
       <div className="w-full max-w-[420px]">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="auth-logo-mark bg-[linear-gradient(180deg,#2c2c2c,#050505)] rounded-lg size-[52px] flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_10px_24px_rgba(0,0,0,0.2)]">
+        <div className="kl-page-enter flex items-center gap-3 mb-8">
+          <div className="auth-logo-mark bg-[linear-gradient(180deg,#2c2c2c,#050505)] rounded-[22px] size-[52px] flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_10px_24px_rgba(0,0,0,0.2)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.07))]">
             <span className="text-white font-bold text-[15px]">LK</span>
           </div>
           <div>
@@ -104,7 +104,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="auth-card bg-[var(--surface-card)] rounded-2xl border border-[var(--surface-border)] shadow-xl p-8 sm:p-10">
+        <div className="auth-card kl-page-enter bg-[var(--surface-card)] rounded-[32px] border border-[var(--surface-border)] shadow-xl p-8 sm:p-10 backdrop-blur-xl">
           {mode !== 'signin' && (
             <button
               onClick={() => {
@@ -112,7 +112,7 @@ export default function LoginPage() {
                 setError('');
                 setMessage('');
               }}
-              className="mb-4 inline-flex items-center gap-1.5 text-[var(--kl-text-muted)] text-[13px] hover:text-[var(--kl-primary)] transition-colors"
+              className="kl-button-soft mb-4 inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[var(--text-secondary)] text-[13px] hover:text-[var(--text-primary)] transition-colors"
             >
               <ArrowLeft size={14} /> Back to sign in
             </button>
@@ -122,13 +122,13 @@ export default function LoginPage() {
             <>
               <h1 className="auth-heading text-[var(--text-primary)] font-bold text-[28px] mb-1">Sign in to Knowlab</h1>
               <p className="auth-subheading text-[var(--text-secondary)] text-[14px] mb-6 leading-[1.5]">Secure workspace sign in with role-aware access.</p>
-              <div className="role-tabs mb-6 flex gap-0.5 rounded-md bg-[var(--surface-base)] p-[3px]">
+              <div className="role-tabs mb-6 flex gap-1 rounded-full bg-[var(--surface-base)] p-1">
                 {['Staff', 'Supervisor', 'HOD'].map((role) => (
                   <div
                     key={role}
-                    className={`role-tab flex-1 rounded-[10px] px-3 py-2 text-center text-[13px] font-medium transition-all duration-base ease-spring ${
+                    className={`role-tab flex-1 rounded-full px-3 py-2 text-center text-[13px] font-medium transition-all duration-base ease-soft ${
                       visibleRole === role
-                        ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-sm'
+                        ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-sm border border-[var(--surface-border)]'
                         : 'text-[var(--text-secondary)]'
                     }`}
                     aria-current={visibleRole === role ? 'true' : undefined}
@@ -146,18 +146,18 @@ export default function LoginPage() {
                     onChange={e => handleEmailChange(e.target.value)}
                     placeholder="you@knowlab.com"
                     required
-                    className="input w-full h-[42px] rounded-md px-[14px] text-[15px]"
+                    className="input w-full h-[44px] rounded-full px-4 text-[15px]"
                   />
                 </div>
 
                 {detectedUser && (
-                  <div className="bg-[var(--accent-glow)] border border-[var(--surface-border)] rounded-lg p-4 flex items-start gap-3">
-                    <FlaskConical size={16} className="text-[var(--accent-primary)] mt-0.5" />
+                  <div className="kl-card bg-[var(--accent-glow)] border border-[var(--surface-border)] rounded-[24px] p-4 flex items-start gap-3">
+                    <FlaskConical size={16} className="text-[var(--accent-blue)] mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <p className="text-[var(--text-primary)] font-semibold text-[14px]">{detectedUser.unit}</p>
                       <p className="text-[var(--text-secondary)] text-[12px]">{detectedUser.name}</p>
                     </div>
-                    <div className="bg-[var(--surface-card)] text-[var(--accent-primary)] font-medium text-[11px] px-3 py-1 rounded-full flex-shrink-0 border border-[var(--surface-border)]">
+                    <div className="bg-[var(--surface-card)] text-[var(--accent-blue)] font-medium text-[11px] px-3 py-1 rounded-full flex-shrink-0 border border-[var(--surface-border)]">
                       {detectedUser.role}
                     </div>
                   </div>
@@ -172,12 +172,13 @@ export default function LoginPage() {
                       onChange={e => { setPassword(e.target.value); setError(''); }}
                       placeholder="Enter your password"
                       required
-                      className="input w-full h-[42px] rounded-md px-[14px] pr-12 text-[15px]"
+                      className="input w-full h-[44px] rounded-full px-4 pr-12 text-[15px]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-2.5 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-xs border border-[var(--surface-border)] bg-[var(--glass-bg)] text-[var(--text-tertiary)] backdrop-blur-sm transition-all hover:bg-[var(--surface-base)] hover:text-[var(--text-secondary)]"
+                      className="kl-icon-button absolute right-2 top-1/2 flex size-8 min-h-8 min-w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--glass-bg)] text-[var(--text-tertiary)] backdrop-blur-sm transition-all hover:bg-[var(--surface-base)] hover:text-[var(--text-secondary)]"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -187,7 +188,7 @@ export default function LoginPage() {
                 <div className="flex justify-end">
                   <button
                     type="button"
-                    className="text-[var(--accent-primary)] text-[12px] font-medium hover:underline"
+                    className="text-[var(--accent-blue)] text-[12px] font-medium hover:underline"
                     onClick={() => setMode('forgot')}
                   >
                     Forgot password?
@@ -195,13 +196,13 @@ export default function LoginPage() {
                 </div>
 
                 {error && (
-                  <div className="flex items-center gap-2 bg-[rgba(255,59,48,0.12)] text-[var(--destructive)] text-[13px] rounded-md px-4 py-3">
+                  <div className="flex items-center gap-2 bg-[rgba(255,59,48,0.12)] text-[var(--destructive)] text-[13px] rounded-[20px] px-4 py-3">
                     <AlertCircle size={14} />
                     {error}
                   </div>
                 )}
                 {message && (
-                  <div className="flex items-center gap-2 bg-[rgba(52,199,89,0.12)] text-[var(--success)] text-[13px] rounded-md px-4 py-3">
+                  <div className="flex items-center gap-2 bg-[rgba(52,199,89,0.12)] text-[var(--success)] text-[13px] rounded-[20px] px-4 py-3">
                     <KeyRound size={14} />
                     {message}
                   </div>
@@ -210,7 +211,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="btn-primary w-full h-[46px] justify-center rounded-lg px-4 text-[14px] font-semibold disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+                  className="btn-primary w-full h-[48px] justify-center rounded-full px-4 text-[14px] font-semibold disabled:opacity-60 disabled:cursor-not-allowed mt-2"
                 >
                   {isLoading ? `Signing in${TEXT_TOKENS.ellipsis}` : 'Sign in to Knowlab'}
                 </button>
@@ -231,7 +232,7 @@ export default function LoginPage() {
                     onChange={e => handleEmailChange(e.target.value)}
                     placeholder="you@knowlab.com"
                     required
-                    className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] px-4 py-3.5 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--kl-primary)] focus:ring-2 focus:ring-[var(--kl-primary)]/10 transition-all"
+                    className="input w-full h-[44px] rounded-full px-4 text-[14px]"
                   />
                 </div>
                 {message && (
@@ -240,7 +241,7 @@ export default function LoginPage() {
                     {message}
                   </div>
                 )}
-                <button type="submit" className="w-full bg-[var(--kl-primary)] hover:bg-[var(--kl-primary-hover)] text-white font-medium text-[14px] py-4 rounded-[16px] transition-colors">
+                <button type="submit" className="btn-primary w-full h-[48px] rounded-full text-[14px] font-medium">
                   Continue
                 </button>
               </form>
@@ -258,7 +259,7 @@ export default function LoginPage() {
                     type="email"
                     value={email}
                     disabled
-                    className="w-full bg-[var(--kl-surface-tinted)] border border-[var(--kl-border)] rounded-[14px] px-4 py-3.5 text-[14px] text-[var(--kl-text-muted)]"
+                    className="input w-full h-[44px] rounded-full px-4 text-[14px] text-[var(--text-secondary)]"
                   />
                 </div>
                 <div>
@@ -268,7 +269,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     required
-                    className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] px-4 py-3.5 text-[14px] text-[var(--kl-text)] focus:outline-none focus:border-[var(--kl-primary)] focus:ring-2 focus:ring-[var(--kl-primary)]/10 transition-all"
+                    className="input w-full h-[44px] rounded-full px-4 text-[14px]"
                   />
                 </div>
                 <div>
@@ -278,7 +279,7 @@ export default function LoginPage() {
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}
                     required
-                    className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] px-4 py-3.5 text-[14px] text-[var(--kl-text)] focus:outline-none focus:border-[var(--kl-primary)] focus:ring-2 focus:ring-[var(--kl-primary)]/10 transition-all"
+                    className="input w-full h-[44px] rounded-full px-4 text-[14px]"
                   />
                 </div>
                 {error && (
@@ -287,7 +288,7 @@ export default function LoginPage() {
                     {error}
                   </div>
                 )}
-                <button type="submit" className="w-full bg-[var(--kl-primary)] hover:bg-[var(--kl-primary-hover)] text-white font-medium text-[14px] py-4 rounded-[16px] transition-colors">
+                <button type="submit" className="btn-primary w-full h-[48px] rounded-full text-[14px] font-medium">
                   Update password
                 </button>
               </form>

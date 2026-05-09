@@ -27,8 +27,8 @@ export default function QCLogPage() {
   return (
     <div className="kl-page">
       <div className="mb-6">
-        <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">QC Log</h1>
-        <p className="text-[#73839f] text-[14px]">Sysmex XN-350 quality control records - Westgard multi-rule monitoring</p>
+        <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">QC Log</h1>
+        <p className="text-[var(--kl-text-muted)] text-[14px]">Sysmex XN-350 quality control records - Westgard multi-rule monitoring</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
@@ -50,10 +50,10 @@ export default function QCLogPage() {
         ))}
       </div>
 
-      <div className="bg-white rounded-[24px] border border-[#d3def5] overflow-hidden shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)]">
-        <div className="px-4 sm:px-5 py-3 border-b border-[#f4f8ff] bg-[#f9fbff] hidden sm:grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4">
+      <div className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] overflow-hidden shadow-[var(--kl-shadow)]">
+        <div className="px-4 sm:px-5 py-3 border-b border-[#f4f8ff] bg-[var(--kl-surface-soft)] hidden sm:grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4">
           {['Date', 'Level', 'Shift | Analyst', 'Overall Status', 'Action'].map((heading) => (
-            <span key={heading} className="text-[#73839f] font-semibold text-[11px] uppercase tracking-[0.8px]">
+            <span key={heading} className="text-[var(--kl-text-muted)] font-semibold text-[11px] uppercase tracking-[0.8px]">
               {heading}
             </span>
           ))}
@@ -62,7 +62,7 @@ export default function QCLogPage() {
         {filtered.length === 0 && (
           <div className="p-8 text-center">
             <ClipboardList size={32} className="text-[#c4d2ef] mx-auto mb-3" />
-            <p className="text-[#475a7d] font-medium">No QC entries</p>
+            <p className="text-[var(--kl-text-muted)] font-medium">No QC entries</p>
           </div>
         )}
 
@@ -73,53 +73,53 @@ export default function QCLogPage() {
 
           return (
             <div key={entry.id} className="border-b border-[#f4f8ff] last:border-0">
-              <div className="px-4 sm:px-5 py-4 grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-3 sm:gap-4 items-start sm:items-center hover:bg-[#f9fbff] transition-colors">
+              <div className="px-4 sm:px-5 py-4 grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-3 sm:gap-4 items-start sm:items-center hover:bg-[var(--kl-surface-soft)] transition-colors">
                 <div>
-                  <p className="text-[#11203b] font-medium text-[13px]">
+                  <p className="text-[var(--kl-text)] font-medium text-[13px]">
                     {new Date(entry.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
                   </p>
-                  <p className="text-[#73839f] text-[11px]">{entry.analyzer.split(' ').slice(0, 2).join(' ')}</p>
+                  <p className="text-[var(--kl-text-muted)] text-[11px]">{entry.analyzer.split(' ').slice(0, 2).join(' ')}</p>
                 </div>
 
                 <div>
-                  <p className="text-[#11203b] text-[13px] font-medium">{entry.level}</p>
-                  <p className="text-[#73839f] text-[11px]">{entry.results.length} parameters</p>
+                  <p className="text-[var(--kl-text)] text-[13px] font-medium">{entry.level}</p>
+                  <p className="text-[var(--kl-text-muted)] text-[11px]">{entry.results.length} parameters</p>
                 </div>
 
                 <div>
-                  <p className="text-[#11203b] text-[13px]">{entry.shift} shift</p>
-                  <p className="text-[#73839f] text-[11px]">{analyst?.name}</p>
+                  <p className="text-[var(--kl-text)] text-[13px]">{entry.shift} shift</p>
+                  <p className="text-[var(--kl-text-muted)] text-[11px]">{analyst?.name}</p>
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
                   <span
                     className={`text-[12px] font-medium px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 ${
                       entry.overallStatus === 'passed'
-                        ? 'bg-[#e8f8f1] text-[#1c7b56]'
+                        ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]'
                         : entry.overallStatus === 'warning'
-                          ? 'bg-[#fff0db] text-[#9a6115]'
-                          : 'bg-[#fde9e9] text-[#b14343]'
+                          ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]'
+                          : 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]'
                     }`}
                   >
                     {entry.overallStatus === 'passed' ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
                     {entry.overallStatus.charAt(0).toUpperCase() + entry.overallStatus.slice(1)}
                   </span>
-                  {!isReviewed && <span className="text-[10px] bg-[#e3edff] text-[#1c5eff] font-semibold px-2 py-0.5 rounded-full">NEW</span>}
+                  {!isReviewed && <span className="text-[10px] bg-[var(--kl-surface-tinted)] text-[#1c5eff] font-semibold px-2 py-0.5 rounded-full">NEW</span>}
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setExpandedId(isExpanded ? null : entry.id)} className="text-[#475a7d] hover:text-[#1c5eff] transition-colors">
+                  <button onClick={() => setExpandedId(isExpanded ? null : entry.id)} className="text-[var(--kl-text-muted)] hover:text-[#1c5eff] transition-colors">
                     {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </button>
                 </div>
               </div>
 
               {isExpanded && (
-                <div className="border-t border-[#f4f8ff] bg-[#f9fbff] p-4 sm:p-5">
+                <div className="border-t border-[#f4f8ff] bg-[var(--kl-surface-soft)] p-4 sm:p-5">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                    <div className="bg-white border border-[#d3def5] rounded-[10px] px-3 py-2">
-                      <p className="text-[#73839f] text-[10px] font-semibold uppercase tracking-[0.8px]">Westgard Trigger</p>
-                      <p className="text-[#11203b] text-[12px] font-medium">
+                    <div className="bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[10px] px-3 py-2">
+                      <p className="text-[var(--kl-text-muted)] text-[10px] font-semibold uppercase tracking-[0.8px]">Westgard Trigger</p>
+                      <p className="text-[var(--kl-text)] text-[12px] font-medium">
                         {entry.overallStatus === 'passed'
                           ? 'No rejection rule triggered'
                           : entry.overallStatus === 'warning'
@@ -127,25 +127,25 @@ export default function QCLogPage() {
                             : 'Reject rule triggered'}
                       </p>
                     </div>
-                    <div className="bg-white border border-[#d3def5] rounded-[10px] px-3 py-2">
-                      <p className="text-[#73839f] text-[10px] font-semibold uppercase tracking-[0.8px]">Action Scope</p>
-                      <p className="text-[#11203b] text-[12px] font-medium">
+                    <div className="bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[10px] px-3 py-2">
+                      <p className="text-[var(--kl-text-muted)] text-[10px] font-semibold uppercase tracking-[0.8px]">Action Scope</p>
+                      <p className="text-[var(--kl-text)] text-[12px] font-medium">
                         {entry.overallStatus === 'passed' ? 'Routine release allowed' : 'Hold and rerun before release'}
                       </p>
                     </div>
-                    <div className="bg-white border border-[#d3def5] rounded-[10px] px-3 py-2">
-                      <p className="text-[#73839f] text-[10px] font-semibold uppercase tracking-[0.8px]">Documentation</p>
-                      <p className="text-[#11203b] text-[12px] font-medium">QC register and LIS trace required</p>
+                    <div className="bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[10px] px-3 py-2">
+                      <p className="text-[var(--kl-text-muted)] text-[10px] font-semibold uppercase tracking-[0.8px]">Documentation</p>
+                      <p className="text-[var(--kl-text)] text-[12px] font-medium">QC register and LIS trace required</p>
                     </div>
                   </div>
 
-                  <h3 className="text-[#11203b] font-semibold text-[14px] mb-3">Parameter Results</h3>
+                  <h3 className="text-[var(--kl-text)] font-semibold text-[14px] mb-3">Parameter Results</h3>
                   <div className="overflow-x-auto mb-4">
                     <table className="w-full text-left min-w-[500px]">
                       <thead>
                         <tr className="border-b border-[#eef4ff]">
                           {['Parameter', 'Measured', 'Target', 'SD Value', 'Deviation (SD)', 'Status'].map((heading) => (
-                            <th key={heading} className="text-[#73839f] font-semibold text-[10px] uppercase tracking-[0.8px] pb-2 pr-4">
+                            <th key={heading} className="text-[var(--kl-text-muted)] font-semibold text-[10px] uppercase tracking-[0.8px] pb-2 pr-4">
                               {heading}
                             </th>
                           ))}
@@ -154,17 +154,17 @@ export default function QCLogPage() {
                       <tbody>
                         {entry.results.map((result, index) => (
                           <tr key={index} className="border-b border-[#f4f8ff] last:border-0">
-                            <td className="py-2.5 pr-4 text-[#11203b] font-medium text-[12px]">{result.parameter}</td>
-                            <td className="py-2.5 pr-4 text-[#11203b] font-mono text-[12px]">{result.measuredValue}</td>
-                            <td className="py-2.5 pr-4 text-[#475a7d] font-mono text-[12px]">{result.targetValue}</td>
-                            <td className="py-2.5 pr-4 text-[#475a7d] font-mono text-[12px]">+/-{result.sdValue}</td>
+                            <td className="py-2.5 pr-4 text-[var(--kl-text)] font-medium text-[12px]">{result.parameter}</td>
+                            <td className="py-2.5 pr-4 text-[var(--kl-text)] font-mono text-[12px]">{result.measuredValue}</td>
+                            <td className="py-2.5 pr-4 text-[var(--kl-text-muted)] font-mono text-[12px]">{result.targetValue}</td>
+                            <td className="py-2.5 pr-4 text-[var(--kl-text-muted)] font-mono text-[12px]">+/-{result.sdValue}</td>
                             <td
                               className={`py-2.5 pr-4 font-mono font-semibold text-[12px] ${
                                 Math.abs(result.sdDeviation) > 2
-                                  ? 'text-[#b14343]'
+                                  ? 'text-[#b14343] dark:text-[#fca5a5]'
                                   : Math.abs(result.sdDeviation) > 1.5
-                                    ? 'text-[#9a6115]'
-                                    : 'text-[#1c7b56]'
+                                    ? 'text-[#9a6115] dark:text-[#f3c26f]'
+                                    : 'text-[#1c7b56] dark:text-[#88e0ba]'
                               }`}
                             >
                               {result.sdDeviation > 0 ? '+' : ''}
@@ -174,10 +174,10 @@ export default function QCLogPage() {
                               <span
                                 className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                                   result.status === 'pass'
-                                    ? 'bg-[#e8f8f1] text-[#1c7b56]'
+                                    ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]'
                                     : result.status === 'warning'
-                                      ? 'bg-[#fff0db] text-[#9a6115]'
-                                      : 'bg-[#fde9e9] text-[#b14343]'
+                                      ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]'
+                                      : 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]'
                                 }`}
                               >
                                 {result.status.toUpperCase()}
@@ -190,8 +190,8 @@ export default function QCLogPage() {
                   </div>
 
                   {entry.comment && (
-                    <div className="bg-[#fff0db] border border-[#f5d99a] rounded-[12px] p-3 mb-4">
-                      <p className="text-[#9a6115] text-[11px] font-semibold uppercase tracking-[0.8px] mb-1">Analyst Comment</p>
+                    <div className="bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] border border-[#f5d99a] dark:border-[rgba(245,217,154,0.25)] rounded-[12px] p-3 mb-4">
+                      <p className="text-[#9a6115] dark:text-[#f3c26f] text-[11px] font-semibold uppercase tracking-[0.8px] mb-1">Analyst Comment</p>
                       <p className="text-[#7a4f10] text-[13px] leading-relaxed">{entry.comment}</p>
                     </div>
                   )}
@@ -205,7 +205,7 @@ export default function QCLogPage() {
                         <Eye size={14} /> Mark as Reviewed
                       </button>
                       {entry.overallStatus !== 'passed' && (
-                        <button className="bg-[#fff0db] text-[#9a6115] text-[13px] font-medium px-4 py-2.5 rounded-[12px] hover:bg-[#f5d99a] transition-colors">
+                        <button className="bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f] text-[13px] font-medium px-4 py-2.5 rounded-[12px] hover:bg-[#f5d99a] dark:bg-[rgba(245,217,154,0.25)] transition-colors">
                           Raise CAPA
                         </button>
                       )}
@@ -213,7 +213,7 @@ export default function QCLogPage() {
                   )}
 
                   {isReviewed && (
-                    <p className="text-[#1c7b56] text-[12px] flex items-center gap-1.5">
+                    <p className="text-[#1c7b56] dark:text-[#88e0ba] text-[12px] flex items-center gap-1.5">
                       <CheckCircle2 size={13} /> Reviewed by {user?.name}
                       {entry.reviewedAt && ` | ${new Date(entry.reviewedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`}
                     </p>
@@ -227,4 +227,3 @@ export default function QCLogPage() {
     </div>
   );
 }
-

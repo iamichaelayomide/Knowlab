@@ -5,24 +5,24 @@ import { JOB_AIDS, JobAid } from '../../data/mockData';
 import { useDepartment } from '../../context/DepartmentContext';
 
 const TYPE_ICONS: Record<string, React.ReactNode> = {
-  checklist: <CheckSquare size={18} className="text-[#1c7b56]" />,
-  decision_tree: <GitBranch size={18} className="text-[#9a6115]" />,
+  checklist: <CheckSquare size={18} className="text-[#1c7b56] dark:text-[#88e0ba]" />,
+  decision_tree: <GitBranch size={18} className="text-[#9a6115] dark:text-[#f3c26f]" />,
   quick_reference: <FileText size={18} className="text-[#1c5eff]" />,
-  protocol: <AlertCircle size={18} className="text-[#b14343]" />,
+  protocol: <AlertCircle size={18} className="text-[#b14343] dark:text-[#fca5a5]" />,
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  checklist: 'bg-[#e8f8f1] text-[#1c7b56]',
-  decision_tree: 'bg-[#fff0db] text-[#9a6115]',
-  quick_reference: 'bg-[#e3edff] text-[#1c5eff]',
-  protocol: 'bg-[#fde9e9] text-[#b14343]',
+  checklist: 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]',
+  decision_tree: 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]',
+  quick_reference: 'bg-[var(--kl-surface-tinted)] text-[#1c5eff]',
+  protocol: 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]',
 };
 
 const TYPE_BG: Record<string, string> = {
-  checklist: 'bg-[#e8f8f1]',
-  decision_tree: 'bg-[#fff0db]',
-  quick_reference: 'bg-[#e3edff]',
-  protocol: 'bg-[#fde9e9]',
+  checklist: 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)]',
+  decision_tree: 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)]',
+  quick_reference: 'bg-[var(--kl-surface-tinted)]',
+  protocol: 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]',
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -38,25 +38,25 @@ function JobAidCard({ aid }: { aid: JobAid }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-white rounded-[20px] border border-[#d3def5] shadow-[0px_4px_12px_0px_rgba(15,40,90,0.04)] overflow-hidden flex flex-col h-full">
+    <div className="bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] overflow-hidden flex flex-col h-full">
       <div className="p-5 flex-1 flex flex-col">
         <div className="flex items-start gap-3 mb-3">
           <div className={`rounded-[12px] p-2.5 flex-shrink-0 ${TYPE_BG[aid.type]}`}>
             {TYPE_ICONS[aid.type]}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-[#11203b] font-semibold text-[14px] leading-snug mb-1">{aid.title}</h3>
+            <h3 className="text-[var(--kl-text)] font-semibold text-[14px] leading-snug mb-1">{aid.title}</h3>
             <div className="flex items-center gap-2 flex-wrap">
               <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${TYPE_COLORS[aid.type]}`}>
                 {TYPE_LABELS[aid.type]}
               </span>
-              <span className="bg-[#f4f8ff] text-[#475a7d] text-[11px] px-2 py-0.5 rounded-full">{aid.category}</span>
+              <span className="bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)] text-[11px] px-2 py-0.5 rounded-full">{aid.category}</span>
             </div>
           </div>
         </div>
-        <p className="text-[#475a7d] text-[13px] leading-relaxed mb-4 flex-1">{aid.description}</p>
+        <p className="text-[var(--kl-text-muted)] text-[13px] leading-relaxed mb-4 flex-1">{aid.description}</p>
         <div className="flex items-center justify-between mt-auto">
-          <span className="text-[#73839f] text-[11px]">Updated {new Date(aid.lastUpdated).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+          <span className="text-[var(--kl-text-muted)] text-[11px]">Updated {new Date(aid.lastUpdated).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
           {aid.steps && (
             <button
               onClick={() => setExpanded(v => !v)}
@@ -71,14 +71,14 @@ function JobAidCard({ aid }: { aid: JobAid }) {
 
       {/* Expanded Steps */}
       {expanded && aid.steps && (
-        <div className="border-t border-[#f4f8ff] bg-[#f9fbff]">
+        <div className="border-t border-[#f4f8ff] bg-[var(--kl-surface-soft)]">
           <div className="p-5 space-y-3">
             {aid.steps.map((step, i) => (
               <div key={i} className="flex gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#e3edff] flex items-center justify-center">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--kl-surface-tinted)] flex items-center justify-center">
                   <span className="text-[#1c5eff] text-[11px] font-bold">{i + 1}</span>
                 </div>
-                <p className="text-[#475a7d] text-[13px] leading-relaxed flex-1">{step}</p>
+                <p className="text-[var(--kl-text-muted)] text-[13px] leading-relaxed flex-1">{step}</p>
               </div>
             ))}
           </div>
@@ -138,18 +138,18 @@ export default function JobAidsPage() {
   return (
     <div className="kl-page">
       <div className="mb-6">
-        <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">Quick Job Aids</h1>
-        <p className="text-[#73839f] text-[14px]">Checklists, decision trees, and quick reference guides for bench use</p>
+        <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">Quick Job Aids</h1>
+        <p className="text-[var(--kl-text-muted)] text-[14px]">Checklists, decision trees, and quick reference guides for bench use</p>
       </div>
 
       {/* Search */}
       <div className="relative mb-4">
-        <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#73839f]" />
+        <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--kl-text-muted)]" />
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search job aids…"
-          className="w-full bg-white border border-[#d3def5] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[#11203b] placeholder:text-[#73839f] focus:outline-none focus:border-[#1c5eff] transition-colors"
+          className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[#1c5eff] transition-colors"
         />
       </div>
 
@@ -162,8 +162,8 @@ export default function JobAidsPage() {
               onClick={() => setActiveCategory(cat)}
               className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors border ${
                 activeCategory === cat
-                  ? 'bg-[#e3edff] text-[#1c5eff] border-[#1c5eff]'
-                  : 'bg-white text-[#475a7d] border-[#d3def5] hover:border-[#9bb3e5]'
+                  ? 'bg-[var(--kl-surface-tinted)] text-[#1c5eff] border-[#1c5eff]'
+                  : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--kl-primary)]'
               }`}
             >
               {cat}
@@ -177,8 +177,8 @@ export default function JobAidsPage() {
               onClick={() => setActiveType(type)}
               className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors border ${
                 activeType === type
-                  ? 'bg-[#e3edff] text-[#1c5eff] border-[#1c5eff]'
-                  : 'bg-white text-[#475a7d] border-[#d3def5] hover:border-[#9bb3e5]'
+                  ? 'bg-[var(--kl-surface-tinted)] text-[#1c5eff] border-[#1c5eff]'
+                  : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--kl-primary)]'
               }`}
             >
               {type === 'All' ? 'All Types' : TYPE_LABELS[type]}
@@ -190,9 +190,9 @@ export default function JobAidsPage() {
       {/* Job Aids Grid */}
       <div className="grid lg:grid-cols-2 gap-4">
         {filtered.length === 0 && (
-          <div className="col-span-2 bg-white rounded-[20px] border border-[#d3def5] p-8 text-center">
+          <div className="col-span-2 bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-8 text-center">
             <BookOpen size={32} className="text-[#c4d2ef] mx-auto mb-3" />
-            <p className="text-[#475a7d] font-medium">No job aids found</p>
+            <p className="text-[var(--kl-text-muted)] font-medium">No job aids found</p>
           </div>
         )}
         {filtered.map(aid => (
@@ -202,4 +202,3 @@ export default function JobAidsPage() {
     </div>
   );
 }
-

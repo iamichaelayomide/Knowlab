@@ -224,8 +224,9 @@ export default function FloatingAIWidget() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="ask-ai-fab fixed z-40 right-4 sm:right-6 inline-flex h-11 items-center gap-2 rounded-full border border-[rgba(255,255,255,0.18)] bg-[linear-gradient(180deg,#252525,#050505)] px-5 text-[14px] font-semibold tracking-[-0.01em] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_12px_32px_rgba(0,0,0,0.22),0_2px_8px_rgba(0,0,0,0.10)] backdrop-blur-2xl transition-all duration-base ease-spring hover:scale-[1.04] hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_16px_42px_rgba(0,0,0,0.28),0_4px_12px_rgba(0,0,0,0.16)] active:scale-[0.97] dark:border-[rgba(255,255,255,0.18)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.09))] dark:text-white dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_18px_48px_rgba(0,0,0,0.58)]"
+          className="ask-ai-fab kl-button-glass fixed z-40 right-4 sm:right-6 inline-flex h-11 items-center gap-2 px-5 text-[14px] font-semibold tracking-[-0.01em]"
           style={{ bottom: "calc(env(safe-area-inset-bottom) + 14px)" }}
+          aria-label="Open Knowlab AI"
         >
           <AppIcon name="ai" size={16} />
           <span className="text-[13px] font-semibold">Ask AI</span>
@@ -234,7 +235,7 @@ export default function FloatingAIWidget() {
 
       {open && (
         <div
-          className="fixed z-50 inset-x-3 sm:inset-x-auto sm:right-6 bg-[var(--surface-overlay)] border border-[var(--glass-border)] rounded-2xl shadow-xl backdrop-blur-2xl flex flex-col overflow-hidden sm:w-[410px]"
+          className="kl-ai-panel fixed z-50 inset-x-3 sm:inset-x-auto sm:right-6 flex flex-col overflow-hidden sm:w-[410px]"
           style={{
             bottom: "calc(env(safe-area-inset-bottom) + 12px)",
             height: "min(72dvh, 680px)",
@@ -242,7 +243,7 @@ export default function FloatingAIWidget() {
         >
           <div className="shrink-0 px-4 py-3 border-b border-[var(--surface-border)] bg-[var(--surface-raised)] flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="bg-[linear-gradient(180deg,#2b2b2b,#080808)] rounded-[10px] p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_22px_rgba(0,0,0,0.2)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.08))]">
+              <div className="bg-[linear-gradient(180deg,#2b2b2b,#080808)] rounded-[16px] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_22px_rgba(0,0,0,0.2)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.07))]">
                 <AppIcon name="ai" size={14} className="text-white" />
               </div>
               <div className="min-w-0">
@@ -257,11 +258,11 @@ export default function FloatingAIWidget() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => navigate(`${base}/ai-assistant/legacy`)}
-                className="text-[var(--text-secondary)] hover:text-[var(--accent-primary)] rounded-sm px-2 py-1 text-[11px] font-medium border border-[var(--surface-border)] bg-[var(--glass-bg)]"
+                className="kl-button-soft h-8 rounded-full px-3 text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               >
                 Full chat
               </button>
-              <button onClick={() => setOpen(false)} className="text-[var(--text-secondary)] hover:text-[var(--accent-primary)] rounded-sm p-1 hover:bg-[var(--surface-base)]">
+              <button onClick={() => setOpen(false)} className="kl-icon-button text-[var(--text-secondary)] hover:text-[var(--text-primary)]" aria-label="Close AI assistant">
                 <AppIcon name="close" size={14} />
               </button>
             </div>
@@ -273,7 +274,7 @@ export default function FloatingAIWidget() {
                 <button
                   key={card}
                   onClick={() => void send(card)}
-                  className="text-left rounded-md border border-[var(--surface-border)] bg-[var(--accent-glow)] px-2.5 py-2 transition-all hover:border-[var(--accent-primary)] hover:bg-[var(--surface-card)]"
+                  className="kl-card-interactive text-left rounded-[18px] border border-[var(--surface-border)] bg-[var(--glass-bg)] px-2.5 py-2 transition-all hover:border-[var(--accent-blue)] hover:bg-[var(--surface-raised)]"
                 >
                   <p className="text-[11px] text-[var(--text-primary)] leading-snug">{card}</p>
                 </button>
@@ -285,9 +286,9 @@ export default function FloatingAIWidget() {
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[90%] rounded-[14px] px-3 py-2 ${
+                  className={`kl-ai-message max-w-[90%] px-3 py-2 ${
                     msg.role === "user"
-                      ? "bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-primary-hover))] text-white shadow-sm"
+                      ? "bg-[linear-gradient(180deg,#242424,#050505)] text-white shadow-sm dark:bg-[rgba(255,255,255,0.10)] dark:text-[var(--text-primary)]"
                       : "bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--text-primary)] shadow-xs"
                   }`}
                 >
@@ -321,8 +322,8 @@ export default function FloatingAIWidget() {
                                   navigate(to, { state: { fromAi: true, sourceTitle: src.title } });
                                   setOpen(false);
                                 }}
-                                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] ${
-                                  to ? "bg-[#ececec] text-[#111111] dark:bg-[rgba(255,255,255,0.12)] dark:text-white" : "bg-[var(--surface-raised)] text-[var(--text-tertiary)]"
+                                className={`kl-filter-pill inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] ${
+                                  to ? "bg-[var(--glass-bg)] text-[var(--text-primary)] dark:bg-[rgba(255,255,255,0.10)] dark:text-[var(--text-primary)]" : "bg-[var(--surface-raised)] text-[var(--text-tertiary)]"
                                 }`}
                               >
                                 <AppIcon name="sops" size={10} />
@@ -345,7 +346,7 @@ export default function FloatingAIWidget() {
                                   navigate(target, { state: { fromAi: true } });
                                   setOpen(false);
                                 }}
-                                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] bg-[rgba(52,199,89,0.12)] text-[var(--success)] disabled:opacity-50"
+                                className="kl-filter-pill inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] bg-[rgba(52,199,89,0.12)] text-[var(--success)] disabled:opacity-50"
                               >
                                 <AppIcon name="arrowRight" size={10} />
                                 {action.label}
@@ -361,7 +362,7 @@ export default function FloatingAIWidget() {
             ))}
 
             {loading && (
-              <div className="inline-flex items-center gap-2 bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--text-secondary)] text-[11px] rounded-md px-3 py-2">
+              <div className="kl-ai-message inline-flex items-center gap-2 bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--text-secondary)] text-[11px] rounded-full px-3 py-2">
                 <AppIcon name="ai" size={12} />
                 Thinking...
               </div>
@@ -383,12 +384,13 @@ export default function FloatingAIWidget() {
                 }
               }}
               placeholder="Ask about SOPs, tests, CAPA, competency, training..."
-              className="input flex-1 h-[40px] rounded-md border border-[var(--surface-border-strong)] bg-[var(--surface-base)] px-3 text-[12px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent-primary)]"
+              className="input flex-1 h-[40px] rounded-full border border-[var(--surface-border-strong)] bg-[var(--surface-base)] px-4 text-[12px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent-blue)]"
             />
             <button
               onClick={() => void send()}
               disabled={!input.trim() || loading}
-              className="btn-primary h-[40px] w-[40px] rounded-md p-0 inline-flex items-center justify-center disabled:opacity-40"
+              className="btn-primary h-[40px] w-[40px] rounded-full p-0 inline-flex items-center justify-center disabled:opacity-40"
+              aria-label="Send message"
             >
               <AppIcon name="send" size={14} />
             </button>

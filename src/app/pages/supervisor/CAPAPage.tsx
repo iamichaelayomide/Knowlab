@@ -7,17 +7,17 @@ import { TEXT_TOKENS } from "../../utils/textTokens";
 const STORE_KEY = "knowlab_capa_updates_v1";
 
 const PRIORITY_CONFIG = {
-  critical: { label: "Critical", color: "text-[#b14343]", bg: "bg-[#fde9e9]", dot: "bg-[#b14343]" },
-  high: { label: "High", color: "text-[#9a6115]", bg: "bg-[#fff0db]", dot: "bg-[#9a6115]" },
-  medium: { label: "Medium", color: "text-[#1c5eff]", bg: "bg-[#e3edff]", dot: "bg-[#1c5eff]" },
-  low: { label: "Low", color: "text-[#73839f]", bg: "bg-[#f4f8ff]", dot: "bg-[#73839f]" },
+  critical: { label: "Critical", color: "text-[#b14343] dark:text-[#fca5a5]", bg: "bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]", dot: "bg-[#b14343]" },
+  high: { label: "High", color: "text-[#9a6115] dark:text-[#f3c26f]", bg: "bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)]", dot: "bg-[#9a6115]" },
+  medium: { label: "Medium", color: "text-[#1c5eff]", bg: "bg-[var(--kl-surface-tinted)]", dot: "bg-[#1c5eff]" },
+  low: { label: "Low", color: "text-[var(--kl-text-muted)]", bg: "bg-[var(--kl-surface-tinted)]", dot: "bg-[#73839f]" },
 } as const;
 
 const STATUS_CONFIG = {
-  open: { label: "Open", color: "text-[#b14343]", bg: "bg-[#fde9e9]" },
-  in_progress: { label: "In Progress", color: "text-[#9a6115]", bg: "bg-[#fff0db]" },
-  completed: { label: "Completed", color: "text-[#1c7b56]", bg: "bg-[#e8f8f1]" },
-  overdue: { label: "Overdue", color: "text-[#b14343]", bg: "bg-[#fde9e9]" },
+  open: { label: "Open", color: "text-[#b14343] dark:text-[#fca5a5]", bg: "bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]" },
+  in_progress: { label: "In Progress", color: "text-[#9a6115] dark:text-[#f3c26f]", bg: "bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)]" },
+  completed: { label: "Completed", color: "text-[#1c7b56] dark:text-[#88e0ba]", bg: "bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)]" },
+  overdue: { label: "Overdue", color: "text-[#b14343] dark:text-[#fca5a5]", bg: "bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]" },
 } as const;
 
 function loadItems() {
@@ -118,8 +118,8 @@ export default function CAPAPage() {
   return (
     <div className="kl-page">
       <div className="mb-6">
-        <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">CAPA Items</h1>
-        <p className="text-[#73839f] text-[14px]">Read-only by default. Use Edit Mode to make controlled changes.</p>
+        <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">CAPA Items</h1>
+        <p className="text-[var(--kl-text-muted)] text-[14px]">Read-only by default. Use Edit Mode to make controlled changes.</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
@@ -158,29 +158,29 @@ export default function CAPAPage() {
           return (
             <div
               key={item.id}
-              className={`bg-white rounded-[20px] border overflow-hidden ${
-                item.priority === "critical" && item.status !== "completed" ? "border-[#f5c0c0]" : "border-[#d3def5]"
+              className={`bg-[var(--kl-surface)] rounded-[20px] border overflow-hidden ${
+                item.priority === "critical" && item.status !== "completed" ? "border-[#f5c0c0]" : "border-[var(--kl-border)]"
               }`}
             >
-              <button onClick={() => setExpandedId(isExpanded ? null : item.id)} className="w-full p-5 text-left hover:bg-[#f9fbff] transition-colors">
+              <button onClick={() => setExpandedId(isExpanded ? null : item.id)} className="w-full p-5 text-left hover:bg-[var(--kl-surface-soft)] transition-colors">
                 <div className="flex items-start gap-3">
                   <div className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${priority.dot}`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1">
-                      <h3 className="text-[#11203b] font-semibold text-[14px] leading-snug">{item.title}</h3>
+                      <h3 className="text-[var(--kl-text)] font-semibold text-[14px] leading-snug">{item.title}</h3>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${priority.bg} ${priority.color}`}>
                           {priority.label.toUpperCase()}
                         </span>
                         <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${status.bg} ${status.color}`}>{status.label}</span>
-                        <AppIcon name={isExpanded ? "chevronDown" : "chevronRight"} size={15} className="text-[#73839f]" />
+                        <AppIcon name={isExpanded ? "chevronDown" : "chevronRight"} size={15} className="text-[var(--kl-text-muted)]" />
                       </div>
                     </div>
-                    <p className="text-[#475a7d] text-[13px] leading-relaxed line-clamp-2">{item.description}</p>
-                    <div className="flex items-center gap-4 mt-2 text-[11px] text-[#73839f]">
+                    <p className="text-[var(--kl-text-muted)] text-[13px] leading-relaxed line-clamp-2">{item.description}</p>
+                    <div className="flex items-center gap-4 mt-2 text-[11px] text-[var(--kl-text-muted)]">
                       <span>{item.code}</span>
                       <span>Assigned: {assignee?.name || "Unassigned"}</span>
-                      <span className={isOverdue ? "text-[#b14343] font-semibold" : ""}>
+                      <span className={isOverdue ? "text-[#b14343] dark:text-[#fca5a5] font-semibold" : ""}>
                         Due: {new Date(item.dueDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                         {isOverdue ? `${TEXT_TOKENS.separator}OVERDUE` : ""}
                       </span>
@@ -190,9 +190,9 @@ export default function CAPAPage() {
               </button>
 
               {isExpanded && (
-                <div className="border-t border-[#f4f8ff] p-5 bg-[#f9fbff] space-y-4">
+                <div className="border-t border-[#f4f8ff] p-5 bg-[var(--kl-surface-soft)] space-y-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#f4f8ff] px-2.5 py-1 text-[11px] text-[#475a7d] border border-[#d3def5]">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[var(--kl-surface-tinted)] px-2.5 py-1 text-[11px] text-[var(--kl-text-muted)] border border-[var(--kl-border)]">
                       <AppIcon name="info" size={11} />
                       {isEditing ? "Edit mode enabled" : "Read-only mode"}
                     </span>
@@ -215,7 +215,7 @@ export default function CAPAPage() {
                         </button>
                         <button
                           onClick={() => cancelEdit(item.id)}
-                          className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#eef5ff] text-[#475a7d] px-3 py-1.5 text-[12px] font-medium border border-[#d3def5]"
+                          className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#eef5ff] text-[var(--kl-text-muted)] px-3 py-1.5 text-[12px] font-medium border border-[var(--kl-border)]"
                         >
                           <AppIcon name="close" size={12} />
                           Cancel
@@ -223,7 +223,7 @@ export default function CAPAPage() {
                         {current.status !== "completed" && (
                           <button
                             onClick={() => markComplete(item.id)}
-                            className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#e8f8f1] text-[#1c7b56] px-3 py-1.5 text-[12px] font-medium"
+                            className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba] px-3 py-1.5 text-[12px] font-medium"
                           >
                             <AppIcon name="check" size={12} />
                             Mark complete
@@ -235,12 +235,12 @@ export default function CAPAPage() {
 
                   <div className="grid sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[11px] text-[#73839f] font-semibold uppercase tracking-[0.8px] mb-1">Status</label>
+                      <label className="block text-[11px] text-[var(--kl-text-muted)] font-semibold uppercase tracking-[0.8px] mb-1">Status</label>
                       {isEditing ? (
                         <select
                           value={current.status}
                           onChange={(event) => updateDraft(item.id, { status: event.target.value as CAPAItem["status"] })}
-                          className="w-full border border-[#d3def5] rounded-[10px] px-2.5 py-2 text-[12px]"
+                          className="w-full border border-[var(--kl-border)] rounded-[10px] px-2.5 py-2 text-[12px]"
                         >
                           <option value="open">Open</option>
                           <option value="in_progress">In Progress</option>
@@ -248,20 +248,20 @@ export default function CAPAPage() {
                           <option value="completed">Completed</option>
                         </select>
                       ) : (
-                        <p className="rounded-[10px] border border-[#d3def5] bg-white px-3 py-2 text-[12px] text-[#11203b]">{status.label}</p>
+                        <p className="rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-3 py-2 text-[12px] text-[var(--kl-text)]">{status.label}</p>
                       )}
                     </div>
                     <div>
-                      <label className="block text-[11px] text-[#73839f] font-semibold uppercase tracking-[0.8px] mb-1">Due Date</label>
+                      <label className="block text-[11px] text-[var(--kl-text-muted)] font-semibold uppercase tracking-[0.8px] mb-1">Due Date</label>
                       {isEditing ? (
                         <input
                           type="date"
                           value={current.dueDate}
                           onChange={(event) => updateDraft(item.id, { dueDate: event.target.value })}
-                          className="w-full border border-[#d3def5] rounded-[10px] px-2.5 py-2 text-[12px]"
+                          className="w-full border border-[var(--kl-border)] rounded-[10px] px-2.5 py-2 text-[12px]"
                         />
                       ) : (
-                        <p className="rounded-[10px] border border-[#d3def5] bg-white px-3 py-2 text-[12px] text-[#11203b]">
+                        <p className="rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-3 py-2 text-[12px] text-[var(--kl-text)]">
                           {new Date(item.dueDate).toLocaleDateString("en-GB")}
                         </p>
                       )}
@@ -269,16 +269,16 @@ export default function CAPAPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] text-[#73839f] font-semibold uppercase tracking-[0.8px] mb-1">Root Cause Analysis</label>
+                    <label className="block text-[11px] text-[var(--kl-text-muted)] font-semibold uppercase tracking-[0.8px] mb-1">Root Cause Analysis</label>
                     {isEditing ? (
                       <textarea
                         value={current.rootCause ?? ""}
                         onChange={(event) => updateDraft(item.id, { rootCause: event.target.value })}
                         rows={3}
-                        className="w-full border border-[#d3def5] rounded-[10px] px-3 py-2 text-[12px]"
+                        className="w-full border border-[var(--kl-border)] rounded-[10px] px-3 py-2 text-[12px]"
                       />
                     ) : (
-                      <p className="rounded-[10px] border border-[#d3def5] bg-white px-3 py-2 text-[12px] text-[#475a7d] whitespace-pre-wrap">
+                      <p className="rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-3 py-2 text-[12px] text-[var(--kl-text-muted)] whitespace-pre-wrap">
                         {valueOrPlaceholder(item.rootCause)}
                       </p>
                     )}
@@ -286,31 +286,31 @@ export default function CAPAPage() {
 
                   <div className="grid sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[11px] text-[#73839f] font-semibold uppercase tracking-[0.8px] mb-1">Corrective Action</label>
+                      <label className="block text-[11px] text-[var(--kl-text-muted)] font-semibold uppercase tracking-[0.8px] mb-1">Corrective Action</label>
                       {isEditing ? (
                         <textarea
                           value={current.correctiveAction ?? ""}
                           onChange={(event) => updateDraft(item.id, { correctiveAction: event.target.value })}
                           rows={4}
-                          className="w-full border border-[#d3def5] rounded-[10px] px-3 py-2 text-[12px]"
+                          className="w-full border border-[var(--kl-border)] rounded-[10px] px-3 py-2 text-[12px]"
                         />
                       ) : (
-                        <p className="rounded-[10px] border border-[#d3def5] bg-white px-3 py-2 text-[12px] text-[#475a7d] whitespace-pre-wrap">
+                        <p className="rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-3 py-2 text-[12px] text-[var(--kl-text-muted)] whitespace-pre-wrap">
                           {valueOrPlaceholder(item.correctiveAction)}
                         </p>
                       )}
                     </div>
                     <div>
-                      <label className="block text-[11px] text-[#73839f] font-semibold uppercase tracking-[0.8px] mb-1">Preventive Action</label>
+                      <label className="block text-[11px] text-[var(--kl-text-muted)] font-semibold uppercase tracking-[0.8px] mb-1">Preventive Action</label>
                       {isEditing ? (
                         <textarea
                           value={current.preventiveAction ?? ""}
                           onChange={(event) => updateDraft(item.id, { preventiveAction: event.target.value })}
                           rows={4}
-                          className="w-full border border-[#d3def5] rounded-[10px] px-3 py-2 text-[12px]"
+                          className="w-full border border-[var(--kl-border)] rounded-[10px] px-3 py-2 text-[12px]"
                         />
                       ) : (
-                        <p className="rounded-[10px] border border-[#d3def5] bg-white px-3 py-2 text-[12px] text-[#475a7d] whitespace-pre-wrap">
+                        <p className="rounded-[10px] border border-[var(--kl-border)] bg-[var(--kl-surface)] px-3 py-2 text-[12px] text-[var(--kl-text-muted)] whitespace-pre-wrap">
                           {valueOrPlaceholder(item.preventiveAction)}
                         </p>
                       )}
@@ -325,4 +325,3 @@ export default function CAPAPage() {
     </div>
   );
 }
-

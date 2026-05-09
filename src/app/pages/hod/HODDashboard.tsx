@@ -50,14 +50,14 @@ export default function HODDashboard() {
               {user?.department} {TEXT_TOKENS.separator.trim()} {allStaff.length} staff across {new Set(allStaff.map(s => s.unit)).size} units
             </p>
             <div className="flex gap-3 mt-5">
-              <button onClick={() => navigate('/hod/staff')} className="bg-white text-[#11203b] font-medium text-[13px] px-4 py-2.5 rounded-[13px] hover:bg-[#f4f8ff] transition-colors">
+              <button onClick={() => navigate('/hod/staff')} className="bg-[var(--kl-surface)] text-[var(--kl-text)] font-medium text-[13px] px-4 py-2.5 rounded-[13px] hover:bg-[var(--kl-surface-tinted)] transition-colors">
                 Staff overview
               </button>
               <button onClick={() => navigate('/hod/reports')} className="bg-[rgba(40,70,111,0.8)] border border-[rgba(124,147,183,0.8)] text-white font-medium text-[13px] px-4 py-2.5 rounded-[13px]">
                 View reports
               </button>
               <button
-                onClick={() => openFloatingAI('Who are the people in haematology bench who have under 80% competency level?')}
+                onClick={() => openFloatingAI('Which haematology staff are below 80% competency?')}
                 className="bg-[rgba(40,70,111,0.8)] border border-[rgba(124,147,183,0.8)] text-white font-medium text-[13px] px-4 py-2.5 rounded-[13px]"
               >
                 Ask AI insights
@@ -115,7 +115,7 @@ export default function HODDashboard() {
           <button
             key={item.label}
             onClick={() => navigate(item.path)}
-            className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-5 text-left hover:border-[#1c5eff] hover:shadow-[0px_8px_24px_rgba(28,94,255,0.08)] transition-all"
+            className="bg-[var(--kl-surface)] rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-5 text-left hover:border-[var(--kl-primary)] hover:shadow-[var(--kl-shadow)] transition-all"
           >
             <div className="flex justify-between items-start mb-3">
               <div className="h-1 w-10 rounded-full" style={{ backgroundColor: item.color }} />
@@ -123,9 +123,9 @@ export default function HODDashboard() {
                 <span style={{ color: item.color }}>{item.icon}</span>
               </div>
             </div>
-            <p className="text-[#475a7d] text-[13px] mb-1">{item.label}</p>
-            <p className="text-[#11203b] font-bold text-[26px] leading-none mb-1">{item.value}</p>
-            <p className="text-[#73839f] text-[12px]">{item.sub}</p>
+            <p className="text-[var(--kl-text-muted)] text-[13px] mb-1">{item.label}</p>
+            <p className="text-[var(--kl-text)] font-bold text-[26px] leading-none mb-1">{item.value}</p>
+            <p className="text-[var(--kl-text-muted)] text-[12px]">{item.sub}</p>
           </button>
         ))}
       </div>
@@ -133,11 +133,11 @@ export default function HODDashboard() {
       {/* Two column */}
       <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
         {/* Staff by unit */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
+        <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Users size={18} className="text-[#1c5eff]" />
-              <h2 className="text-[#11203b] font-semibold text-[16px]">Staff by Unit</h2>
+              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Staff by Unit</h2>
             </div>
             <button onClick={() => navigate('/hod/staff')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               Full list <ChevronRight size={14} />
@@ -149,15 +149,15 @@ export default function HODDashboard() {
             return (
               <div key={unit} className="flex items-center gap-3 py-3 border-b border-[#f4f8ff] last:border-0">
                 <div className="flex-1 min-w-0">
-                  <p className="text-[#11203b] font-medium text-[13px] truncate">{unit}</p>
-                  <p className="text-[#73839f] text-[11px]">{unitStaff.length} staff</p>
+                  <p className="text-[var(--kl-text)] font-medium text-[13px] truncate">{unit}</p>
+                  <p className="text-[var(--kl-text-muted)] text-[11px]">{unitStaff.length} staff</p>
                 </div>
                 <div className="text-right">
-                  <p className={`font-semibold text-[13px] ${avgComp >= 85 ? 'text-[#1c7b56]' : avgComp >= 70 ? 'text-[#9a6115]' : 'text-[#b14343]'}`}>{avgComp}%</p>
-                  <p className="text-[#73839f] text-[10px]">avg competency</p>
+                  <p className={`font-semibold text-[13px] ${avgComp >= 85 ? 'text-[#1c7b56] dark:text-[#88e0ba]' : avgComp >= 70 ? 'text-[#9a6115] dark:text-[#f3c26f]' : 'text-[#b14343] dark:text-[#fca5a5]'}`}>{avgComp}%</p>
+                  <p className="text-[var(--kl-text-muted)] text-[10px]">avg competency</p>
                 </div>
                 <div className="w-16">
-                  <div className="w-full bg-[#f4f8ff] rounded-full h-1.5">
+                  <div className="w-full bg-[var(--kl-surface-tinted)] rounded-full h-1.5">
                     <div className="h-1.5 rounded-full" style={{ width: `${avgComp}%`, backgroundColor: avgComp >= 85 ? '#1c7b56' : avgComp >= 70 ? '#9a6115' : '#b14343' }} />
                   </div>
                 </div>
@@ -166,22 +166,22 @@ export default function HODDashboard() {
           })}
           {/* Low competency alert */}
           {lowCompetency.length > 0 && (
-            <div className="mt-3 bg-[#fde9e9] rounded-[12px] p-3">
+            <div className="mt-3 bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] rounded-[12px] p-3">
               <div className="flex items-center gap-1.5 mb-1">
-                <AlertTriangle size={12} className="text-[#b14343]" />
-                <span className="text-[#b14343] text-[11px] font-semibold">{lowCompetency.length} staff below 80% threshold</span>
+                <AlertTriangle size={12} className="text-[#b14343] dark:text-[#fca5a5]" />
+                <span className="text-[#b14343] dark:text-[#fca5a5] text-[11px] font-semibold">{lowCompetency.length} staff below 80% threshold</span>
               </div>
-              <p className="text-[#b14343] text-[12px]">{lowestCompetencyStaff} {TEXT_TOKENS.separator.trim()} review recommended</p>
+              <p className="text-[#b14343] dark:text-[#fca5a5] text-[12px]">{lowestCompetencyStaff} {TEXT_TOKENS.separator.trim()} review recommended</p>
             </div>
           )}
         </div>
 
         {/* CAPA Summary */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
+        <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <ShieldAlert size={18} className="text-[#1c5eff]" />
-              <h2 className="text-[#11203b] font-semibold text-[16px]">CAPA Status</h2>
+              <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">CAPA Status</h2>
             </div>
             <button onClick={() => navigate('/hod/capa')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
               Manage <ChevronRight size={14} />
@@ -194,13 +194,13 @@ export default function HODDashboard() {
                 capa.priority === 'high' ? 'bg-[#9a6115]' : 'bg-[#1c5eff]'
               }`} />
               <div className="flex-1 min-w-0">
-                <p className="text-[#11203b] font-medium text-[12px] leading-snug">{capa.title}</p>
-                <p className="text-[#73839f] text-[10px] mt-0.5">{capa.code}</p>
+                <p className="text-[var(--kl-text)] font-medium text-[12px] leading-snug">{capa.title}</p>
+                <p className="text-[var(--kl-text-muted)] text-[10px] mt-0.5">{capa.code}</p>
               </div>
               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
-                capa.status === 'completed' ? 'bg-[#e8f8f1] text-[#1c7b56]' :
-                capa.status === 'open' ? 'bg-[#fde9e9] text-[#b14343]' :
-                'bg-[#fff0db] text-[#9a6115]'
+                capa.status === 'completed' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' :
+                capa.status === 'open' ? 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]' :
+                'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]'
               }`}>
                 {capa.status.replace('_', ' ').toUpperCase()}
               </span>
@@ -210,13 +210,13 @@ export default function HODDashboard() {
       </div>
 
       {/* Alerts */}
-      <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-4 sm:p-6">
+      <div className="bg-[var(--kl-surface)] rounded-[18px] sm:rounded-[24px] border border-[var(--kl-border)] shadow-[var(--kl-shadow)] p-4 sm:p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <AlertTriangle size={18} className="text-[#1c5eff]" />
-            <h2 className="text-[#11203b] font-semibold text-[16px]">Department Alerts</h2>
+            <h2 className="text-[var(--kl-text)] font-semibold text-[16px]">Department Alerts</h2>
             {hodAlerts.length > 0 && (
-              <span className="bg-[#fde9e9] text-[#b14343] text-[11px] font-semibold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1">{hodAlerts.length}</span>
+              <span className="bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5] text-[11px] font-semibold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1">{hodAlerts.length}</span>
             )}
           </div>
           <button onClick={() => navigate('/hod/alerts')} className="text-[#1c5eff] text-[13px] font-medium flex items-center gap-1 hover:gap-2 transition-all">
@@ -227,7 +227,7 @@ export default function HODDashboard() {
           {ALERTS.filter(a => a.targetRoles.includes('hod')).slice(0, 6).map(alert => (
             <div
               key={alert.id}
-              className={`flex items-start gap-3 p-3 rounded-[14px] hover:bg-[#f4f8ff] transition-colors ${!alert.read ? 'bg-[#f9fbff]' : ''}`}
+              className={`flex items-start gap-3 p-3 rounded-[14px] hover:bg-[var(--kl-surface-tinted)] transition-colors ${!alert.read ? 'bg-[var(--kl-surface-soft)]' : ''}`}
             >
               <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
                 alert.type === 'danger' ? 'bg-[#b14343]' :
@@ -235,8 +235,8 @@ export default function HODDashboard() {
                 alert.type === 'success' ? 'bg-[#1c7b56]' : 'bg-[#1c5eff]'
               }`} />
               <div className="flex-1 min-w-0">
-                <p className={`text-[13px] font-medium truncate ${!alert.read ? 'text-[#11203b]' : 'text-[#475a7d]'}`}>{alert.title}</p>
-                <p className="text-[#73839f] text-[11px]">{alert.category} {TEXT_TOKENS.separator.trim()} {new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
+                <p className={`text-[13px] font-medium truncate ${!alert.read ? 'text-[var(--kl-text)]' : 'text-[var(--kl-text-muted)]'}`}>{alert.title}</p>
+                <p className="text-[var(--kl-text-muted)] text-[11px]">{alert.category} {TEXT_TOKENS.separator.trim()} {new Date(alert.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
               </div>
               {!alert.read && <div className="w-2 h-2 bg-[#1c5eff] rounded-full flex-shrink-0 mt-1.5" />}
             </div>
@@ -246,4 +246,3 @@ export default function HODDashboard() {
     </div>
   );
 }
-

@@ -82,7 +82,7 @@ export default function SettingsPage() {
             <p className="text-[13px] font-medium text-[var(--kl-text)]">Color theme</p>
             <p className="text-[12px] text-[var(--kl-text-muted)]">This preference persists across sessions.</p>
           </div>
-          <ThemeToggle className="rounded-[10px] border border-[var(--kl-border)] px-2.5 py-1.5" />
+          <ThemeToggle className="shrink-0" />
         </div>
       </section>
 
@@ -108,7 +108,7 @@ export default function SettingsPage() {
                 }`}
               >
                 <span
-                  className={`absolute top-0.5 size-4 rounded-full bg-white transition-transform ${
+                  className={`absolute top-0.5 size-4 rounded-full bg-[var(--kl-surface)] transition-transform ${
                     notifications[key as keyof typeof notifications] ? "translate-x-5" : "translate-x-0.5"
                   }`}
                 />
@@ -137,7 +137,7 @@ export default function SettingsPage() {
 
       <button
         onClick={handleLogout}
-        className="w-full rounded-[16px] bg-[#fde9e9] text-[#b14343] hover:bg-[#f8d8d8] font-semibold text-[14px] py-3 inline-flex items-center justify-center gap-2"
+        className="w-full rounded-[16px] bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5] hover:bg-[#f8d8d8] font-semibold text-[14px] py-3 inline-flex items-center justify-center gap-2"
       >
         <AppIcon name="logout" size={14} />
         Sign out of Knowlab
@@ -145,4 +145,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-

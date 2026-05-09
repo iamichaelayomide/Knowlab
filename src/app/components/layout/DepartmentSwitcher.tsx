@@ -4,44 +4,6 @@ import { DEPARTMENTS } from '../../data/mockData';
 import { useDepartment } from '../../context/DepartmentContext';
 import { AppIcon } from '../icons/AppIcon';
 
-const DEPARTMENT_ICON_CLASS: Record<string, string> = {
-  haematology: 'las la-tint',
-  chemistry: 'las la-flask',
-  microbiology: 'las la-microscope',
-  histopathology: 'las la-microscope',
-  bgs: 'las la-vial',
-};
-
-const BENCH_ICON_CLASS: Record<string, string> = {
-  fbc: 'las la-heartbeat',
-  'blood-film': 'las la-search-plus',
-  coagulation: 'las la-shield-alt',
-  'blood-bank': 'las la-vial',
-  'esr-special': 'las la-dna',
-  glucose: 'las la-chart-line',
-  'bilirubin-lft': 'las la-wave-square',
-  kft: 'las la-flask',
-  lipid: 'las la-chart-area',
-  electrolytes: 'las la-bolt',
-  bacteriology: 'las la-flask',
-  mycology: 'las la-spa',
-  virology: 'las la-microscope',
-  parasitology: 'las la-bug',
-  molecular: 'las la-dna',
-  histology: 'las la-layer-group',
-  cytology: 'las la-circle-notch',
-  ihc: 'las la-fingerprint',
-  autopsy: 'las la-notes-medical',
-  'abo-rh': 'las la-tint',
-  crossmatch: 'las la-exchange-alt',
-  'antibody-screen': 'las la-shield-alt',
-  serology: 'las la-microscope',
-};
-
-function Icons8Glyph({ className }: { className: string }) {
-  return <i className={`${className} la-fw`} />;
-}
-
 export function DepartmentSwitcher() {
   const { activeDepartment, activeBench, setActiveDepartment, setActiveBench } = useDepartment();
   const [open, setOpen] = useState(false);
@@ -89,13 +51,13 @@ export function DepartmentSwitcher() {
       <button
         ref={triggerRef}
         onClick={() => setOpen((value) => !value)}
-        className="w-full flex items-center gap-3 px-3 py-3 rounded-lg border border-[var(--surface-border)] bg-[var(--surface-raised)] shadow-xs hover:bg-[var(--surface-card)] active:scale-[0.995] transition-all"
+        className="kl-card-interactive w-full flex items-center gap-3 px-3 py-3 rounded-[22px] border border-[var(--surface-border)] bg-[var(--glass-bg)] shadow-xs backdrop-blur-xl hover:bg-[var(--surface-card)] transition-all"
       >
         <span
-          className="size-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 text-[16px]"
+          className="size-10 rounded-[18px] flex items-center justify-center text-white flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]"
           style={{ backgroundColor: activeDepartment.color }}
         >
-          <Icons8Glyph className={DEPARTMENT_ICON_CLASS[activeDepartment.id] ?? 'las la-layer-group'} />
+          <AppIcon name="department" size={18} />
         </span>
         <div className="flex-1 min-w-0 text-left">
           <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{activeDepartment.shortName}</p>
@@ -111,7 +73,7 @@ export function DepartmentSwitcher() {
       {open && (
         <div
           ref={panelRef}
-          className="absolute left-0 right-0 top-[calc(100%+8px)] z-40 rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] shadow-xl overflow-hidden backdrop-blur-2xl"
+          className="kl-menu-panel absolute left-0 right-0 top-[calc(100%+8px)] z-40 overflow-hidden"
         >
           {view === 'departments' ? (
             <div>
@@ -125,17 +87,17 @@ export function DepartmentSwitcher() {
                     <button
                       key={department.id}
                       onClick={() => selectDepartment(department)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all active:scale-[0.99] ${
+                      className={`kl-menu-item w-full flex items-center gap-3 px-3 py-2.5 border transition-all ${
                         isActive
-                          ? 'border-[var(--accent-primary)] bg-[var(--accent-glow)] shadow-[0_0_0_2px_var(--accent-glow)]'
+                          ? 'border-[var(--accent-blue)] bg-[var(--accent-glow)] shadow-[0_0_0_2px_var(--accent-glow)]'
                           : 'border-transparent hover:border-[var(--surface-border)] hover:bg-[var(--surface-base)]'
                       }`}
                     >
                       <span
-                        className="size-9 rounded-lg flex items-center justify-center text-white text-[14px]"
+                        className="size-9 rounded-[16px] flex items-center justify-center text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]"
                         style={{ backgroundColor: department.color }}
                       >
-                        <Icons8Glyph className={DEPARTMENT_ICON_CLASS[department.id] ?? 'las la-layer-group'} />
+                        <AppIcon name="department" size={16} />
                       </span>
                       <div className="min-w-0 flex-1 text-left">
                         <p className="text-sm font-medium text-[var(--text-primary)] truncate">{department.name}</p>
@@ -152,7 +114,7 @@ export function DepartmentSwitcher() {
               <div className="px-3 py-3 border-b border-[var(--surface-border)] bg-[var(--surface-base)] flex items-center gap-2">
                 <button
                   onClick={() => setView('departments')}
-                  className="rounded-lg p-1.5 text-[var(--text-secondary)] hover:bg-[var(--surface-card)] active:scale-[0.96]"
+                  className="kl-icon-button text-[var(--text-secondary)]"
                   aria-label="Back to departments"
                 >
                   <AppIcon name="arrowRight" size={14} className="rotate-180" />
@@ -166,21 +128,21 @@ export function DepartmentSwitcher() {
                     <button
                       key={bench.id}
                       onClick={() => selectBench(bench)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all active:scale-[0.99] ${
+                      className={`kl-menu-item w-full flex items-center gap-3 px-3 py-2.5 border transition-all ${
                         isActive
-                          ? 'border-[var(--accent-primary)] bg-[var(--accent-glow)] shadow-[0_0_0_2px_var(--accent-glow)]'
+                          ? 'border-[var(--accent-blue)] bg-[var(--accent-glow)] shadow-[0_0_0_2px_var(--accent-glow)]'
                           : 'border-transparent hover:border-[var(--surface-border)] hover:bg-[var(--surface-base)]'
                       }`}
                     >
                       <span
-                        className="size-6 rounded-md flex items-center justify-center bg-[var(--surface-card)] text-[var(--accent-primary)] border border-[var(--surface-border)] text-[12px]"
+                        className="size-7 rounded-full flex items-center justify-center bg-[var(--glass-bg)] text-[var(--accent-blue)] border border-[var(--surface-border)]"
                         title={bench.name}
                       >
-                        <Icons8Glyph className={BENCH_ICON_CLASS[bench.id] ?? 'las la-flask'} />
+                        <AppIcon name="bench" size={13} />
                       </span>
                       <span className="min-w-0 flex-1 text-left text-sm text-[var(--text-primary)] truncate">{bench.name}</span>
                       {isActive ? (
-                        <span className="size-5 rounded-full bg-[var(--accent-primary)] text-white flex items-center justify-center">
+                      <span className="size-5 rounded-full bg-[var(--accent-blue)] text-white flex items-center justify-center">
                           <AppIcon name="check" size={11} className="text-white" />
                         </span>
                       ) : null}

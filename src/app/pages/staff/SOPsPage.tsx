@@ -50,19 +50,19 @@ export default function SOPsPage() {
   return (
     <div className="kl-page">
       <div className="mb-6">
-        <h1 className="text-[#11203b] font-semibold text-[24px] mb-1">Standard Operating Procedures</h1>
-        <p className="text-[#73839f] text-[14px]">{departmentSOPs.length} SOPs available in your department</p>
+        <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">Standard Operating Procedures</h1>
+        <p className="text-[var(--kl-text-muted)] text-[14px]">{departmentSOPs.length} SOPs available in your department</p>
       </div>
 
       {/* Search + Filter */}
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <div className="relative flex-1">
-          <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#73839f]" />
+          <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--kl-text-muted)]" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search SOPs, codes, or keywords…"
-            className="w-full bg-white border border-[#d3def5] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[#11203b] placeholder:text-[#73839f] focus:outline-none focus:border-[#1c5eff] transition-colors"
+            className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[#1c5eff] transition-colors"
           />
         </div>
         {base === '/staff' && (
@@ -83,8 +83,8 @@ export default function SOPsPage() {
             onClick={() => setActiveCategory(cat)}
             className={`px-4 py-2 rounded-full text-[12px] font-medium transition-colors border ${
               activeCategory === cat
-                ? 'bg-[#e3edff] text-[#1c5eff] border-[#1c5eff]'
-                : 'bg-white text-[#475a7d] border-[#d3def5] hover:border-[#9bb3e5]'
+                ? 'bg-[var(--kl-surface-tinted)] text-[#1c5eff] border-[#1c5eff]'
+                : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--kl-primary)]'
             }`}
           >
             {cat}
@@ -99,71 +99,71 @@ export default function SOPsPage() {
           return (
             <div
               key={sop.id}
-              className="w-full bg-white border border-[#d3def5] rounded-[20px] p-5 flex items-start gap-4 text-left"
+              className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[20px] p-5 flex items-start gap-4 text-left"
             >
-              <div className="bg-[#e3edff] rounded-[14px] p-3 flex-shrink-0">
+              <div className="bg-[var(--kl-surface-tinted)] rounded-[14px] p-3 flex-shrink-0">
                 <FileText size={20} className="text-[#1c5eff]" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3 mb-1">
-                  <h3 className="text-[#11203b] font-semibold text-[15px] leading-snug">{sop.title}</h3>
+                  <h3 className="text-[var(--kl-text)] font-semibold text-[15px] leading-snug">{sop.title}</h3>
                   <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full ${
-                    stage.tone === 'success' ? 'bg-[#e8f8f1] text-[#1c7b56]' :
-                    stage.tone === 'warning' ? 'bg-[#fff0db] text-[#9a6115]' :
-                    stage.tone === 'danger' ? 'bg-[#fde9e9] text-[#b14343]' :
+                    stage.tone === 'success' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' :
+                    stage.tone === 'warning' ? 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]' :
+                    stage.tone === 'danger' ? 'bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]' :
                     'bg-[#eef5ff] text-[#1c5eff]'
                   }`}>{stage.label}</span>
                 </div>
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="text-[#73839f] text-[12px]">{sop.code}</span>
+                  <span className="text-[var(--kl-text-muted)] text-[12px]">{sop.code}</span>
                   <span className="text-[#c4d2ef]">·</span>
-                  <span className="text-[#73839f] text-[12px]">v{sop.version}</span>
+                  <span className="text-[var(--kl-text-muted)] text-[12px]">v{sop.version}</span>
                   <span className="text-[#c4d2ef]">·</span>
-                  <span className="text-[#73839f] text-[12px]">Owner: {sop.ownerName}</span>
+                  <span className="text-[var(--kl-text-muted)] text-[12px]">Owner: {sop.ownerName}</span>
                 </div>
-                <p className="text-[#475a7d] text-[13px] line-clamp-2 leading-relaxed">{sop.content.purpose}</p>
+                <p className="text-[var(--kl-text-muted)] text-[13px] line-clamp-2 leading-relaxed">{sop.content.purpose}</p>
               </div>
             </div>
           );
         })}
 
         {filtered.length === 0 && filteredWorkflow.length === 0 && (
-          <div className="bg-white rounded-[20px] border border-[#d3def5] p-8 text-center">
+          <div className="bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-8 text-center">
             <FileText size={32} className="text-[#c4d2ef] mx-auto mb-3" />
-            <p className="text-[#475a7d] font-medium">No SOPs found</p>
-            <p className="text-[#73839f] text-[13px]">Try adjusting your search or filter</p>
+            <p className="text-[var(--kl-text-muted)] font-medium">No SOPs found</p>
+            <p className="text-[var(--kl-text-muted)] text-[13px]">Try adjusting your search or filter</p>
           </div>
         )}
         {filtered.map(sop => (
           <button
             key={sop.id}
             onClick={() => navigate(`${base}/sops/${sop.id}`)}
-            className="w-full bg-white border border-[#d3def5] rounded-[20px] p-5 flex items-start gap-4 hover:border-[#1c5eff] hover:shadow-[0px_6px_18px_0px_rgba(28,94,255,0.08)] transition-all text-left group"
+            className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[20px] p-5 flex items-start gap-4 hover:border-[var(--kl-primary)] hover:shadow-[var(--kl-shadow)] transition-all text-left group"
           >
-            <div className="bg-[#e3edff] rounded-[14px] p-3 flex-shrink-0">
+            <div className="bg-[var(--kl-surface-tinted)] rounded-[14px] p-3 flex-shrink-0">
               <FileText size={20} className="text-[#1c5eff]" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-3 mb-1">
-                <h3 className="text-[#11203b] font-semibold text-[15px] leading-snug group-hover:text-[#1c5eff] transition-colors">{sop.title}</h3>
+                <h3 className="text-[var(--kl-text)] font-semibold text-[15px] leading-snug group-hover:text-[#1c5eff] transition-colors">{sop.title}</h3>
                 <ChevronRight size={16} className="text-[#c4d2ef] group-hover:text-[#1c5eff] flex-shrink-0 mt-0.5 transition-colors" />
               </div>
               <div className="flex items-center gap-3 mb-2">
-                <span className="text-[#73839f] text-[12px]">{sop.code}</span>
+                <span className="text-[var(--kl-text-muted)] text-[12px]">{sop.code}</span>
                 <span className="text-[#c4d2ef]">·</span>
-                <span className="text-[#73839f] text-[12px]">Rev.{sop.revision}</span>
+                <span className="text-[var(--kl-text-muted)] text-[12px]">Rev.{sop.revision}</span>
                 <span className="text-[#c4d2ef]">·</span>
-                <span className="text-[#73839f] text-[12px]">Effective {sop.effectiveDate}</span>
+                <span className="text-[var(--kl-text-muted)] text-[12px]">Effective {sop.effectiveDate}</span>
               </div>
-              <p className="text-[#475a7d] text-[13px] line-clamp-2 leading-relaxed">{sop.purpose}</p>
+              <p className="text-[var(--kl-text-muted)] text-[13px] line-clamp-2 leading-relaxed">{sop.purpose}</p>
               <div className="flex items-center gap-2 mt-3 flex-wrap">
                 <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full ${
-                  sop.status === 'active' ? 'bg-[#e8f8f1] text-[#1c7b56]' : 'bg-[#fff0db] text-[#9a6115]'
+                  sop.status === 'active' ? 'bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)] text-[#1c7b56] dark:text-[#88e0ba]' : 'bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)] text-[#9a6115] dark:text-[#f3c26f]'
                 }`}>
                   {sop.status === 'active' ? 'Active' : 'Under Review'}
                 </span>
-                <span className="bg-[#f4f8ff] text-[#475a7d] text-[11px] font-medium px-2.5 py-1 rounded-full">{sop.department}</span>
-                <span className="text-[#73839f] text-[11px]">Author: {sop.author}</span>
+                <span className="bg-[var(--kl-surface-tinted)] text-[var(--kl-text-muted)] text-[11px] font-medium px-2.5 py-1 rounded-full">{sop.department}</span>
+                <span className="text-[var(--kl-text-muted)] text-[11px]">Author: {sop.author}</span>
               </div>
             </div>
           </button>
@@ -172,4 +172,3 @@ export default function SOPsPage() {
     </div>
   );
 }
-

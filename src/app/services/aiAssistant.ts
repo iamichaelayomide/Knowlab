@@ -23,6 +23,11 @@ export interface AssistantQuickAction {
   source?: AssistantSource;
 }
 
+export interface AssistantConversationTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export interface AssistantAnswer {
   answer: string;
   confidence: number;
@@ -50,20 +55,49 @@ function sentence(input: string, fallback: string) {
   return trimmed.endsWith(".") ? trimmed : `${trimmed}.`;
 }
 
+function buildConversationContext(conversation?: AssistantConversationTurn[]) {
+  if (!conversation?.length) return "";
+
+  return conversation
+    .slice(-6)
+    .map((turn) => {
+      const label = turn.role === "assistant" ? "Assistant" : "User";
+      const content = turn.content.trim().replace(/\s+/g, " ").slice(0, 240);
+      return `${label}: ${content}`;
+    })
+    .join("\n");
+}
+
 function buildAlternativeSuggestions(query: string) {
   const tokens = tokenize(query);
-  const rankedTests = LAB_TESTS.map((test) => {
-    const hay = `${test.name} ${test.category} ${test.code}`.toLowerCase();
-    const score = tokens.reduce((acc, token) => acc + (hay.includes(token) ? 1 : 0), 0);
-    return { test, score };
-  })
+  const rankedDocs = [
+    ...SOPS.map((sop) => {
+      const hay = `${sop.title} ${sop.category} ${sop.code} ${sop.department}`.toLowerCase();
+      const score = tokens.reduce((acc, token) => acc + (hay.includes(token) ? 1 : 0), 0);
+      return { label: `${sop.code} - ${sop.title}`, score };
+    }),
+    ...LAB_TESTS.map((test) => {
+      const hay = `${test.name} ${test.category} ${test.code}`.toLowerCase();
+      const score = tokens.reduce((acc, token) => acc + (hay.includes(token) ? 1 : 0), 0);
+      return { label: `${test.code} - ${test.name}`, score };
+    }),
+    ...JOB_AIDS.map((aid) => {
+      const hay = `${aid.title} ${aid.category} ${aid.description}`.toLowerCase();
+      const score = tokens.reduce((acc, token) => acc + (hay.includes(token) ? 1 : 0), 0);
+      return { label: aid.title, score };
+    }),
+  ]
     .sort((a, b) => b.score - a.score)
     .slice(0, 3);
 
-  if (rankedTests.every((entry) => entry.score === 0)) {
-    return LAB_TESTS.slice(0, 3).map((test) => `${test.code} - ${test.name}`);
+  if (rankedDocs.every((entry) => entry.score === 0)) {
+    return [
+      ...SOPS.slice(0, 1).map((sop) => `${sop.code} - ${sop.title}`),
+      ...LAB_TESTS.slice(0, 1).map((test) => `${test.code} - ${test.name}`),
+      ...JOB_AIDS.slice(0, 1).map((aid) => aid.title),
+    ];
   }
-  return rankedTests.map((entry) => `${entry.test.code} - ${entry.test.name}`);
+  return rankedDocs.map((entry) => entry.label);
 }
 
 function matchesLocalIntent(query: string) {
@@ -134,7 +168,7 @@ function deniedAnswer(role: "staff" | "supervisor" | "hod"): AssistantAnswer {
 
   return {
     answer:
-      "That request is outside staff-level access.\n\nYou can ask SOP/test/training guidance here. For admin or supervisor-level data, please contact your supervisor.",
+      "That request is outside staff-level access.\n\nI can still help with SOPs, tests, and training here, but admin or supervisor-level data needs the right role.",
     confidence: 0.91,
     sources: [],
     mode: "denied",
@@ -170,7 +204,7 @@ function staffAskingRestrictedScope(query: string) {
 function clarificationAnswer(): AssistantAnswer {
   return {
     answer:
-      "I can help. Could you clarify a quick detail:\n1) Which test/SOP/process?\n2) Do you want a quick answer or a step-by-step walkthrough?\n3) Should I keep it to your current bench?",
+      "I can help, could you clarify one quick detail?\n\n- Which test, SOP, or process do you mean?\n- Do you want a quick answer or a step-by-step walkthrough?\n- Should I keep it to your current bench?",
     confidence: 0.44,
     sources: [],
     mode: "clarify",
@@ -230,7 +264,7 @@ function tryGeneralDefinition(query: string): AssistantAnswer | null {
   if (!hit) {
     return {
       answer:
-        "I can give a quick concept explanation, but exact lab values and procedures must come from verified SOP/test sources.\n\nTry a specific term like: define glucose, define CAPA, define QC, or define SOP.",
+        "I can give a quick concept explanation, but exact lab values and procedure steps should come from verified SOP/test sources.\n\nTry a specific term like: define glucose, define CAPA, define QC, or define SOP.",
       confidence: 0.38,
       sources: [],
       mode: "teaching",
@@ -502,7 +536,7 @@ function rankLocalDocs(query: string) {
     .filter((entry) => entry.score > 0);
 }
 
-async function askLocalQwen(query: string): Promise<AssistantAnswer | null> {
+async function askLocalQwen(query: string, conversationContext = ""): Promise<AssistantAnswer | null> {
   const useLocalQwen = import.meta.env.VITE_USE_LOCAL_QWEN === "true";
   if (!useLocalQwen) return null;
 
@@ -520,12 +554,12 @@ async function askLocalQwen(query: string): Promise<AssistantAnswer | null> {
   })) as AssistantSource[];
 
   const prompt =
-    "You are Knowlab AI running locally with Qwen.\n" +
-    "Rules:\n" +
-    "- Use retrieved context for numeric ranges, procedure steps, and specimen requirements.\n" +
-    "- If a value/procedure is not in context, say it is not verified in current sources.\n" +
-    "- Teach in clear steps where useful.\n" +
-    "- Keep response natural and practical.\n\n" +
+    "You are Knowlab AI, a helpful lab colleague.\n" +
+    "Answer naturally and practically, without sounding scripted.\n" +
+    "Use the retrieved context for numeric ranges, procedure steps, and specimen requirements.\n" +
+    "If a value or step is not in context, say it plainly is not verified in current sources.\n" +
+    "When it helps, teach in clear steps and keep the answer grounded in lab practice.\n\n" +
+    (conversationContext ? `Conversation so far:\n${conversationContext}\n\n` : "") +
     `Context:\n${context}\n\nQuestion:\n${query}`;
 
   try {
@@ -566,11 +600,11 @@ function localKnowledgeRag(query: string): AssistantAnswer {
     return {
       answer:
         `I couldn't find a verified source for "${query}" in the current knowledge bank.\n\n` +
-        "Closest alternatives you can open now:\n" +
+        "Try one of these closer matches:\n" +
         buildAlternativeSuggestions(query)
           .map((suggestion, idx) => `${idx + 1}. ${suggestion}`)
           .join("\n") +
-        '\n\nIf you want, ask a narrower question with a test name/code (example: "reference range for fasting glucose").',
+        '\n\nIf you want, ask with a more specific test name, SOP code, or job aid title, like "reference range for fasting glucose".',
       confidence: 0.2,
       sources: [],
       mode: "clarify",
@@ -599,18 +633,21 @@ function localKnowledgeRag(query: string): AssistantAnswer {
 
     return {
       answer:
-        `${test.name} (${test.code}) is a ${test.category} test.\n` +
-        `Specimen: ${test.sampleType}, ${test.container}, ${test.sampleVolume}.\n` +
-        `Method: ${test.methodology}.\n\n` +
-        "Reference ranges available:\n" +
+        `Here is the verified summary for ${test.name} (${test.code}):\n` +
+        `- Category: ${test.category}\n` +
+        `- Specimen: ${test.sampleType}\n` +
+        `- Container: ${test.container}\n` +
+        `- Volume: ${test.sampleVolume}\n` +
+        `- Method: ${test.methodology}\n\n` +
+        `Reference details:\n` +
         `${parameterLines.length ? parameterLines.join("\n") : "- No numeric range is documented in this source."}` +
         (teaching
-          ? "\n\nIf you want a walkthrough:\n1) Confirm sample and container.\n2) Run with the stated method.\n3) Validate against SOP/QC before release."
+          ? "\n\nIf you want a walkthrough, I can break it into sample, method, validation, and release steps."
           : "") +
-        "\n\nIf you want more:\n" +
+        "\n\nIf you want more, ask about:\n" +
         (topSuggestions.length
           ? topSuggestions.map((item, idx) => `${idx + 1}. Ask about ${item}.`).join("\n")
-          : "1. Ask for collection and rejection criteria.\n2. Ask for critical thresholds.\n3. Ask for interpretation caveats."),
+          : "1. Collection and rejection criteria.\n2. Critical thresholds.\n3. Interpretation caveats."),
       confidence,
       sources,
       mode: teaching ? "teaching" : "direct",
@@ -623,20 +660,29 @@ function localKnowledgeRag(query: string): AssistantAnswer {
     const teaching = wantsTeaching(query);
     return {
       answer:
-        `${sop.title} (${sop.code}) is the approved workflow for ${sop.category} in ${sop.department}.\n\n` +
-        `Core notes:\n- Purpose: ${sentence(sop.purpose, "Standardized bench process")}\n- Principle: ${sentence(
+        `Here is the approved workflow summary for ${sop.title} (${sop.code}):\n` +
+        `- Category: ${sop.category}\n` +
+        `- Department: ${sop.department}\n` +
+        `- Purpose: ${sentence(sop.purpose, "Standardized bench process")}\n` +
+        `- Principle: ${sentence(
           sop.principle,
           "Validated laboratory method and controls",
         )}\n- Equipment: ${sop.equipment.slice(0, 4).join(", ") || "Not specified"}\n- Reagents: ${
           sop.reagents.slice(0, 4).join(", ") || "Not specified"
         }\n\n` +
+        "Key steps:\n" +
+        sop.steps
+          .slice(0, 4)
+          .map((step, idx) => `${idx + 1}. ${step.title} - ${step.description}`)
+          .join("\n") +
+        "\n\n" +
         (teaching
-          ? "If you want a quick walkthrough:\n1) Review purpose/principle.\n2) Confirm equipment/reagents.\n3) Follow steps and verify QC checkpoints.\n\n"
+          ? "If you want, I can turn this into a step-by-step walkthrough with practical checkpoints."
           : "") +
-        "If you want more:\n" +
+        "If you want more, ask about:\n" +
         (topSuggestions.length
           ? topSuggestions.map((item, idx) => `${idx + 1}. Ask about ${item}.`).join("\n")
-          : "1. Ask for exact execution steps.\n2. Ask for escalation checkpoints.\n3. Ask for mapped tests."),
+          : "1. Exact execution steps.\n2. Escalation checkpoints.\n3. Mapped tests."),
       confidence,
       sources,
       mode: teaching ? "teaching" : "direct",
@@ -644,17 +690,42 @@ function localKnowledgeRag(query: string): AssistantAnswer {
     };
   }
 
+  if (top.type === "job_aid") {
+    const aid = top.meta;
+    const teaching = wantsTeaching(query);
+    return {
+      answer:
+        `Here is the job aid summary for ${aid.title}:\n` +
+        `- Category: ${aid.category}\n` +
+        `- Type: ${aid.type.replace(/_/g, " ")}\n` +
+        `- Description: ${aid.description}\n\n` +
+        (aid.steps?.length
+          ? "Key steps:\n" + aid.steps.map((step, idx) => `${idx + 1}. ${step}`).join("\n") + "\n\n"
+          : "") +
+        (teaching ? "If you want, I can also turn this into a simpler step-by-step explanation.\n\n" : "") +
+        "If you want more, ask about:\n" +
+        (topSuggestions.length
+          ? topSuggestions.map((item, idx) => `${idx + 1}. Ask about ${item}.`).join("\n")
+          : "1. Related SOPs.\n2. Linked tests.\n3. Practical use in the bench."),
+      confidence,
+      sources,
+      mode: teaching ? "teaching" : "direct",
+      quickActions: [{ label: "Open Job Aid", source: sources[0] }],
+    };
+  }
+
   const teaching = wantsTeaching(query);
   return {
     answer:
-      `${top.title} is the closest verified match.\n\n` +
+      `${top.title} is the closest verified source.\n\n` +
+      `Summary:\n${top.content}\n\n` +
       (teaching
-        ? "Safe use reminder:\n1) Confirm the exact scope.\n2) Cross-check values with linked SOP/test sources.\n3) Escalate if uncertainty remains.\n\n"
+        ? "If you want, I can also turn this into a step-by-step explanation or help map it to a related SOP/test."
         : "") +
-      "If you want more:\n" +
+      "If you want more, ask about:\n" +
       (topSuggestions.length
         ? topSuggestions.map((item, idx) => `${idx + 1}. Ask about ${item}.`).join("\n")
-        : "1. Ask for SOP-linked details.\n2. Ask for interpretation context.\n3. Ask for decision checkpoints."),
+        : "1. SOP-linked details.\n2. Interpretation context.\n3. Decision checkpoints."),
     confidence,
     sources,
     mode: teaching ? "teaching" : "direct",
@@ -667,30 +738,35 @@ export async function askKnowledgeAssistant(input: {
   unit?: string;
   department?: string;
   bench?: string;
+  conversation?: AssistantConversationTurn[];
 }): Promise<AssistantAnswer> {
   const normalizedQuery = input.query.trim();
+  const conversationContext = buildConversationContext(input.conversation);
+  const contextualQuery = conversationContext
+    ? `${normalizedQuery}\n\nConversation context:\n${conversationContext}`
+    : normalizedQuery;
 
   if (input.role === "staff" && staffAskingRestrictedScope(normalizedQuery)) {
     return deniedAnswer(input.role);
   }
 
-  if (shouldClarify(normalizedQuery)) {
+  if (shouldClarify(contextualQuery)) {
     return clarificationAnswer();
   }
 
-  const opsAnswer = tryOperationalAnswer(input);
+  const opsAnswer = tryOperationalAnswer({ ...input, query: contextualQuery });
   if (opsAnswer) return opsAnswer;
 
-  const qwenAnswer = await askLocalQwen(normalizedQuery);
+  const qwenAnswer = await askLocalQwen(normalizedQuery, conversationContext);
   if (qwenAnswer) return qwenAnswer;
 
   if (typeof navigator !== "undefined" && !navigator.onLine) {
-    return localKnowledgeRag(normalizedQuery);
+    return localKnowledgeRag(contextualQuery);
   }
 
-  const localRanked = rankLocalDocs(normalizedQuery);
+  const localRanked = rankLocalDocs(contextualQuery);
   if (localRanked.length > 0) {
-    return localKnowledgeRag(normalizedQuery);
+    return localKnowledgeRag(contextualQuery);
   }
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
@@ -712,11 +788,16 @@ export async function askKnowledgeAssistant(input: {
         apikey: supabaseAnonKey!,
         Authorization: `Bearer ${supabaseAnonKey}`,
       },
-      body: JSON.stringify(input),
+      body: JSON.stringify({
+        ...input,
+        query: normalizedQuery,
+        conversationContext,
+        contextualQuery,
+      }),
     });
 
     if (!res.ok) {
-      return localKnowledgeRag(normalizedQuery);
+      return localKnowledgeRag(contextualQuery);
     }
 
     const data = await res.json();
@@ -729,6 +810,6 @@ export async function askKnowledgeAssistant(input: {
       quickActions: data.quickActions ?? [],
     };
   } catch {
-    return localKnowledgeRag(normalizedQuery);
+    return localKnowledgeRag(contextualQuery);
   }
 }

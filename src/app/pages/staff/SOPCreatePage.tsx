@@ -83,58 +83,58 @@ export default function SOPCreatePage() {
     <div className="kl-page">
       <button
         onClick={() => navigate('/staff/sops')}
-        className="flex items-center gap-2 text-[#475a7d] text-[13px] font-medium mb-4 hover:text-[#1c5eff]"
+        className="flex items-center gap-2 text-[var(--kl-text-muted)] text-[13px] font-medium mb-4 hover:text-[#1c5eff]"
       >
         <ArrowLeft size={14} /> Back to SOPs
       </button>
 
-      <div className="bg-white rounded-[20px] border border-[#d3def5] p-4 sm:p-6">
-        <h1 className="text-[#11203b] font-semibold text-[22px] mb-1">Create SOP</h1>
-        <p className="text-[#73839f] text-[13px] mb-5">
+      <div className="bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-4 sm:p-6">
+        <h1 className="text-[var(--kl-text)] font-semibold text-[22px] mb-1">Create SOP</h1>
+        <p className="text-[var(--kl-text-muted)] text-[13px] mb-5">
           Draft {'->'} assign reviewer {'->'} submit for supervisor review.
         </p>
 
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[12px] text-[#475a7d] mb-1.5">SOP Code</label>
-            <input value={code} onChange={e => setCode(e.target.value)} className="w-full border border-[#d3def5] rounded-[12px] px-3 py-2.5 text-[13px]" />
+            <label className="block text-[12px] text-[var(--kl-text-muted)] mb-1.5">SOP Code</label>
+            <input value={code} onChange={e => setCode(e.target.value)} className="w-full border border-[var(--kl-border)] rounded-[12px] px-3 py-2.5 text-[13px]" />
           </div>
           <div>
-            <label className="block text-[12px] text-[#475a7d] mb-1.5">Category / Unit</label>
-            <input value={category} onChange={e => setCategory(e.target.value)} className="w-full border border-[#d3def5] rounded-[12px] px-3 py-2.5 text-[13px]" />
+            <label className="block text-[12px] text-[var(--kl-text-muted)] mb-1.5">Category / Unit</label>
+            <input value={category} onChange={e => setCategory(e.target.value)} className="w-full border border-[var(--kl-border)] rounded-[12px] px-3 py-2.5 text-[13px]" />
           </div>
         </div>
 
         <div className="mt-4">
-          <label className="block text-[12px] text-[#475a7d] mb-1.5">Title</label>
-          <input value={title} onChange={e => setTitle(e.target.value)} className="w-full border border-[#d3def5] rounded-[12px] px-3 py-2.5 text-[13px]" />
+          <label className="block text-[12px] text-[var(--kl-text-muted)] mb-1.5">Title</label>
+          <input value={title} onChange={e => setTitle(e.target.value)} className="w-full border border-[var(--kl-border)] rounded-[12px] px-3 py-2.5 text-[13px]" />
         </div>
 
         <div className="grid md:grid-cols-2 gap-4 mt-4">
           <div>
-            <label className="block text-[12px] text-[#475a7d] mb-1.5">Purpose</label>
-            <textarea value={purpose} onChange={e => setPurpose(e.target.value)} rows={4} className="w-full border border-[#d3def5] rounded-[12px] px-3 py-2.5 text-[13px]" />
+            <label className="block text-[12px] text-[var(--kl-text-muted)] mb-1.5">Purpose</label>
+            <textarea value={purpose} onChange={e => setPurpose(e.target.value)} rows={4} className="w-full border border-[var(--kl-border)] rounded-[12px] px-3 py-2.5 text-[13px]" />
           </div>
           <div>
-            <label className="block text-[12px] text-[#475a7d] mb-1.5">Principle</label>
-            <textarea value={principle} onChange={e => setPrinciple(e.target.value)} rows={4} className="w-full border border-[#d3def5] rounded-[12px] px-3 py-2.5 text-[13px]" />
+            <label className="block text-[12px] text-[var(--kl-text-muted)] mb-1.5">Principle</label>
+            <textarea value={principle} onChange={e => setPrinciple(e.target.value)} rows={4} className="w-full border border-[var(--kl-border)] rounded-[12px] px-3 py-2.5 text-[13px]" />
           </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4 mt-4">
           <div>
-            <label className="block text-[12px] text-[#475a7d] mb-1.5">Equipment (line separated)</label>
-            <textarea value={equipment} onChange={e => setEquipment(e.target.value)} rows={5} className="w-full border border-[#d3def5] rounded-[12px] px-3 py-2.5 text-[13px]" />
+            <label className="block text-[12px] text-[var(--kl-text-muted)] mb-1.5">Equipment (line separated)</label>
+            <textarea value={equipment} onChange={e => setEquipment(e.target.value)} rows={5} className="w-full border border-[var(--kl-border)] rounded-[12px] px-3 py-2.5 text-[13px]" />
           </div>
           <div>
-            <label className="block text-[12px] text-[#475a7d] mb-1.5">Reagents (line separated)</label>
-            <textarea value={reagents} onChange={e => setReagents(e.target.value)} rows={5} className="w-full border border-[#d3def5] rounded-[12px] px-3 py-2.5 text-[13px]" />
+            <label className="block text-[12px] text-[var(--kl-text-muted)] mb-1.5">Reagents (line separated)</label>
+            <textarea value={reagents} onChange={e => setReagents(e.target.value)} rows={5} className="w-full border border-[var(--kl-border)] rounded-[12px] px-3 py-2.5 text-[13px]" />
           </div>
         </div>
 
         <div className="mt-4">
           <div className="flex items-center justify-between mb-2">
-            <label className="text-[12px] text-[#475a7d]">Steps</label>
+            <label className="text-[12px] text-[var(--kl-text-muted)]">Steps</label>
             <button
               type="button"
               onClick={() => setSteps(prev => [...prev, { stepNo: prev.length + 1, title: '', description: '' }])}
@@ -151,13 +151,13 @@ export default function SOPCreatePage() {
                     value={step.title}
                     onChange={e => setSteps(prev => prev.map((x, i) => i === idx ? { ...x, title: e.target.value, stepNo: idx + 1 } : x))}
                     placeholder={`Step ${idx + 1} title`}
-                    className="border border-[#d3def5] rounded-[10px] px-2.5 py-2 text-[12px]"
+                    className="border border-[var(--kl-border)] rounded-[10px] px-2.5 py-2 text-[12px]"
                   />
                   <input
                     value={step.description}
                     onChange={e => setSteps(prev => prev.map((x, i) => i === idx ? { ...x, description: e.target.value, stepNo: idx + 1 } : x))}
                     placeholder="Description"
-                    className="border border-[#d3def5] rounded-[10px] px-2.5 py-2 text-[12px]"
+                    className="border border-[var(--kl-border)] rounded-[10px] px-2.5 py-2 text-[12px]"
                   />
                 </div>
               </div>
@@ -167,27 +167,27 @@ export default function SOPCreatePage() {
 
         <div className="grid md:grid-cols-2 gap-4 mt-4">
           <div>
-            <label className="block text-[12px] text-[#475a7d] mb-1.5">Safety precautions (line separated)</label>
-            <textarea value={safety} onChange={e => setSafety(e.target.value)} rows={4} className="w-full border border-[#d3def5] rounded-[12px] px-3 py-2.5 text-[13px]" />
+            <label className="block text-[12px] text-[var(--kl-text-muted)] mb-1.5">Safety precautions (line separated)</label>
+            <textarea value={safety} onChange={e => setSafety(e.target.value)} rows={4} className="w-full border border-[var(--kl-border)] rounded-[12px] px-3 py-2.5 text-[13px]" />
           </div>
           <div>
-            <label className="block text-[12px] text-[#475a7d] mb-1.5">Related tests (comma separated)</label>
-            <textarea value={relatedTests} onChange={e => setRelatedTests(e.target.value)} rows={4} className="w-full border border-[#d3def5] rounded-[12px] px-3 py-2.5 text-[13px]" />
+            <label className="block text-[12px] text-[var(--kl-text-muted)] mb-1.5">Related tests (comma separated)</label>
+            <textarea value={relatedTests} onChange={e => setRelatedTests(e.target.value)} rows={4} className="w-full border border-[var(--kl-border)] rounded-[12px] px-3 py-2.5 text-[13px]" />
           </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4 mt-4">
           <div>
-            <label className="block text-[12px] text-[#475a7d] mb-1.5">Assign Supervisor Reviewer</label>
-            <select value={reviewerId} onChange={e => setReviewerId(e.target.value)} className="w-full border border-[#d3def5] rounded-[12px] px-3 py-2.5 text-[13px]">
+            <label className="block text-[12px] text-[var(--kl-text-muted)] mb-1.5">Assign Supervisor Reviewer</label>
+            <select value={reviewerId} onChange={e => setReviewerId(e.target.value)} className="w-full border border-[var(--kl-border)] rounded-[12px] px-3 py-2.5 text-[13px]">
               {supervisors.map(s => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-[12px] text-[#475a7d] mb-1.5">Review due date</label>
-            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full border border-[#d3def5] rounded-[12px] px-3 py-2.5 text-[13px]" />
+            <label className="block text-[12px] text-[var(--kl-text-muted)] mb-1.5">Review due date</label>
+            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full border border-[var(--kl-border)] rounded-[12px] px-3 py-2.5 text-[13px]" />
           </div>
         </div>
 
@@ -198,7 +198,7 @@ export default function SOPCreatePage() {
         )}
 
         <div className="flex gap-2 mt-5">
-          <button onClick={saveDraft} className="inline-flex items-center gap-1.5 bg-[#f4f8ff] border border-[#d3def5] text-[#11203b] rounded-[12px] px-4 py-2 text-[13px]">
+          <button onClick={saveDraft} className="inline-flex items-center gap-1.5 bg-[var(--kl-surface-tinted)] border border-[var(--kl-border)] text-[var(--kl-text)] rounded-[12px] px-4 py-2 text-[13px]">
             <Save size={14} /> Save draft
           </button>
           <button onClick={submitForReview} className="inline-flex items-center gap-1.5 bg-[#1c5eff] text-white rounded-[12px] px-4 py-2 text-[13px]">
@@ -209,4 +209,3 @@ export default function SOPCreatePage() {
     </div>
   );
 }
-

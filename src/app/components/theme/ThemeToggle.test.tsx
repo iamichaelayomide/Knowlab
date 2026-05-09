@@ -22,7 +22,7 @@ describe("ThemeToggle", () => {
     });
   });
 
-  it("persists theme preference using knowlab-theme storage key", async () => {
+  it("persists theme preference using knowlab_theme storage key", async () => {
     render(
       <AppThemeProvider>
         <ThemeToggle />
@@ -33,7 +33,7 @@ describe("ThemeToggle", () => {
     fireEvent.click(toggleButton);
 
     await waitFor(() => {
-      const stored = localStorage.getItem("knowlab-theme");
+      const stored = localStorage.getItem("knowlab_theme");
       expect(stored === "light" || stored === "dark").toBe(true);
     });
   });

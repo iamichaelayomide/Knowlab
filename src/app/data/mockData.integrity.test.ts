@@ -6,6 +6,30 @@ function isUnique(values: string[]) {
 }
 
 describe('mock data integrity', () => {
+  it('does not contain placeholder-style lab test content', () => {
+    const combined = LAB_TESTS.map((test) => {
+      const parameterNames = test.parameters.map((parameter) => parameter.name).join(' ');
+      return [test.name, test.methodology, test.clinicalSignificance, parameterNames, test.specialInstructions].join(' ');
+    }).join(' ');
+
+    const bannedPatterns = [
+      /routine panel/i,
+      /extended panel/i,
+      /confirmatory assay/i,
+      /urgent stat profile/i,
+      /primary marker/i,
+      /validated automated or bench workflow/i,
+      /method-specific confirmatory assay/i,
+      /supports .* diagnosis, monitoring, and treatment decisions/i,
+      /\btemplate\b/i,
+      /\bplaceholder\b/i,
+    ];
+
+    bannedPatterns.forEach((pattern) => {
+      expect(combined).not.toMatch(pattern);
+    });
+  });
+
   it('has unique SOP ids and codes', () => {
     expect(isUnique(SOPS.map((s) => s.id))).toBe(true);
     expect(isUnique(SOPS.map((s) => s.code))).toBe(true);

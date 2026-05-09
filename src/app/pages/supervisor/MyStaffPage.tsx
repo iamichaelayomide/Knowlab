@@ -13,9 +13,9 @@ import { TEXT_TOKENS, joinWithSeparator } from "../../utils/textTokens";
 import { filterStaffByBench, filterStaffByDepartment, groupStaffByBench } from "../../utils/staffScope";
 
 function competencyTone(score: number) {
-  if (score >= 85) return "text-[#1c7b56] bg-[#e8f8f1]";
-  if (score >= 70) return "text-[#9a6115] bg-[#fff0db]";
-  return "text-[#b14343] bg-[#fde9e9]";
+  if (score >= 85) return "text-[#1c7b56] dark:text-[#88e0ba] bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)]";
+  if (score >= 70) return "text-[#9a6115] dark:text-[#f3c26f] bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)]";
+  return "text-[#b14343] dark:text-[#fca5a5] bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]";
 }
 
 function StaffDetailView({ staffId }: { staffId: string }) {
@@ -74,7 +74,7 @@ function StaffDetailView({ staffId }: { staffId: string }) {
               </div>
               <div className="rounded-[10px] bg-[var(--kl-surface-tinted)] px-3 py-2">
                 <p className="text-[10px] uppercase tracking-[0.8px] text-[var(--kl-text-muted)] font-semibold">Competency</p>
-                <p className={`text-sm font-semibold ${competency >= 85 ? "text-[#1c7b56]" : competency >= 70 ? "text-[#9a6115]" : "text-[#b14343]"}`}>
+                <p className={`text-sm font-semibold ${competency >= 85 ? "text-[#1c7b56] dark:text-[#88e0ba]" : competency >= 70 ? "text-[#9a6115] dark:text-[#f3c26f]" : "text-[#b14343] dark:text-[#fca5a5]"}`}>
                   {competency}%
                 </p>
               </div>
@@ -89,7 +89,7 @@ function StaffDetailView({ staffId }: { staffId: string }) {
         <div className="mt-4">
           <div className="flex items-center justify-between text-xs mb-1">
             <span className="text-[var(--kl-text-muted)]">Overall Competency</span>
-            <span className={competency >= 85 ? "text-[#1c7b56]" : competency >= 70 ? "text-[#9a6115]" : "text-[#b14343]"}>
+            <span className={competency >= 85 ? "text-[#1c7b56] dark:text-[#88e0ba]" : competency >= 70 ? "text-[#9a6115] dark:text-[#f3c26f]" : "text-[#b14343] dark:text-[#fca5a5]"}>
               {competency}%
             </span>
           </div>
@@ -103,7 +103,7 @@ function StaffDetailView({ staffId }: { staffId: string }) {
             />
           </div>
           {competency < 80 && (
-            <p className="mt-1.5 text-xs text-[#b14343] inline-flex items-center gap-1">
+            <p className="mt-1.5 text-xs text-[#b14343] dark:text-[#fca5a5] inline-flex items-center gap-1">
               <AppIcon name="warning" size={11} />
               Below 80% threshold. Coaching and reassessment recommended.
             </p>
@@ -119,9 +119,9 @@ function StaffDetailView({ staffId }: { staffId: string }) {
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
           {[
-            { label: "Completed", value: completed, tone: "text-[#1c7b56] bg-[#e8f8f1]" },
-            { label: "In Progress", value: inProgress, tone: "text-[#9a6115] bg-[#fff0db]" },
-            { label: "Overdue", value: overdue, tone: "text-[#b14343] bg-[#fde9e9]" },
+            { label: "Completed", value: completed, tone: "text-[#1c7b56] dark:text-[#88e0ba] bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)]" },
+            { label: "In Progress", value: inProgress, tone: "text-[#9a6115] dark:text-[#f3c26f] bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)]" },
+            { label: "Overdue", value: overdue, tone: "text-[#b14343] dark:text-[#fca5a5] bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]" },
             {
               label: "Not Started",
               value: Math.max(0, TRAINING_MODULES.length - completed - inProgress - overdue),
@@ -141,11 +141,11 @@ function StaffDetailView({ staffId }: { staffId: string }) {
             const status = record?.status ?? "not_started";
             const tone =
               status === "completed"
-                ? "text-[#1c7b56] bg-[#e8f8f1]"
+                ? "text-[#1c7b56] dark:text-[#88e0ba] bg-[#e8f8f1] dark:bg-[rgba(28,123,86,0.18)]"
                 : status === "overdue"
-                  ? "text-[#b14343] bg-[#fde9e9]"
+                  ? "text-[#b14343] dark:text-[#fca5a5] bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]"
                   : status === "in_progress"
-                    ? "text-[#9a6115] bg-[#fff0db]"
+                    ? "text-[#9a6115] dark:text-[#f3c26f] bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)]"
                     : "text-[var(--kl-text-muted)] bg-[var(--kl-surface-tinted)]";
 
             return (
@@ -241,9 +241,9 @@ export default function MyStaffPage() {
 
       <div className="flex gap-2 flex-wrap mb-4">
         {[
-          { label: "Total Staff", count: allDepartmentStaff.length, tone: "text-[#1c5eff] bg-[#e3edff]" },
-          { label: "Overdue Training", count: overdueCount, tone: "text-[#b14343] bg-[#fde9e9]" },
-          { label: "Below 80% Competency", count: belowThreshold, tone: "text-[#9a6115] bg-[#fff0db]" },
+          { label: "Total Staff", count: allDepartmentStaff.length, tone: "text-[#1c5eff] bg-[var(--kl-surface-tinted)]" },
+          { label: "Overdue Training", count: overdueCount, tone: "text-[#b14343] dark:text-[#fca5a5] bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)]" },
+          { label: "Below 80% Competency", count: belowThreshold, tone: "text-[#9a6115] dark:text-[#f3c26f] bg-[#fff0db] dark:bg-[rgba(154,97,21,0.18)]" },
         ].map((pill) => (
           <div key={pill.label} className={`rounded-full px-3.5 py-2 inline-flex items-center gap-1.5 ${pill.tone}`}>
             <span className="text-sm font-semibold">{pill.count}</span>
@@ -331,7 +331,7 @@ export default function MyStaffPage() {
                         {completed}/{TRAINING_MODULES.length} modules
                       </span>
                       {overdue > 0 && (
-                        <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold bg-[#fde9e9] text-[#b14343]">
+                        <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold bg-[#fde9e9] dark:bg-[rgba(177,67,67,0.18)] text-[#b14343] dark:text-[#fca5a5]">
                           {overdue} overdue
                         </span>
                       )}
@@ -353,4 +353,3 @@ export default function MyStaffPage() {
     </div>
   );
 }
-

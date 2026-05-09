@@ -8,9 +8,9 @@
 
   /* --- SURFACES --- */
   --surface-base: #f3f3f3;
-  --surface-card: #ffffff;
-  --surface-raised: #fafafa;
-  --surface-overlay: rgba(255, 255, 255, 0.78);
+  --surface-card: rgba(255, 255, 255, 0.78);
+  --surface-raised: rgba(250, 250, 250, 0.88);
+  --surface-overlay: rgba(255, 255, 255, 0.82);
   --surface-border: rgba(0, 0, 0, 0.08);
   --surface-border-strong: rgba(0, 0, 0, 0.16);
 
@@ -21,9 +21,11 @@
   --text-on-accent: #ffffff;
 
   /* --- ACCENT --- */
-  --accent-primary: #0f0f0f;
+  --accent-primary: #111111;
   --accent-primary-hover: #000000;
-  --accent-glow: rgba(0, 0, 0, 0.08);
+  --accent-blue: #3a6ee8;
+  --accent-blue-hover: #2d5dd6;
+  --accent-glow: rgba(58, 110, 232, 0.14);
 
   /* --- SEMANTIC STATUS --- */
   --success: #34c759;
@@ -32,7 +34,7 @@
   --info: #007aff;
 
   /* --- GLASS --- */
-  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg: rgba(255, 255, 255, 0.62);
   --glass-border: rgba(0, 0, 0, 0.08);
   --glass-blur: blur(20px);
   --glass-shadow: 0 2px 20px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
@@ -48,17 +50,22 @@
   --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
   --radius-2xl: 24px;
+  --radius-3xl: 28px;
   --radius-full: 9999px;
 
   /* --- MOTION --- */
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --duration-fast: 150ms;
-  --duration-base: 220ms;
-  --duration-slow: 380ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-press: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: var(--ease-soft);
+  --ease-smooth: var(--ease-standard);
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-smooth: 240ms;
+  --duration-slow: 320ms;
 
   /* Compatibility aliases for existing Knowlab and shadcn utility usage. */
   --font-size: 15px;
@@ -106,20 +113,22 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --surface-base: #0a0a0a;
-  --surface-card: #101010;
-  --surface-raised: #181818;
-  --surface-overlay: rgba(16, 16, 16, 0.9);
-  --surface-border: rgba(255, 255, 255, 0.1);
-  --surface-border-strong: rgba(255, 255, 255, 0.18);
+  --surface-base: #0d0d0d;
+  --surface-card: #1c1c1e;
+  --surface-raised: #242426;
+  --surface-overlay: rgba(28, 28, 30, 0.88);
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-border-strong: rgba(255, 255, 255, 0.14);
 
-  --text-primary: #f7f7f7;
-  --text-secondary: #a0a0a0;
-  --text-tertiary: #686868;
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(255, 255, 255, 0.62);
+  --text-tertiary: rgba(255, 255, 255, 0.42);
 
   --accent-primary: #f4f4f5;
   --accent-primary-hover: #ffffff;
-  --accent-glow: rgba(255, 255, 255, 0.12);
+  --accent-blue: #6ea1ff;
+  --accent-blue-hover: #8bb6ff;
+  --accent-glow: rgba(110, 161, 255, 0.18);
 
   --success: #30d158;
   --warning: #ffd60a;
@@ -127,7 +136,7 @@
   --info: #0a84ff;
 
   --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-border: rgba(255, 255, 255, 0.14);
   --glass-shadow: 0 18px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);

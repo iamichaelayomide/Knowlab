@@ -22,13 +22,6 @@ const SOP_TITLE_SUFFIXES = [
   'Troubleshooting and Escalation',
 ];
 
-const TEST_NAME_SUFFIXES = [
-  'Routine Panel',
-  'Extended Panel',
-  'Confirmatory Assay',
-  'Urgent Stat Profile',
-];
-
 const JOB_AID_BLUEPRINTS: { title: string; type: JobAid['type']; tags: string[] }[] = [
   { title: 'Bench Start-up Checklist', type: 'checklist', tags: ['startup', 'checklist'] },
   { title: 'Error Flag Decision Path', type: 'decision_tree', tags: ['troubleshooting', 'flags'] },
@@ -56,9 +49,9 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
       ],
       testNames: [
         'Full Blood Count (FBC)',
-        'Differential Count Review',
+        'Full Blood Count with Differential',
         'Reticulocyte Count',
-        'Platelet and Flag Review',
+        'Platelet Count',
       ],
       jobAidTitles: [
         'FBC Specimen Acceptance Checklist',
@@ -79,9 +72,9 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
       ],
       testNames: [
         'Peripheral Blood Film',
-        'Differential Count and Morphology Review',
+        'Manual Differential Count',
         'Malaria Parasite Film Examination',
-        'Red Cell Morphology Comment',
+        'Sickle Cell Screening',
       ],
       jobAidTitles: [
         'Blood Film Specimen Acceptance Checklist',
@@ -127,7 +120,7 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
         'ABO and RhD Grouping',
         'Crossmatch Compatibility Test',
         'Antibody Screen',
-        'Transfusion Reaction Workup',
+        'Direct Antiglobulin Test (DAT)',
       ],
       jobAidTitles: [
         'Transfusion Sample Acceptance Checklist',
@@ -150,7 +143,7 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
         'Erythrocyte Sedimentation Rate',
         'Reticulocyte Count',
         'Sickle Cell Screening',
-        'Special Haematology Review',
+        'Haemoglobin Electrophoresis',
       ],
       jobAidTitles: [
         'ESR Acceptance Checklist',
@@ -196,9 +189,9 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
       ],
       testNames: [
         'Total and Direct Bilirubin',
-        'AST, ALT, and ALP Panel',
-        'Albumin and Total Protein',
-        'Liver Function Profile',
+        'Alanine Aminotransferase (ALT)',
+        'Aspartate Aminotransferase (AST)',
+        'Alkaline Phosphatase (ALP)',
       ],
       jobAidTitles: [
         'LFT Specimen Acceptance Checklist',
@@ -218,10 +211,10 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
         'Renal Specimen QC and Rejection Criteria',
       ],
       testNames: [
-        'Urea and Creatinine',
+        'Urea',
+        'Creatinine',
         'Estimated GFR',
         'Uric Acid',
-        'Renal Function Panel',
       ],
       jobAidTitles: [
         'Renal Specimen Acceptance Checklist',
@@ -243,8 +236,8 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
       testNames: [
         'Total Cholesterol',
         'Triglycerides',
-        'HDL and LDL Cholesterol',
-        'Atherogenic Risk Profile',
+        'HDL Cholesterol',
+        'LDL Cholesterol',
       ],
       jobAidTitles: [
         'Lipid Specimen Acceptance Checklist',
@@ -264,10 +257,10 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
         'Critical Electrolyte Escalation Workflow',
       ],
       testNames: [
-        'Sodium, Potassium, and Chloride',
+        'Sodium',
+        'Potassium',
+        'Chloride',
         'Calcium',
-        'Magnesium',
-        'Electrolyte and Mineral Panel',
       ],
       jobAidTitles: [
         'Electrolyte Specimen Acceptance Checklist',
@@ -292,7 +285,7 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
         'Blood Culture and Sensitivity',
         'Midstream Urine Culture and Sensitivity',
         'Wound Swab Culture and Sensitivity',
-        'Sputum Culture and Gram Stain',
+        'Sputum Culture and Sensitivity',
       ],
       jobAidTitles: [
         'Bacteriology Specimen Acceptance Checklist',
@@ -336,9 +329,9 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
       ],
       testNames: [
         'HIV 1/2 Antibody/Antigen Screening',
-        'HBsAg and Hepatitis B Profile',
+        'HBsAg Screening',
         'HCV Antibody Screening',
-        'Viral Marker Panel',
+        'SARS-CoV-2 Antigen Test',
       ],
       jobAidTitles: [
         'Virology Sample Acceptance Checklist',
@@ -382,8 +375,8 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
       ],
       testNames: [
         'MTB/RIF PCR',
-        'HPV DNA PCR',
-        'Viral Load Quantification',
+        'HBV DNA PCR',
+        'HCV RNA PCR',
         'Multiplex Respiratory Pathogen PCR',
       ],
       jobAidTitles: [
@@ -407,9 +400,9 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
       ],
       testNames: [
         'Routine H&E Histology',
-        'Special Stain Panel',
-        'Frozen Section Request',
-        'Specimen Gross Examination',
+        'Periodic Acid-Schiff (PAS) Stain',
+        'Masson Trichrome Stain',
+        'Frozen Section',
       ],
       jobAidTitles: [
         'Histology Specimen Acceptance Checklist',
@@ -454,8 +447,8 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
       testNames: [
         'ER/PR/HER2 IHC Panel',
         'Ki-67 Proliferation Index',
-        'Lymphoma Marker Panel',
-        'PD-L1 Immunostaining Review',
+        'p53 Immunostaining',
+        'PD-L1 Immunostaining',
       ],
       jobAidTitles: [
         'IHC Run Acceptance Checklist',
@@ -476,9 +469,9 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
       ],
       testNames: [
         'Full Autopsy Examination',
+        'Limited Autopsy Examination',
         'Post-Mortem Histology Sampling',
-        'Cause of Death Correlation Review',
-        'Perinatal or Medicolegal Post-Mortem Review',
+        'Medicolegal Post-Mortem Review',
       ],
       jobAidTitles: [
         'Autopsy Consent and ID Checklist',
@@ -500,9 +493,9 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
         'Grouping Discrepancy Investigation',
       ],
       testNames: [
-        'ABO/Rh Blood Grouping',
+        'ABO and RhD Grouping',
         'Forward and Reverse Grouping',
-        'RhD Weak D Testing',
+        'Weak D Testing',
         'Grouping Discrepancy Resolution',
       ],
       jobAidTitles: [
@@ -525,8 +518,8 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
       testNames: [
         'Immediate Spin Crossmatch',
         'IAT Crossmatch',
-        'Electronic Crossmatch Review',
-        'Compatibility Investigation',
+        'Electronic Crossmatch',
+        'Major Crossmatch',
       ],
       jobAidTitles: [
         'Crossmatch Acceptance Checklist',
@@ -589,6 +582,321 @@ const SPECIFIC_BENCH_CONTENT: Record<string, Record<string, BenchContent>> = {
 
 function getBenchContent(deptCode: string, bench: string) {
   return SPECIFIC_BENCH_CONTENT[deptCode]?.[bench];
+}
+
+type TestProfile = {
+  sampleType: string;
+  sampleVolume: string;
+  container: string;
+  containerColor: string;
+  stability: string;
+  methodology: string;
+  parameterName: string;
+  rangeText: string;
+};
+
+function getParameterName(testName: string) {
+  const name = testName.toLowerCase();
+  if (name.includes('full blood count')) return 'FBC parameters';
+  if (name.includes('reticulocyte')) return 'Reticulocyte count';
+  if (name.includes('platelet')) return 'Platelet count';
+  if (name.includes('peripheral blood film')) return 'Morphology review';
+  if (name.includes('manual differential')) return 'Differential count';
+  if (name.includes('malaria parasite')) return 'Parasite detection';
+  if (name.includes('sickle')) return 'HbS screen';
+  if (name.includes('haemoglobin electrophoresis')) return 'Hb fractions';
+  if (name.includes('prothrombin time')) return 'PT / INR';
+      if (name.includes('aptt')) return 'APTT';
+      if (name.includes('fibrinogen')) return 'Fibrinogen';
+      if (name.includes('d-dimer')) return 'D-dimer';
+  if (name.includes('glucose')) return 'Glucose';
+  if (name.includes('hba1c')) return 'HbA1c';
+  if (name.includes('bilirubin')) return 'Bilirubin';
+  if (name.includes('aminotransferase') || name.includes('ast') || name.includes('alt')) return 'Enzyme activity';
+  if (name.includes('alkaline phosphatase')) return 'ALP';
+  if (name.includes('urea')) return 'Urea';
+  if (name.includes('creatinine')) return 'Creatinine';
+  if (name.includes('egfr') || name.includes('gfr')) return 'Estimated GFR';
+  if (name.includes('cholesterol')) return 'Cholesterol fraction';
+  if (name.includes('triglycerides')) return 'Triglycerides';
+  if (name.includes('sodium')) return 'Sodium';
+  if (name.includes('potassium')) return 'Potassium';
+  if (name.includes('chloride')) return 'Chloride';
+  if (name.includes('calcium')) return 'Calcium';
+  if (name.includes('magnesium')) return 'Magnesium';
+  if (name.includes('culture')) return 'Culture result';
+  if (name.includes('koh')) return 'Fungal elements';
+  if (name.includes('antigen')) return 'Antigen result';
+  if (name.includes('antibody')) return 'Antibody result';
+  if (name.includes('pcr') || name.includes('xpert')) return 'Target detection';
+  if (name.includes('histology') || name.includes('special stain') || name.includes('pas') || name.includes('trichrome')) return 'Microscopic finding';
+  if (name.includes('cytology')) return 'Cytology result';
+  if (name.includes('ihc') || name.includes('immunostaining') || name.includes('staining')) return 'Marker expression';
+  if (name.includes('proliferation') || name.includes('ki-67')) return 'Proliferation index';
+  if (name.includes('autopsy')) return 'Case findings';
+  if (name.includes('grouping') || name.includes('blood group')) return 'ABO / RhD';
+  if (name.includes('crossmatch')) return 'Compatibility';
+  if (name.includes('antiglobulin')) return 'DAT';
+  if (name.includes('screen')) return 'Screen result';
+  return 'Method-specific result';
+}
+
+function getRangeText(testName: string) {
+  const name = testName.toLowerCase();
+  if (
+    name.includes('culture') ||
+    name.includes('screen') ||
+    name.includes('antigen') ||
+    name.includes('antibody') ||
+    name.includes('crossmatch') ||
+    name.includes('antiglobulin') ||
+    name.includes('grouping') ||
+    name.includes('detection') ||
+    name.includes('smear') ||
+    name.includes('stain') ||
+    name.includes('cytology') ||
+    name.includes('histology') ||
+    name.includes('autopsy') ||
+    name.includes('pcr') ||
+    name.includes('xpert')
+  ) {
+    if (name.includes('crossmatch')) return 'Compatible / incompatible';
+    if (name.includes('antiglobulin')) return 'Positive / negative';
+    if (name.includes('ihc') || name.includes('immunostaining') || name.includes('ki-67') || name.includes('p53') || name.includes('pd-l1') || name.includes('her2') || name.includes('er/pr')) {
+      return 'Positive / negative';
+    }
+    return 'Negative / non-reactive';
+  }
+  return 'Method-specific reference interval';
+}
+
+function buildTestProfile(deptCode: string, bench: string, testName: string): TestProfile {
+  const name = testName.toLowerCase();
+
+  if (deptCode === 'HEM') {
+    if (name.includes('coag') || name.includes('prothrombin') || name.includes('inr') || name.includes('aptt') || name.includes('fibrinogen') || name.includes('d-dimer')) {
+      return {
+        sampleType: 'Citrated Plasma (PPP)',
+        sampleVolume: '2.7 mL',
+        container: '3.2% Sodium Citrate Tube',
+        containerColor: 'Light Blue',
+        stability: '4 hrs at room temp; 8 hrs at 2-8°C',
+        methodology: 'Optical clot detection',
+        parameterName: getParameterName(testName),
+        rangeText: getRangeText(testName),
+      };
+    }
+    if (name.includes('esr')) {
+      return {
+        sampleType: 'Citrated Blood',
+        sampleVolume: '2.0 mL',
+        container: 'Citrate ESR Tube',
+        containerColor: 'Black',
+        stability: 'Must be set up within 2 hours of collection',
+        methodology: 'Westergren method (manual) or automated',
+        parameterName: getParameterName(testName),
+        rangeText: getRangeText(testName),
+      };
+    }
+    return {
+      sampleType: 'Whole Blood (EDTA)',
+      sampleVolume: '2.0 mL',
+      container: 'EDTA Tube',
+      containerColor: 'Purple/Lavender',
+      stability: '24 hrs at 18-25°C; 48 hrs at 2-8°C',
+      methodology: name.includes('reticulocyte')
+        ? 'Fluorescent flow cytometry'
+        : name.includes('film') || name.includes('morphology') || name.includes('differential')
+          ? 'Manual microscopy with Romanowsky stain'
+          : 'Electrical impedance and light scatter',
+      parameterName: getParameterName(testName),
+      rangeText: getRangeText(testName),
+    };
+  }
+
+  if (deptCode === 'CHE') {
+    if (name.includes('glucose') || name.includes('ogtt') || name.includes('hba1c')) {
+      return {
+        sampleType: name.includes('hba1c') ? 'Whole Blood (EDTA)' : 'Fluoride Oxalate Plasma',
+        sampleVolume: '2.0 mL',
+        container: name.includes('hba1c') ? 'EDTA Tube' : 'Fluoride Oxalate Tube',
+        containerColor: name.includes('hba1c') ? 'Purple/Lavender' : 'Grey',
+        stability: name.includes('hba1c') ? '72 hrs at 2-8°C' : '48 hrs at 2-8°C',
+        methodology: name.includes('hba1c') ? 'HPLC or immunoturbidimetric assay' : 'Hexokinase or glucose oxidase assay',
+        parameterName: getParameterName(testName),
+        rangeText: getRangeText(testName),
+      };
+    }
+    if (name.includes('bilirubin') || name.includes('aminotransferase') || name.includes('alkaline phosphatase')) {
+      return {
+        sampleType: 'Serum or Lithium Heparin Plasma',
+        sampleVolume: '3.0 mL',
+        container: 'SST / Plain Tube',
+        containerColor: 'Yellow/Red',
+        stability: 'Serum stable up to 7 days at 2-8°C',
+        methodology: 'Automated photometry / enzymatic assays',
+        parameterName: getParameterName(testName),
+        rangeText: getRangeText(testName),
+      };
+    }
+    if (name.includes('urea') || name.includes('creatinine') || name.includes('gfr') || name.includes('uric acid')) {
+      return {
+        sampleType: 'Serum or Plasma',
+        sampleVolume: '3.0 mL',
+        container: 'SST / Lithium Heparin Tube',
+        containerColor: 'Yellow/Green',
+        stability: '48 hrs at 2-8°C',
+        methodology: 'Automated chemistry analyzer',
+        parameterName: getParameterName(testName),
+        rangeText: getRangeText(testName),
+      };
+    }
+    if (name.includes('cholesterol') || name.includes('triglycerides')) {
+      return {
+        sampleType: 'Serum',
+        sampleVolume: '3.0 mL',
+        container: 'SST / Plain Tube',
+        containerColor: 'Yellow/Red',
+        stability: '48 hrs at 2-8°C',
+        methodology: 'Enzymatic colorimetric assay',
+        parameterName: getParameterName(testName),
+        rangeText: getRangeText(testName),
+      };
+    }
+    return {
+      sampleType: 'Serum or Lithium Heparin Plasma',
+      sampleVolume: '3.0 mL',
+      container: 'SST / Lithium Heparin Tube',
+      containerColor: 'Yellow/Green',
+      stability: '24-48 hrs at 2-8°C',
+      methodology: 'Ion-selective electrode or automated chemistry assay',
+      parameterName: getParameterName(testName),
+      rangeText: getRangeText(testName),
+    };
+  }
+
+  if (deptCode === 'MIC') {
+    if (bench === 'Bacteriology') {
+      const sampleType = name.includes('blood culture')
+        ? 'Whole Blood'
+        : name.includes('urine')
+          ? 'Midstream Urine'
+          : name.includes('sputum')
+            ? 'Sputum'
+            : 'Swab or sterile clinical specimen';
+      const container = name.includes('blood culture')
+        ? 'Blood Culture Bottle'
+        : name.includes('urine')
+          ? 'Sterile Urine Container'
+          : name.includes('sputum')
+            ? 'Sterile Screw-Cap Container'
+            : 'Transport Swab';
+      return {
+        sampleType,
+        sampleVolume: name.includes('blood culture') ? '8-10 mL (Adult) / 1-3 mL (Pediatric)' : 'As collected',
+        container,
+        containerColor: name.includes('blood culture') ? 'Aerobic (Blue) / Anaerobic (Purple)' : 'Standard per specimen',
+        stability: 'Send immediately at room temp. Do not refrigerate.',
+        methodology: 'Culture incubation with organism identification and susceptibility follow-up',
+        parameterName: getParameterName(testName),
+        rangeText: getRangeText(testName),
+      };
+    }
+    if (bench === 'Mycology') {
+      return {
+        sampleType: name.includes('koh') ? 'Skin scrapings, hair, or nail clippings' : 'Skin, nail, tissue, or swab',
+        sampleVolume: 'As collected',
+        container: 'Dry Sterile Container',
+        containerColor: 'Clear',
+        stability: 'Keep dry and transport promptly',
+        methodology: name.includes('koh') ? 'Direct microscopy with KOH preparation' : 'Culture and morphological identification',
+        parameterName: getParameterName(testName),
+        rangeText: getRangeText(testName),
+      };
+    }
+    if (bench === 'Virology') {
+      return {
+        sampleType: name.includes('sars')
+          ? 'Nasopharyngeal Swab'
+          : 'Serum or Plasma',
+        sampleVolume: '2.0 mL',
+        container: name.includes('sars') ? 'Viral Transport Medium Swab' : 'SST / EDTA Tube',
+        containerColor: name.includes('sars') ? 'Pink/Swab Transport' : 'Yellow/Purple',
+        stability: name.includes('sars') ? 'Process promptly at 2-8°C' : '48 hrs at 2-8°C',
+        methodology: 'Validated immunoassay screening with reflex confirmation where required',
+        parameterName: getParameterName(testName),
+        rangeText: getRangeText(testName),
+      };
+    }
+    if (bench === 'Parasitology') {
+      return {
+        sampleType: name.includes('stool') ? 'Stool' : 'Whole Blood (EDTA)',
+        sampleVolume: name.includes('stool') ? '2-5 g' : '2.0 mL',
+        container: name.includes('stool') ? 'Clean Stool Container' : 'EDTA Tube',
+        containerColor: name.includes('stool') ? 'Clear' : 'Purple/Lavender',
+        stability: name.includes('stool') ? 'Process same day' : '24 hrs at 18-25°C',
+        methodology: name.includes('rapid') ? 'Rapid antigen detection assay' : 'Microscopy with stain and concentration methods',
+        parameterName: getParameterName(testName),
+        rangeText: getRangeText(testName),
+      };
+    }
+    return {
+      sampleType: name.includes('pcr') || name.includes('xpert')
+        ? 'Swab, sputum, plasma, or EDTA blood'
+        : 'Clinical specimen',
+      sampleVolume: 'As collected',
+      container: 'Validated molecular transport container',
+      containerColor: 'Standard per specimen',
+      stability: 'Maintain validated transport conditions and avoid contamination',
+      methodology: 'Nucleic acid extraction followed by amplification and target detection',
+      parameterName: getParameterName(testName),
+      rangeText: getRangeText(testName),
+    };
+  }
+
+  if (deptCode === 'HIS') {
+    return {
+      sampleType: name.includes('cytology')
+        ? 'Smear slide, body fluid, or LBC vial'
+        : name.includes('ihc') || name.includes('immunostaining') || name.includes('ki-67') || name.includes('p53') || name.includes('pd-l1') || name.includes('her2') || name.includes('er/pr')
+          ? 'FFPE tissue section'
+          : name.includes('autopsy')
+            ? 'Fresh tissue / fixed tissue'
+            : 'Formalin-fixed tissue',
+      sampleVolume: 'As collected',
+      container: name.includes('cytology')
+        ? 'Slide / LBC Container'
+        : name.includes('ihc') || name.includes('ki-67') || name.includes('p53') || name.includes('pd-l1') || name.includes('her2') || name.includes('er/pr')
+          ? 'Charged Slide'
+          : 'Formalin Container',
+      containerColor: 'Clear/White',
+      stability: name.includes('cytology') ? 'Fixed slides stable indefinitely' : 'Stable in 10% neutral buffered formalin',
+      methodology: name.includes('ihc') || name.includes('ki-67') || name.includes('p53') || name.includes('pd-l1') || name.includes('her2') || name.includes('er/pr')
+        ? 'Immunostaining with validated antibody controls'
+        : name.includes('cytology')
+          ? 'Microscopic review with Papanicolaou-style or cytology staining'
+          : name.includes('autopsy')
+            ? 'Gross examination with histology sampling'
+            : 'Fixation, processing, sectioning, and staining',
+      parameterName: getParameterName(testName),
+      rangeText: getRangeText(testName),
+    };
+  }
+
+  return {
+    sampleType: 'Whole Blood (EDTA) + Serum',
+    sampleVolume: '6.0 mL',
+    container: 'EDTA + Plain Tube',
+    containerColor: 'Purple + Red',
+    stability: '72 hrs at 2-8°C',
+    methodology: name.includes('group')
+      ? 'Forward and reverse grouping with haemagglutination'
+      : name.includes('crossmatch')
+        ? 'Immediate spin and antiglobulin crossmatch workflow'
+        : 'Indirect antiglobulin test with validated serology controls',
+    parameterName: getParameterName(testName),
+    rangeText: getRangeText(testName),
+  };
 }
 
 export const NEW_SOPS: SOP[] = [];
@@ -721,7 +1029,7 @@ BENCHES.forEach(({ dept, deptCode, benches }) => {
   benches.forEach((bench) => {
     const benchToken = normalizeBenchToken(bench);
     const sopCodesForBench: string[] = [];
-    const benchContent = getBenchContent(deptCode, bench);
+    const benchContent = getBenchContent(deptCode, bench)!;
 
     SOP_TITLE_SUFFIXES.forEach((suffix, idx) => {
       const sopCode = `${deptCode}-SOP-${String(sopCodeCounter++)}`;
@@ -754,24 +1062,45 @@ BENCHES.forEach(({ dept, deptCode, benches }) => {
       });
     });
 
-    TEST_NAME_SUFFIXES.forEach((suffix, idx) => {
+    benchContent.testNames.forEach((specificTestName, idx) => {
       const linkedSop = sopCodesForBench[idx % sopCodesForBench.length];
-      const specificTestName = benchContent?.testNames[idx] ?? `${bench} ${suffix}`;
+      const testProfile = buildTestProfile(deptCode, bench, specificTestName);
       NEW_LAB_TESTS.push({
         id: `t${testIdCounter++}`,
         code: `${deptCode}${testCodeCounter++}`,
         name: specificTestName,
         category: bench,
-        turnaround: idx === 3 ? '60-120 minutes' : idx === 2 ? '4-8 hours' : '2-4 hours',
-        sampleType: deptCode === 'HIS' ? 'Tissue / Cytology sample' : 'Whole blood / plasma / serum',
-        sampleVolume: deptCode === 'HIS' ? 'As collected' : '2.5 mL',
-        container: deptCode === 'HIS' ? 'Specimen container with preservative' : idx === 3 ? 'Urgent profile tube' : 'Primary collection tube',
-        containerColor: deptCode === 'HEM' ? 'Purple or Light Blue' : deptCode === 'CHE' ? 'Yellow/Gold' : 'Standard per test',
-        stability: idx === 3 ? 'Process immediately' : '24-48 hours per method',
-        methodology: benchContent?.testSummary ?? (idx === 2 ? 'Method-specific confirmatory assay' : 'Validated automated or bench workflow'),
+        turnaround:
+          deptCode === 'MIC'
+            ? idx === 0
+              ? '5-7 days'
+              : idx === 1
+                ? '48-72 hours'
+                : idx === 2
+                  ? '48-72 hours'
+                  : '24-48 hours'
+            : deptCode === 'HIS'
+              ? idx === 0
+                ? '3-5 days'
+                : idx === 1
+                  ? '3-7 days'
+                  : idx === 2
+                    ? '3-7 days'
+                    : '24-48 hours'
+              : idx === 2
+                ? '4-8 hours'
+                : idx === 3
+                  ? '60-120 minutes'
+                  : '2-4 hours',
+        sampleType: testProfile.sampleType,
+        sampleVolume: testProfile.sampleVolume,
+        container: testProfile.container,
+        containerColor: testProfile.containerColor,
+        stability: testProfile.stability,
+        methodology: testProfile.methodology,
         relatedSop: linkedSop,
         parameters: [
-          { name: 'Primary marker', unit: '', maleRange: 'Within reference for method', femaleRange: 'Within reference for method' },
+          { name: testProfile.parameterName, unit: '', maleRange: testProfile.rangeText, femaleRange: testProfile.rangeText },
         ],
         clinicalSignificance: benchContent?.testSummary ?? `Supports ${bench.toLowerCase()} interpretation for diagnosis, monitoring, and treatment decisions.`,
         indications: ['Routine clinical evaluation', 'Follow-up monitoring', 'Urgent or confirmatory requests when indicated'],
