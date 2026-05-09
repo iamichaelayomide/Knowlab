@@ -132,15 +132,16 @@
   [data-theme="dark"] .card,
   [data-theme="dark"] [data-slot="card"] {
     box-shadow: none;
-    background: linear-gradient(180deg, rgba(59, 130, 246, 0.03) 0%, var(--surface-card) 40%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, var(--surface-card) 46%);
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, rgba(58, 110, 232, 0.92) 0%, rgba(45, 93, 214, 0.96) 100%);
+    /* [DESIGN] Primary CTAs are black in light mode, matching the requested premium reference. */
+    background: linear-gradient(180deg, #242424 0%, #050505 100%);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 4px 12px rgba(58, 110, 232, 0.3), 0 1px 3px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 10px 24px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.16);
     color: white;
     border-radius: var(--radius-md);
     transition: all var(--duration-fast) var(--ease-spring);
@@ -148,7 +149,7 @@
 
   .btn-primary:hover {
     transform: scale(1.02);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 6px 20px rgba(58, 110, 232, 0.4), 0 2px 6px rgba(0, 0, 0, 0.15);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 14px 32px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.16);
   }
 
   .btn-primary:active {
@@ -157,10 +158,10 @@
   }
 
   [data-theme="dark"] .btn-primary {
-    background: rgba(59, 130, 246, 0.18);
-    border-color: rgba(59, 130, 246, 0.35);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 12px rgba(59, 130, 246, 0.2);
-    color: #93c5fd;
+    background: linear-gradient(180deg, #f7f7f7 0%, #dedede 100%);
+    border-color: rgba(255, 255, 255, 0.32);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 14px 34px rgba(0, 0, 0, 0.38);
+    color: #090909;
   }
 
   .input,
@@ -209,9 +210,10 @@
 
   button[class*="bg-[var(--kl-primary)]"],
   a[class*="bg-[var(--kl-primary)]"] {
-    background: linear-gradient(135deg, rgba(58, 110, 232, 0.92), rgba(45, 93, 214, 0.96));
-    border-color: rgba(255, 255, 255, 0.25);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 4px 12px rgba(58, 110, 232, 0.3), 0 1px 3px rgba(0, 0, 0, 0.12);
+    background: linear-gradient(180deg, #242424, #050505);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 10px 24px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.16);
   }
 
   button[class*="bg-[var(--kl-primary)]"]:hover,
@@ -226,10 +228,10 @@
 
   [data-theme="dark"] button[class*="bg-[var(--kl-primary)]"],
   [data-theme="dark"] a[class*="bg-[var(--kl-primary)]"] {
-    background: rgba(59, 130, 246, 0.18);
-    border-color: rgba(59, 130, 246, 0.35);
-    color: #93c5fd;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 12px rgba(59, 130, 246, 0.2);
+    background: linear-gradient(180deg, #f7f7f7, #dedede);
+    border-color: rgba(255, 255, 255, 0.32);
+    color: #090909;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 14px 34px rgba(0, 0, 0, 0.38);
   }
 
   [class*="bg-[#eef5ff]"] { background: var(--accent-glow) !important; }
@@ -245,6 +247,32 @@
   [class*="border-[var(--kl-border)]"] { border-color: var(--surface-border) !important; }
   [class*="rounded-[18px]"], [class*="rounded-[20px]"] { border-radius: var(--radius-lg); }
   [class*="rounded-[24px]"] { border-radius: var(--radius-2xl); }
+
+  [data-theme="dark"] .sidebar {
+    background: #0d0d0d;
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.08), 12px 0 42px rgba(0, 0, 0, 0.32);
+  }
+
+  [data-theme="dark"] .breadcrumb-bar {
+    background: rgba(13, 13, 13, 0.88);
+  }
+
+  [data-theme="dark"] .nav-active-pill,
+  [data-theme="dark"] [aria-current="page"].nav-active-pill {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.1));
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 10px 28px rgba(0, 0, 0, 0.38);
+    color: #ffffff;
+  }
+
+  [data-theme="dark"] .nav-idle-pill {
+    color: rgba(255, 255, 255, 0.46);
+  }
+
+  [data-theme="dark"] .nav-idle-pill:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.82);
+  }
 }
 
 input:-webkit-autofill,

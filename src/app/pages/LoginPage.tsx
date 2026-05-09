@@ -95,7 +95,7 @@ export default function LoginPage() {
     <div className="auth-page min-h-screen bg-[var(--surface-base)] flex items-center justify-center p-6">
       <div className="w-full max-w-[420px]">
         <div className="flex items-center gap-3 mb-8">
-          <div className="auth-logo-mark bg-[linear-gradient(135deg,var(--accent-primary),#6366f1)] rounded-lg size-[52px] flex items-center justify-center flex-shrink-0 shadow-[0_4px_16px_rgba(58,110,232,0.30)]">
+          <div className="auth-logo-mark bg-[linear-gradient(180deg,#2c2c2c,#050505)] rounded-lg size-[52px] flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_10px_24px_rgba(0,0,0,0.2)]">
             <span className="text-white font-bold text-[15px]">LK</span>
           </div>
           <div>

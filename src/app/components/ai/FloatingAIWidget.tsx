@@ -224,7 +224,7 @@ export default function FloatingAIWidget() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="ask-ai-fab fixed z-40 right-4 sm:right-6 inline-flex h-11 items-center gap-2 rounded-full border border-[rgba(255,255,255,0.75)] bg-[rgba(255,255,255,0.55)] px-5 text-[14px] font-semibold tracking-[-0.01em] text-[var(--accent-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.90),0_8px_32px_rgba(58,110,232,0.18),0_2px_8px_rgba(0,0,0,0.10)] backdrop-blur-2xl transition-all duration-base ease-spring hover:scale-[1.04] hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_12px_40px_rgba(58,110,232,0.25),0_4px_12px_rgba(0,0,0,0.12)] active:scale-[0.97] dark:border-[rgba(255,255,255,0.12)] dark:bg-[rgba(255,255,255,0.07)] dark:text-[#93c5fd] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_8px_32px_rgba(0,0,0,0.50)]"
+          className="ask-ai-fab fixed z-40 right-4 sm:right-6 inline-flex h-11 items-center gap-2 rounded-full border border-[rgba(255,255,255,0.18)] bg-[linear-gradient(180deg,#252525,#050505)] px-5 text-[14px] font-semibold tracking-[-0.01em] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_12px_32px_rgba(0,0,0,0.22),0_2px_8px_rgba(0,0,0,0.10)] backdrop-blur-2xl transition-all duration-base ease-spring hover:scale-[1.04] hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_16px_42px_rgba(0,0,0,0.28),0_4px_12px_rgba(0,0,0,0.16)] active:scale-[0.97] dark:border-[rgba(255,255,255,0.18)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.09))] dark:text-white dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_18px_48px_rgba(0,0,0,0.58)]"
           style={{ bottom: "calc(env(safe-area-inset-bottom) + 14px)" }}
         >
           <AppIcon name="ai" size={16} />
@@ -242,7 +242,7 @@ export default function FloatingAIWidget() {
         >
           <div className="shrink-0 px-4 py-3 border-b border-[var(--surface-border)] bg-[var(--surface-raised)] flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="bg-gradient-to-br from-[var(--accent-primary)] to-[#6366f1] rounded-[10px] p-1.5 shadow-[0_4px_14px_var(--accent-glow)]">
+              <div className="bg-[linear-gradient(180deg,#2b2b2b,#080808)] rounded-[10px] p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_22px_rgba(0,0,0,0.2)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.08))]">
                 <AppIcon name="ai" size={14} className="text-white" />
               </div>
               <div className="min-w-0">
@@ -322,7 +322,7 @@ export default function FloatingAIWidget() {
                                   setOpen(false);
                                 }}
                                 className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] ${
-                                  to ? "bg-[var(--accent-glow)] text-[var(--accent-primary)]" : "bg-[var(--surface-raised)] text-[var(--text-tertiary)]"
+                                  to ? "bg-[#ececec] text-[#111111] dark:bg-[rgba(255,255,255,0.12)] dark:text-white" : "bg-[var(--surface-raised)] text-[var(--text-tertiary)]"
                                 }`}
                               >
                                 <AppIcon name="sops" size={10} />

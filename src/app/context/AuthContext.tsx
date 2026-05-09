@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen bg-[var(--surface-base)] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="bg-[linear-gradient(135deg,var(--accent-primary),#6366f1)] rounded-lg size-[48px] flex items-center justify-center shadow-[0_4px_16px_var(--accent-glow)]">
+          <div className="bg-[linear-gradient(180deg,#2c2c2c,#050505)] rounded-lg size-[48px] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_10px_24px_rgba(0,0,0,0.2)]">
             <span className="text-white font-bold text-[15px]">LK</span>
           </div>
           <p className="text-[#73839f] text-[13px]">Loading workspace…</p>

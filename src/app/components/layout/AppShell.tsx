@@ -233,7 +233,7 @@ export default function AppShell() {
   const SidebarContent = () => (
     <div className="sidebar flex h-full flex-col bg-[var(--surface-card)]">
       <div className="sidebar-logo flex h-14 items-center gap-3 border-b border-[var(--surface-border)] px-3">
-        <div className="bg-[linear-gradient(135deg,var(--accent-primary),#6366f1)] rounded-lg size-[44px] flex items-center justify-center flex-shrink-0 shadow-[0_4px_16px_rgba(58,110,232,0.30)]">
+        <div className="bg-[linear-gradient(180deg,#2c2c2c,#050505)] rounded-lg size-[44px] flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_10px_24px_rgba(0,0,0,0.22)] dark:bg-[linear-gradient(180deg,#262626,#090909)]">
           <span className="text-white font-bold text-[13px]">LK</span>
         </div>
         <div>
@@ -271,9 +271,9 @@ export default function AppShell() {
                   to={item.path}
                   onClick={() => setMobileSidebarOpen(false)}
                   className={({ isActive }) =>
-                    `flex h-9 items-center gap-2.5 rounded-sm px-3 text-[14px] font-medium transition-all duration-fast ${
+                    `nav-${isActive ? "active" : "idle"}-pill flex h-9 items-center gap-2.5 rounded-md px-3 text-[14px] font-medium transition-all duration-fast ${
                       isActive
-                        ? "bg-[var(--accent-glow)] text-[var(--accent-primary)]"
+                        ? "bg-[#e9e9e9] text-[#111111] shadow-[inset_0_1px_0_rgba(255,255,255,0.75),0_8px_20px_rgba(0,0,0,0.08)]"
                         : "text-[var(--text-secondary)] hover:bg-[var(--surface-base)] hover:text-[var(--text-primary)]"
                     }`
                   }
@@ -355,14 +355,14 @@ export default function AppShell() {
             <ThemeToggle compact className="shrink-0" />
             <button
               onClick={() => openFloatingAI()}
-              className="rounded-md border border-[var(--surface-border)] bg-[var(--glass-bg)] px-2.5 py-2 text-[var(--text-primary)] shadow-glass backdrop-blur-md transition-all hover:bg-[var(--surface-card)]"
+              className="rounded-md border border-[var(--surface-border)] bg-[var(--glass-bg)] px-2.5 py-2 text-[var(--text-primary)] shadow-glass backdrop-blur-md transition-all hover:bg-[var(--surface-card)] dark:bg-[rgba(255,255,255,0.08)] dark:hover:bg-[rgba(255,255,255,0.13)]"
               title="Open AI assistant"
             >
               <AppIcon name="ai" size={14} />
             </button>
             <NavLink
               to={`${base}/alerts`}
-              className="relative flex items-center gap-2 rounded-md border border-[var(--surface-border)] bg-[var(--surface-card)] px-3 py-2 text-[14px] font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-raised)]"
+              className="relative flex items-center gap-2 rounded-md border border-[var(--surface-border)] bg-[var(--surface-card)] px-3 py-2 text-[14px] font-medium text-[var(--text-primary)] shadow-xs transition-colors hover:bg-[var(--surface-raised)] dark:bg-[rgba(255,255,255,0.08)] dark:hover:bg-[rgba(255,255,255,0.13)]"
             >
               <AppIcon name="alerts" size={14} />
               Alerts
