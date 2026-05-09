@@ -14,10 +14,19 @@ const DEMO_CREDENTIALS: Record<DemoRole, { email: string; password: string }> = 
   HOD: { email: 'hod123@knowlab.com', password: 'hod123' },
 };
 
-const DEMO_USERS_BY_ROLE = {
-  Staff: USERS.filter((user) => user.role === 'staff'),
-  Supervisor: USERS.filter((user) => user.role === 'supervisor'),
-  HOD: USERS.filter((user) => user.role === 'hod'),
+const MAIN_LAB_DEMO_OPTIONS: Record<Exclude<DemoRole, 'HOD'>, { label: string; userId: string }[]> = {
+  Staff: [
+    { label: 'Haematology', userId: 'demo_staff' },
+    { label: 'Chemistry', userId: 'u6' },
+    { label: 'Microbiology', userId: 'u8' },
+    { label: 'Histopathology', userId: 'u10' },
+  ],
+  Supervisor: [
+    { label: 'Haematology', userId: 'demo_supervisor' },
+    { label: 'Chemistry', userId: 'sup2' },
+    { label: 'Microbiology', userId: 'sup3' },
+    { label: 'Histopathology', userId: 'sup4' },
+  ],
 };
 
 export default function LoginPage() {
@@ -35,7 +44,7 @@ export default function LoginPage() {
   const [selectedDemoUserId, setSelectedDemoUserId] = useState('');
   const visibleRole = detectedUser?.role || 'Staff';
   const showUnitSelector = visibleRole === 'Staff' || visibleRole === 'Supervisor';
-  const visibleDemoUsers = DEMO_USERS_BY_ROLE[visibleRole as DemoRole] ?? [];
+  const visibleDemoOptions = showUnitSelector ? MAIN_LAB_DEMO_OPTIONS[visibleRole as Exclude<DemoRole, 'HOD'>] : [];
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -175,6 +184,18 @@ export default function LoginPage() {
                 ))}
               </div>
               <form onSubmit={handleSignIn} className="space-y-4">
+                <div>
+                  <label className="block text-[var(--text-secondary)] font-medium text-[13px] mb-1.5">Work email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => handleEmailChange(e.target.value)}
+                    placeholder="you@knowlab.com"
+                    required
+                    className="input w-full h-[44px] rounded-full px-4 text-[15px]"
+                  />
+                </div>
+
                 {showUnitSelector && (
                   <div>
                     <label className="block text-[var(--text-secondary)] font-medium text-[13px] mb-1.5" htmlFor="demo-unit">
@@ -187,10 +208,10 @@ export default function LoginPage() {
                         onChange={(event) => handleDemoUserSelect(event.target.value)}
                         className="input h-[44px] w-full appearance-none rounded-full px-4 pr-11 text-[14px]"
                       >
-                        <option value="">Choose a {visibleRole.toLowerCase()} unit</option>
-                        {visibleDemoUsers.map((user) => (
-                          <option key={user.id} value={user.id}>
-                            {user.unit} - {user.name}
+                        <option value="">Choose a {visibleRole.toLowerCase()} lab</option>
+                        {visibleDemoOptions.map((option) => (
+                          <option key={option.userId} value={option.userId}>
+                            {option.label}
                           </option>
                         ))}
                       </select>
@@ -198,18 +219,6 @@ export default function LoginPage() {
                     </div>
                   </div>
                 )}
-
-                <div>
-                  <label className="block text-[var(--text-secondary)] font-medium text-[13px] mb-1.5">Work email</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={e => handleEmailChange(e.target.value)}
-                    placeholder="you@knowlab.com"
-                    required
-                    className="input w-full h-[44px] rounded-full px-4 text-[15px]"
-                  />
-                </div>
 
                 {detectedUser && (
                   <div className="kl-card bg-[var(--accent-glow)] border border-[var(--surface-border)] rounded-[24px] p-4 flex items-start gap-3">

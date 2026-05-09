@@ -477,6 +477,18 @@ export const USERS: User[] = [
     joinDate: '2016-02-20',
   },
   {
+    id: 'sup4',
+    name: 'Chinwe Okorie',
+    email: 'chinwe@knowlab.ng',
+    password: 'super123',
+    role: 'supervisor',
+    department: 'Histopathology',
+    unit: 'Histopathology',
+    initials: 'CO',
+    color: '#343436',
+    joinDate: '2019-11-12',
+  },
+  {
     id: 'hod1',
     name: 'Ngozi Adeyemi',
     email: 'ngozi@knowlab.ng',

@@ -43,21 +43,21 @@ describe('LoginPage', () => {
   it('fills staff credentials from the unit dropdown', () => {
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: /Use Staff demo account/i }));
-    fireEvent.change(screen.getByLabelText(/Staff unit/i), { target: { value: 'u7' } });
+    fireEvent.change(screen.getByLabelText(/Staff unit/i), { target: { value: 'u6' } });
 
-    expect(screen.getByPlaceholderText(/you@knowlab.com/i)).toHaveValue('blessing@knowlab.ng');
+    expect(screen.getByPlaceholderText(/you@knowlab.com/i)).toHaveValue('emeka.eze@knowlab.ng');
     expect(screen.getByPlaceholderText(/Enter your password/i)).toHaveValue('staff123');
-    expect(screen.getByText('Kidney Function Tests')).toBeInTheDocument();
+    expect(screen.getByText('Liver Function Tests (LFTs)')).toBeInTheDocument();
   });
 
   it('fills supervisor credentials from the unit dropdown', () => {
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: /Use Supervisor demo account/i }));
-    fireEvent.change(screen.getByLabelText(/Supervisor unit/i), { target: { value: 'sup2' } });
+    fireEvent.change(screen.getByLabelText(/Supervisor unit/i), { target: { value: 'sup4' } });
 
-    expect(screen.getByPlaceholderText(/you@knowlab.com/i)).toHaveValue('seun@knowlab.ng');
+    expect(screen.getByPlaceholderText(/you@knowlab.com/i)).toHaveValue('chinwe@knowlab.ng');
     expect(screen.getByPlaceholderText(/Enter your password/i)).toHaveValue('super123');
-    expect(screen.getByText('Glucose & Diabetes Markers')).toBeInTheDocument();
+    expect(screen.getAllByText('Histopathology').length).toBeGreaterThan(0);
   });
 
   it('routes staff demo credentials to staff dashboard', async () => {
