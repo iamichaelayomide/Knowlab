@@ -232,6 +232,21 @@ const BASE_LAB_ORDERS: LabOrder[] = [
     indication: "Severe anaemia workup",
   },
   {
+    id: "ord-001b",
+    patientId: "pt-001",
+    testCode: "RETIC",
+    testName: "Reticulocyte Count",
+    department: "Haematology",
+    bench: "FBC & Automated Counts",
+    specimen: "EDTA whole blood",
+    priority: "routine",
+    status: "ordered",
+    orderedAt: "2026-05-09T07:55:00Z",
+    clinician: "Dr. Salami",
+    ward: "Medical Ward 2",
+    indication: "Anemia investigation",
+  },
+  {
     id: "ord-002",
     patientId: "pt-002",
     testCode: "U&E",
@@ -248,6 +263,21 @@ const BASE_LAB_ORDERS: LabOrder[] = [
     indication: "AKI query",
   },
   {
+    id: "ord-002b",
+    patientId: "pt-002",
+    testCode: "GLU",
+    testName: "Random Blood Glucose",
+    department: "Chemistry",
+    bench: "Glucose & Diabetes Markers",
+    specimen: "Fluoride Oxalate Plasma",
+    priority: "urgent",
+    status: "ordered",
+    orderedAt: "2026-05-09T08:35:00Z",
+    clinician: "Dr. Akinola",
+    ward: "Emergency Unit",
+    indication: "Diabetes monitoring",
+  },
+  {
     id: "ord-003",
     patientId: "pt-003",
     testCode: "BCULT",
@@ -262,25 +292,65 @@ const BASE_LAB_ORDERS: LabOrder[] = [
     ward: "Paediatrics",
     indication: "Sepsis query",
   },
+  {
+    id: "ord-003b",
+    patientId: "pt-003",
+    testCode: "MP",
+    testName: "Malaria Parasite",
+    department: "Microbiology & Parasitology",
+    bench: "Parasitology & Malaria",
+    specimen: "EDTA blood",
+    priority: "stat",
+    status: "processing",
+    orderedAt: "2026-05-09T09:15:00Z",
+    clinician: "Dr. Bello",
+    ward: "Paediatrics",
+    indication: "Fever investigation",
+  },
 ];
 
-const EXTRA_LAB_ORDERS: LabOrder[] = EXTRA_PATIENTS.map((patient, index) => {
-  const group = EXTRA_PATIENT_GROUPS[index % EXTRA_PATIENT_GROUPS.length];
-  return {
-    id: `ord-${String(index + 4).padStart(3, "0")}`,
-    patientId: patient.id,
-    testCode: group.testCode,
-    testName: group.testName,
-    department: group.scope,
-    bench: group.bench,
-    specimen: group.specimen,
-    priority: index % 7 === 0 ? "stat" : index % 3 === 0 ? "urgent" : "routine",
-    status: index % 5 === 0 ? "held" : index % 4 === 0 ? "processing" : index % 3 === 0 ? "collected" : "ordered",
-    orderedAt: patient.lastSeen,
-    clinician: patient.clinician,
-    ward: patient.ward,
-    indication: patient.diagnoses[0]?.label ?? "Laboratory review",
-  };
+const EXTRA_LAB_ORDERS: LabOrder[] = EXTRA_PATIENTS.flatMap((patient, index) => {
+  const primaryGroup = EXTRA_PATIENT_GROUPS[index % EXTRA_PATIENT_GROUPS.length];
+  const secondaryGroup = EXTRA_PATIENT_GROUPS[(index + 2) % EXTRA_PATIENT_GROUPS.length];
+  
+  const orders: LabOrder[] = [
+    {
+      id: `ord-${String(index + 4).padStart(3, "0")}`,
+      patientId: patient.id,
+      testCode: primaryGroup.testCode,
+      testName: primaryGroup.testName,
+      department: primaryGroup.scope,
+      bench: primaryGroup.bench,
+      specimen: primaryGroup.specimen,
+      priority: index % 7 === 0 ? "stat" : index % 3 === 0 ? "urgent" : "routine",
+      status: index % 5 === 0 ? "held" : index % 4 === 0 ? "processing" : index % 3 === 0 ? "collected" : "ordered",
+      orderedAt: patient.lastSeen,
+      clinician: patient.clinician,
+      ward: patient.ward,
+      indication: patient.diagnoses[0]?.label ?? "Laboratory review",
+    }
+  ];
+
+  // Add a secondary cross-departmental test for 50% of patients
+  if (index % 2 === 0) {
+    orders.push({
+      id: `ord-${String(index + 100).padStart(3, "0")}`,
+      patientId: patient.id,
+      testCode: secondaryGroup.testCode,
+      testName: secondaryGroup.testName,
+      department: secondaryGroup.scope,
+      bench: secondaryGroup.bench,
+      specimen: secondaryGroup.specimen,
+      priority: "routine",
+      status: "ordered",
+      orderedAt: patient.lastSeen,
+      clinician: patient.clinician,
+      ward: patient.ward,
+      indication: "Cross-department screening",
+    });
+  }
+
+  return orders;
 });
 
 export const LAB_ORDERS: LabOrder[] = [...BASE_LAB_ORDERS, ...EXTRA_LAB_ORDERS];

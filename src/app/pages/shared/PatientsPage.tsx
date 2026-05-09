@@ -10,6 +10,8 @@ import {
   SearchNormal1,
   TickCircle,
   Warning2,
+  Timer1 as Timer,
+  Filter,
 } from "iconsax-react";
 import { useAuth } from "../../context/AuthContext";
 import { useDepartment } from "../../context/DepartmentContext";
@@ -49,6 +51,7 @@ export default function PatientsPage() {
   const { activeDepartment, activeBench } = useDepartment();
   const location = useLocation();
   const [search, setSearch] = useState("");
+  const [filterPending, setFilterPending] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState("");
   const [draftValue, setDraftValue] = useState("");
   const [draftParameter, setDraftParameter] = useState("Result");
@@ -63,12 +66,26 @@ export default function PatientsPage() {
   
   const filteredPatients = scopedPatients.filter((patient) => {
     const term = search.toLowerCase();
-    return (
+    const matchesSearch = 
       patient.name.toLowerCase().includes(term) ||
       patient.hospitalNumber.toLowerCase().includes(term) ||
       patient.ward.toLowerCase().includes(term) ||
-      patient.summary.toLowerCase().includes(term)
-    );
+      patient.summary.toLowerCase().includes(term);
+    
+    if (!matchesSearch) return false;
+
+    if (filterPending) {
+      const patientOrders = getPatientOrders(patient.id);
+      // Logic: Patient has at least one order in the current department that is not yet 'verified' or 'resulted'
+      const hasPendingInDept = patientOrders.some(o => {
+        const isDeptMatch = user?.role === 'staff' ? o.department === activeDepartment.name : true;
+        const isPending = ['ordered', 'collected', 'processing', 'held'].includes(o.status);
+        return isDeptMatch && isPending;
+      });
+      return hasPendingInDept;
+    }
+
+    return true;
   });
 
   const selectedPatient = PATIENTS.find((patient) => patient.id === patientId) ?? filteredPatients[0];
@@ -148,14 +165,27 @@ export default function PatientsPage() {
 
       <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(280px,330px)_minmax(0,1fr)]">
         <aside className="kl-premium-card min-w-0 p-3 h-[calc(100vh-140px)] overflow-y-auto">
-          <div className="relative mb-3">
-            <SearchNormal1 size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              className="input h-11 rounded-[20px] bg-[var(--surface-raised)] pl-10"
-              placeholder="Search patients..."
-            />
+          <div className="flex items-center gap-2 mb-3">
+            <div className="relative flex-1">
+              <SearchNormal1 size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                className="input h-11 rounded-[20px] bg-[var(--surface-raised)] pl-10 pr-4 w-full"
+                placeholder="Search..."
+              />
+            </div>
+            <button
+              onClick={() => setFilterPending(!filterPending)}
+              className={`kl-icon-button size-11 flex-shrink-0 rounded-[18px] border transition-all ${
+                filterPending 
+                ? "bg-[var(--kl-primary)] text-white border-[var(--kl-primary)] shadow-md" 
+                : "bg-[var(--surface-raised)] text-[var(--text-secondary)] border-[var(--surface-border)]"
+              }`}
+              title={filterPending ? "Showing pending only" : "Filter pending results"}
+            >
+              <Timer size={18} variant={filterPending ? "Bold" : "Linear"} />
+            </button>
           </div>
           <div className="space-y-2">
             {filteredPatients.map((patient) => {
