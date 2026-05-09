@@ -140,13 +140,16 @@ function matchesLocalIntent(query: string) {
 function shouldClarify(query: string) {
   const q = query.trim().toLowerCase();
   const tokens = tokenize(q);
+
+  // Allow short conversational tokens
+  const conversational = ["hi", "hello", "hey", "yo", "thanks", "ok", "cool", "hungry", "bored", "joke", "game"].some(
+    (term) => q.includes(term),
+  );
+  if (conversational) return false;
+
   if (matchesLocalIntent(q)) return false;
   if (tokens.length <= 1) return true;
-  const tooGeneric = ["help", "hi", "hello", "question", "random", "any idea", "teach me"].some(
-    (fragment) => q === fragment,
-  );
-  const vagueFlag = q.includes("random") || q.includes("anything") || q.includes("not sure");
-  return tooGeneric || vagueFlag;
+  return false;
 }
 
 function wantsTeaching(query: string) {
@@ -625,17 +628,13 @@ function localKnowledgeRag(query: string): AssistantAnswer {
   if (ranked.length === 0) {
     const definition = tryGeneralDefinition(query);
     if (definition) return definition;
+    
+    // Return a soft fallback that indicates we're moving to general knowledge
     return {
-      answer:
-        `I couldn't find a verified source for "${query}" in the current knowledge bank.\n\n` +
-        "Try one of these closer matches:\n" +
-        buildAlternativeSuggestions(query)
-          .map((suggestion, idx) => `${idx + 1}. ${suggestion}`)
-          .join("\n") +
-        '\n\nIf you want, ask with a more specific test name, SOP code, or job aid title, like "reference range for fasting glucose".',
-      confidence: 0.2,
+      answer: "I'll help you with that using my general assistant knowledge.",
+      confidence: 0.1,
       sources: [],
-      mode: "clarify",
+      mode: "direct",
     };
   }
 

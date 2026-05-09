@@ -33,8 +33,8 @@ function getNavItems(role: string, base: string): { section: string; items: NavI
         items: [
           { label: "Dashboard", icon: "dashboard", path: `${base}/dashboard` },
           { label: "Patients", icon: "patients", path: `${base}/patients` },
-          { label: "SOPs", icon: "sops", path: `${base}/sops`, end: true },
-          { label: "Tests", icon: "tests", path: `${base}/tests`, end: true },
+          { label: "SOPs", icon: "sops", path: `${base}/sops` },
+          { label: "Tests", icon: "tests", path: `${base}/tests` },
           { label: "Job Aids", icon: "jobAids", path: `${base}/job-aids` },
           { label: "QC Log", icon: "qc", path: `${base}/qc-log` },
         ],

@@ -201,7 +201,11 @@ export default function FloatingAIWidget() {
       unit: user.unit,
       department: activeDepartment.name,
       bench: activeBench.name,
-      context: { page: "Floating AI widget" },
+      context: { 
+        page: location.pathname,
+        selectedEntity: location.pathname.split('/').pop() 
+      },
+      conversation: messages.map(m => ({ role: m.role, content: m.content })),
     });
 
     const aiMessage: ChatMessage = {
@@ -245,8 +249,8 @@ export default function FloatingAIWidget() {
         >
           <div className="shrink-0 px-4 py-3 border-b border-[var(--surface-border)] bg-[var(--surface-raised)] flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="bg-[linear-gradient(180deg,#2b2b2b,#080808)] rounded-[16px] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_22px_rgba(0,0,0,0.2)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.07))]">
-                <AppIcon name="ai" size={14} className="text-white" />
+              <div className="bg-[linear-gradient(180deg,#2b2b2b,#080808)] rounded-[16px] size-9 flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_22px_rgba(0,0,0,0.2)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.07))]">
+                <AppIcon name="ai" size={18} className="text-white" />
               </div>
               <div className="min-w-0">
                 <p className="text-[var(--text-primary)] text-[13px] font-semibold truncate">Knowlab AI</p>

@@ -12,6 +12,13 @@ import {
 } from 'iconsax-react';
 import { JOB_AIDS, JobAid } from '../../data/mockData';
 import { useDepartment } from '../../context/DepartmentContext';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
 
 const TYPE_ICONS: Record<string, React.ReactNode> = {
   checklist: <CheckSquare size={18} className="text-[#1c7b56] dark:text-[#88e0ba]" />,
@@ -40,8 +47,6 @@ const TYPE_LABELS: Record<string, string> = {
   quick_reference: 'Quick Reference',
   protocol: 'Protocol',
 };
-
-const CATEGORIES = ['All', 'Equipment', 'Pre-Analytics', 'Quality Control', 'Blood Bank', 'Reporting', 'Reagent Management'];
 
 function JobAidCard({ aid }: { aid: JobAid }) {
   const [expanded, setExpanded] = useState(false);
@@ -99,7 +104,7 @@ function JobAidCard({ aid }: { aid: JobAid }) {
 
 export default function JobAidsPage() {
   const location = useLocation();
-  const { activeDepartment } = useDepartment();
+  const { activeDepartment, activeBench } = useDepartment();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeType, setActiveType] = useState('All');
@@ -111,6 +116,9 @@ export default function JobAidsPage() {
   }, [location.search]);
 
   const departmentAids = JOB_AIDS.filter(aid => {
+    // Priority 1: Match active bench category
+    if (aid.category === activeBench.name) return true;
+
     // Check if category matches any bench in this department
     const isBenchCategory = activeDepartment.benches.some(b => b.name === aid.category);
     if (isBenchCategory) return true;
@@ -146,62 +154,64 @@ export default function JobAidsPage() {
 
   return (
     <div className="kl-page">
-      <div className="mb-6">
-        <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">Quick Job Aids</h1>
-        <p className="text-[var(--kl-text-muted)] text-[14px]">Checklists, decision trees, and quick reference guides for bench use</p>
-      </div>
-
-      {/* Search */}
-      <div className="relative mb-4">
-        <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--kl-text-muted)]" />
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search job aids…"
-          className="w-full bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] pl-10 pr-4 py-3 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--surface-border-strong)] transition-colors"
-        />
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col gap-3 mb-5">
-        <div className="flex gap-2 flex-wrap">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors border ${
-                activeCategory === cat
-                  ? 'bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] border-[var(--surface-border-strong)]'
-                  : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--kl-primary)]'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+      <div className="mb-6 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-[var(--kl-text)] font-semibold text-[24px] mb-1">Quick Job Aids</h1>
+          <p className="text-[var(--kl-text-muted)] text-[14px]">
+            {activeBench.shortName} workspace guides and reference tools
+          </p>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          {['All', 'checklist', 'quick_reference', 'decision_tree', 'protocol'].map(type => (
-            <button
-              key={type}
-              onClick={() => setActiveType(type)}
-              className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors border ${
-                activeType === type
-                  ? 'bg-[var(--kl-surface-tinted)] text-[var(--text-primary)] border-[var(--surface-border-strong)]'
-                  : 'bg-[var(--kl-surface)] text-[var(--kl-text-muted)] border-[var(--kl-border)] hover:border-[var(--kl-primary)]'
-              }`}
-            >
-              {type === 'All' ? 'All Types' : TYPE_LABELS[type]}
-            </button>
-          ))}
+      </div>
+
+      {/* Toolbar: Dropdowns + Search */}
+      <div className="flex flex-col md:flex-row gap-3 mb-6">
+        <div className="flex gap-2 shrink-0">
+          <div className="w-[160px]">
+            <Select value={activeCategory} onValueChange={setActiveCategory}>
+              <SelectTrigger className="rounded-[14px] bg-[var(--kl-surface)] border-[var(--kl-border)] h-11">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map(cat => (
+                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-[140px]">
+            <Select value={activeType} onValueChange={setActiveType}>
+              <SelectTrigger className="rounded-[14px] bg-[var(--kl-surface)] border-[var(--kl-border)] h-11">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All Types</SelectItem>
+                <SelectItem value="checklist">Checklist</SelectItem>
+                <SelectItem value="quick_reference">Quick Reference</SelectItem>
+                <SelectItem value="decision_tree">Decision Tree</SelectItem>
+                <SelectItem value="protocol">Protocol</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="relative flex-1">
+          <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--kl-text-muted)]" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search job aids…"
+            className="w-full h-11 bg-[var(--kl-surface)] border border-[var(--kl-border)] rounded-[14px] pl-10 pr-4 py-2 text-[14px] text-[var(--kl-text)] placeholder:text-[var(--kl-text-muted)] focus:outline-none focus:border-[var(--surface-border-strong)] transition-colors"
+          />
         </div>
       </div>
 
       {/* Job Aids Grid */}
       <div className="grid lg:grid-cols-2 gap-4">
         {filtered.length === 0 && (
-          <div className="col-span-2 bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-8 text-center">
-            <BookOpen size={32} className="text-[var(--text-tertiary)] mx-auto mb-3" />
-            <p className="text-[var(--kl-text-muted)] font-medium">No job aids found</p>
+          <div className="col-span-2 bg-[var(--kl-surface)] rounded-[20px] border border-[var(--kl-border)] p-12 text-center opacity-60">
+            <BookOpen size={48} className="text-[var(--text-tertiary)] mx-auto mb-4" />
+            <p className="text-[var(--kl-text)] font-semibold text-[16px]">No matching job aids</p>
+            <p className="text-[var(--kl-text-muted)] text-[13px] mt-1">Try changing your filters or searching for something else.</p>
           </div>
         )}
         {filtered.map(aid => (
