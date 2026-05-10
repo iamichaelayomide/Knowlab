@@ -19,6 +19,7 @@ import HODDashboard from './pages/hod/HODDashboard';
 import HODStaffPage from './pages/hod/HODStaffPage';
 import HODReportsPage from './pages/hod/HODReportsPage';
 import SettingsPage from './pages/shared/SettingsPage';
+import ResultsEntryPage from './pages/shared/ResultsEntryPage';
 
 export const router = createBrowserRouter([
   {
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
       { path: 'ai-assistant', Component: AIAssistantPage },
       { path: 'alerts', Component: AlertsPage },
       { path: 'settings', Component: SettingsPage },
+      { path: 'results-entry', Component: ResultsEntryPage },
     ],
   },
   // ─── Supervisor Routes ───────────────────────────────────────────────────────
@@ -66,6 +68,7 @@ export const router = createBrowserRouter([
       { path: 'capa', Component: CAPAPage },
       { path: 'alerts', Component: AlertsPage },
       { path: 'settings', Component: SettingsPage },
+      { path: 'results-entry', Component: ResultsEntryPage },
     ],
   },
   // ─── HOD Routes ──────────────────────────────────────────────────────────────

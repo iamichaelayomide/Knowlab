@@ -44,21 +44,22 @@ function getNavItems(role: string, base: string): { section: string; items: NavI
       {
         section: 'CORE',
         items: [
-          { label: 'Dashboard', icon: <LayoutDashboard size={16} />, path: `${base}/dashboard` },
-          { label: 'SOPs', icon: <FileText size={16} />, path: `${base}/sops` },
-          { label: 'Tests', icon: <FlaskConical size={16} />, path: `${base}/tests` },
-          { label: 'Job Aids', icon: <BookOpen size={16} />, path: `${base}/job-aids` },
-          { label: 'Training', icon: <GraduationCap size={16} />, path: `${base}/training` },
-          { label: 'QC Log', icon: <ClipboardList size={16} />, path: `${base}/qc-log` },
+          { label: 'Dashboard', icon: <LayoutDashboard size={18} />, path: `${base}/dashboard` },
+          { label: 'SOPs', icon: <FileText size={18} />, path: `${base}/sops` },
+          { label: 'Tests', icon: <FlaskConical size={18} />, path: `${base}/tests` },
+          { label: 'Job Aids', icon: <BookOpen size={18} />, path: `${base}/job-aids` },
+          { label: 'Training', icon: <GraduationCap size={18} />, path: `${base}/training` },
+          { label: 'QC Log', icon: <ClipboardList size={18} />, path: `${base}/qc-log` },
+          { label: 'Results Entry', icon: <FlaskConical size={18} />, path: `${base}/results-entry` },
         ],
       },
       {
         section: 'OVERSIGHT',
         items: [
-          { label: 'My Staff', icon: <Users size={16} />, path: `${base}/staff` },
-          { label: 'CAPA Items', icon: <ShieldAlert size={16} />, path: `${base}/capa` },
-          { label: 'Alerts', icon: <Bell size={16} />, path: `${base}/alerts` },
-          { label: 'Settings', icon: <Settings size={16} />, path: `${base}/settings` },
+          { label: 'My Staff', icon: <Users size={18} />, path: `${base}/staff` },
+          { label: 'CAPA Items', icon: <ShieldAlert size={18} />, path: `${base}/capa` },
+          { label: 'Alerts', icon: <Bell size={18} />, path: `${base}/alerts` },
+          { label: 'Settings', icon: <Settings size={18} />, path: `${base}/settings` },
         ],
       },
     ];
@@ -68,19 +69,20 @@ function getNavItems(role: string, base: string): { section: string; items: NavI
     {
       section: 'OVERVIEW',
       items: [
-        { label: 'Dashboard', icon: <LayoutDashboard size={16} />, path: `${base}/dashboard` },
-        { label: 'Staff', icon: <Users size={16} />, path: `${base}/staff` },
-        { label: 'Training', icon: <GraduationCap size={16} />, path: `${base}/training` },
-        { label: 'QC Overview', icon: <ClipboardList size={16} />, path: `${base}/qc` },
-        { label: 'Reports', icon: <BarChart2 size={16} />, path: `${base}/reports` },
+        { label: 'Dashboard', icon: <LayoutDashboard size={18} />, path: `${base}/dashboard` },
+        { label: 'Staff', icon: <Users size={18} />, path: `${base}/staff` },
+        { label: 'Training', icon: <GraduationCap size={18} />, path: `${base}/training` },
+        { label: 'QC Overview', icon: <ClipboardList size={18} />, path: `${base}/qc` },
+        { label: 'Results Entry', icon: <FlaskConical size={18} />, path: `${base}/results-entry` },
+        { label: 'Reports', icon: <BarChart2 size={18} />, path: `${base}/reports` },
       ],
     },
     {
       section: 'MANAGEMENT',
       items: [
-        { label: 'CAPA', icon: <ShieldAlert size={16} />, path: `${base}/capa` },
-        { label: 'Alerts', icon: <Bell size={16} />, path: `${base}/alerts` },
-        { label: 'Settings', icon: <Settings size={16} />, path: `${base}/settings` },
+        { label: 'CAPA', icon: <ShieldAlert size={18} />, path: `${base}/capa` },
+        { label: 'Alerts', icon: <Bell size={18} />, path: `${base}/alerts` },
+        { label: 'Settings', icon: <Settings size={18} />, path: `${base}/settings` },
       ],
     },
   ];
