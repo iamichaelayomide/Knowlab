@@ -59,7 +59,7 @@ function JobAidCard({ aid }: { aid: JobAid }) {
           {aid.steps && (
             <button
               onClick={() => setExpanded(v => !v)}
-              className="flex items-center gap-1.5 text-[#1c5eff] text-[12px] font-medium hover:gap-2 transition-all"
+            className="safe-button flex items-center gap-1.5 text-[#1c5eff] text-[12px] font-medium hover:gap-2 transition-all sm:w-auto"
             >
               {expanded ? 'Hide steps' : `Show ${aid.steps.length} steps`}
               {expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
@@ -152,7 +152,7 @@ export default function JobAidsPage() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors border ${
+              className={`min-h-11 max-w-full px-3 py-2 rounded-full text-[12px] font-medium transition-colors border break-words ${
                 activeCategory === cat
                   ? 'bg-[#e3edff] text-[#1c5eff] border-[#1c5eff]'
                   : 'bg-white text-[#475a7d] border-[#d3def5] hover:border-[#9bb3e5]'
@@ -167,7 +167,7 @@ export default function JobAidsPage() {
             <button
               key={type}
               onClick={() => setActiveType(type)}
-              className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors border ${
+              className={`min-h-11 max-w-full px-3 py-2 rounded-full text-[12px] font-medium transition-colors border break-words ${
                 activeType === type
                   ? 'bg-[#e3edff] text-[#1c5eff] border-[#1c5eff]'
                   : 'bg-white text-[#475a7d] border-[#d3def5] hover:border-[#9bb3e5]'

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { ClipboardList, CheckCircle2, AlertTriangle, ChevronDown, ChevronUp, Filter, Eye } from 'lucide-react';
 import { QC_LOGS, USERS, getUserById } from '../../data/mockData';
 import { useAuth } from '../../context/AuthContext';
+import { PATIENTS, ResultStatus, safePatientResults } from '../../data/patients';
+import { EmptyState } from '../../components/ui/empty-state';
+import { isDepartmentVisible } from '../../services/dataScope';
 
 export default function QCLogPage() {
   const { user } = useAuth();
@@ -10,6 +13,7 @@ export default function QCLogPage() {
     new Set(QC_LOGS.filter(q => q.supervisorReviewed).map(q => q.id))
   );
   const [filter, setFilter] = useState<'all' | 'passed' | 'warning' | 'failed' | 'pending_review'>('all');
+  const [patientStatusFilter, setPatientStatusFilter] = useState<'all' | ResultStatus>('all');
 
   const filtered = QC_LOGS.filter(q => {
     if (filter === 'pending_review') return !reviewedIds.has(q.id);
@@ -26,6 +30,19 @@ export default function QCLogPage() {
   };
 
   const markReviewed = (id: string) => setReviewedIds(prev => new Set([...prev, id]));
+  const scopedPatients = PATIENTS.filter(patient => isDepartmentVisible(user, patient.departmentTags.join(' ')));
+  const patientRows = scopedPatients
+    .flatMap(patient =>
+      safePatientResults(patient)
+        .filter(result => patientStatusFilter === 'all' || result.status === patientStatusFilter)
+        .map(result => ({
+          patientId: patient.id,
+          name: patient.fullName,
+          labNumber: patient.labNumber ?? 'UNASSIGNED',
+          testName: result.testName,
+          status: result.status,
+        })),
+    );
 
   return (
     <div className="p-6 max-w-[1000px]">
@@ -193,6 +210,52 @@ export default function QCLogPage() {
             </div>
           );
         })}
+      </div>
+
+      <div className="mt-6 rounded-[24px] border border-[#d3def5] bg-white p-5 shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)]">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-[16px] font-semibold text-[#11203b]">Patient Result Queue</h2>
+          <div className="flex flex-wrap gap-2">
+            {(['all', 'pending', 'validating', 'validated'] as const).map(status => (
+              <button
+                key={status}
+                onClick={() => setPatientStatusFilter(status)}
+                className={`min-h-11 rounded-full px-3 py-2 text-[12px] font-medium ${
+                  patientStatusFilter === status ? 'bg-[#e3edff] text-[#1c5eff]' : 'bg-[#f4f8ff] text-[#475a7d]'
+                }`}
+              >
+                {status === 'all' ? 'All' : status}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {patientRows.length === 0 ? (
+          <EmptyState
+            title="No patient results in this status"
+            description="When patient results are logged for your department, they will appear here with lab number and status."
+          />
+        ) : (
+          <div className="space-y-2">
+            {patientRows.map(row => (
+              <div key={`${row.patientId}-${row.testName}`} className="flex flex-wrap items-center justify-between gap-2 rounded-[12px] border border-[#eef4ff] p-3">
+                <div>
+                  <p className="text-[13px] font-medium text-[#11203b]">{row.name}</p>
+                  <p className="text-[11px] text-[#73839f]">{row.labNumber} · {row.testName}</p>
+                </div>
+                <span className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
+                  row.status === 'validated'
+                    ? 'bg-[#e8f8f1] text-[#1c7b56]'
+                    : row.status === 'validating'
+                      ? 'bg-[#fff0db] text-[#9a6115]'
+                      : 'bg-[#fde9e9] text-[#b14343]'
+                }`}>
+                  {row.status.toUpperCase()}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

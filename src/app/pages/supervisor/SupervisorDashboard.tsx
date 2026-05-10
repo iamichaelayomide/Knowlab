@@ -1,8 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { Users, ClipboardList, ShieldAlert, GraduationCap, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
+import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { USERS, QC_LOGS, CAPA_ITEMS, TRAINING_RECORDS, TRAINING_MODULES, ALERTS, getStaffUsers } from '../../data/mockData';
+import { EmptyState } from '../../components/ui/empty-state';
+import { isDepartmentVisible } from '../../services/dataScope';
 
 function MetricCard({ label, value, sublabel, accent, icon, onClick }: {
   label: string; value: string | number; sublabel: string; accent: string; icon: React.ReactNode; onClick?: () => void;
@@ -26,23 +29,37 @@ export default function SupervisorDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const staffUsers = getStaffUsers().filter(s => s.unit === user?.unit || s.unit.includes('Hematology'));
-  const allStaff = getStaffUsers();
+  const allStaff = getStaffUsers().filter(s => isDepartmentVisible(user, `${s.department} ${s.unit}`));
 
-  const recentQC = QC_LOGS.slice(0, 5);
-  const qcFailed = QC_LOGS.filter(q => q.overallStatus === 'failed').length;
-  const qcWarning = QC_LOGS.filter(q => q.overallStatus === 'warning').length;
-  const qcPending = QC_LOGS.filter(q => !q.supervisorReviewed).length;
+  const scopedQcLogs = QC_LOGS.filter(log => {
+    const staff = USERS.find(u => u.id === log.staffId);
+    return isDepartmentVisible(user, `${staff?.department ?? ''} ${staff?.unit ?? ''}`);
+  });
+  const recentQC = scopedQcLogs.slice(0, 5);
+  const qcWarning = scopedQcLogs.filter(q => q.overallStatus === 'warning').length;
+  const qcPending = scopedQcLogs.filter(q => !q.supervisorReviewed).length;
 
-  const openCAPAs = CAPA_ITEMS.filter(c => c.status === 'open' || c.status === 'in_progress').length;
-  const criticalCAPAs = CAPA_ITEMS.filter(c => c.priority === 'critical' && c.status !== 'completed').length;
+  const scopedCapas = CAPA_ITEMS.filter(capa => isDepartmentVisible(user, capa.title));
+  const openCAPAs = scopedCapas.filter(c => c.status === 'open' || c.status === 'in_progress').length;
+  const criticalCAPAs = scopedCapas.filter(c => c.priority === 'critical' && c.status !== 'completed').length;
 
-  const overdueTraining = TRAINING_RECORDS.filter(r => r.status === 'overdue').length;
-  const allTraining = TRAINING_RECORDS.length;
-  const completedTraining = TRAINING_RECORDS.filter(r => r.status === 'completed').length;
+  const scopedTraining = TRAINING_RECORDS.filter(record => {
+    const staff = USERS.find(u => u.id === record.staffId);
+    return isDepartmentVisible(user, `${staff?.department ?? ''} ${staff?.unit ?? ''}`);
+  });
+  const overdueTraining = scopedTraining.filter(r => r.status === 'overdue').length;
+  const allTraining = Math.max(scopedTraining.length, 1);
+  const completedTraining = scopedTraining.filter(r => r.status === 'completed').length;
   const trainingCompliance = Math.round((completedTraining / allTraining) * 100);
 
   const myAlerts = ALERTS.filter(a => !a.read && a.targetRoles.includes('supervisor'));
+  const testsByDepartment = ['Haematology', 'Chemistry', 'Microbiology', 'Histopathology', 'Blood Group & Serology'].map(department => ({
+    department,
+    count: scopedQcLogs.filter(log => {
+      const staff = USERS.find(u => u.id === log.staffId);
+      return (staff?.department ?? '').toLowerCase().includes(department.toLowerCase().split(' ')[0]);
+    }).length,
+  })).filter(entry => entry.count > 0);
 
   return (
     <div className="p-6 max-w-[1200px]">
@@ -171,7 +188,9 @@ export default function SupervisorDashboard() {
             </button>
           </div>
           <div className="space-y-2">
-            {recentQC.map(entry => {
+            {recentQC.length === 0 ? (
+              <EmptyState title="No QC entries in scope" description="New QC logs for your department will appear here." />
+            ) : recentQC.map(entry => {
               const staff = USERS.find(u => u.id === entry.staffId);
               return (
                 <div key={entry.id} className="flex items-center gap-3 p-3 rounded-[14px] hover:bg-[#f4f8ff] transition-colors">
@@ -206,6 +225,28 @@ export default function SupervisorDashboard() {
         </div>
       </div>
 
+      <div className="bg-white rounded-[24px] border border-[#d3def5] shadow-[0px_6px_18px_0px_rgba(15,40,90,0.05)] p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-[#11203b] font-semibold text-[16px]">Tests by Department</h2>
+          <span className="text-[#73839f] text-[12px]">Current scope analytics</span>
+        </div>
+        {testsByDepartment.length === 0 ? (
+          <EmptyState title="No department trend data" description="Departmental test volume appears after QC entries are logged." />
+        ) : (
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={testsByDepartment}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="department" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="count" fill="#1c5eff" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
+
       {/* CAPA + Alerts */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Open CAPAs */}
@@ -220,7 +261,7 @@ export default function SupervisorDashboard() {
             </button>
           </div>
           <div className="space-y-2">
-            {CAPA_ITEMS.filter(c => c.status !== 'completed').map(capa => (
+            {scopedCapas.filter(c => c.status !== 'completed').map(capa => (
               <div key={capa.id} className="flex items-start gap-3 p-3 rounded-[14px] hover:bg-[#f4f8ff] transition-colors">
                 <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
                   capa.priority === 'critical' ? 'bg-[#b14343]' :

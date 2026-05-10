@@ -2,6 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, User, RotateCcw, GraduationCap, PartyPopper, Microscope } from 'lucide-react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { useAuth } from '../../context/AuthContext';
+import { useDepartment } from '../../context/DepartmentContext';
+import { PATIENTS } from '../../data/patients';
+import { isDepartmentVisible } from '../../services/dataScope';
+import { buildClinicalPrompt } from '../../services/aiPromptBuilder';
 
 interface Message {
   id: string;
@@ -146,7 +150,14 @@ function getAIResponse(query: string): string {
   return `I can help with that. Based on your question about "${query}", here are some key points:\n\nFor specific procedures, please refer to the relevant SOP in the SOP library. For test reference ranges and sample requirements, visit the Tests page. For quick reminders, check the Job Aids section.\n\nIs there a more specific aspect of this question I can help you with?`;
 }
 
-async function getGeminiResponse(query: string, history: Message[], mode: AssistantMode): Promise<string | null> {
+async function getGeminiResponse(
+  query: string,
+  history: Message[],
+  mode: AssistantMode,
+  departmentName: string,
+  benchName: string,
+  visiblePatients: typeof PATIENTS,
+): Promise<string | null> {
   if (!geminiClient) return null;
 
   const model = geminiClient.getGenerativeModel({ model: GEMINI_MODEL });
@@ -155,22 +166,12 @@ async function getGeminiResponse(query: string, history: Message[], mode: Assist
     .map(msg => `${msg.role === 'assistant' ? 'Assistant' : 'User'}: ${msg.content}`)
     .join('\n');
 
-  const prompt = [
-    'You are Knowlab AI Assistant for a medical laboratory team, with a calm thoughtful persona.',
-    'Sound supportive and intelligent, similar to a careful professional assistant.',
-    'Be concise, clinically safe, and practical unless the mode asks for more detail.',
-    'If uncertain, state uncertainty and advise checking SOP/supervisor.',
-    'Do not fabricate specific policy IDs unless explicitly provided by the user.',
-    'Use short bullets when helpful.',
-    MODE_PROMPT_STYLE[mode],
-    '',
-    'Conversation history:',
-    historyText || '(no prior history)',
-    '',
-    `User question: ${query}`,
-    '',
-    'Respond with clear procedural guidance appropriate for trained lab personnel.',
-  ].join('\n');
+  const prompt = buildClinicalPrompt(query, historyText, {
+    modeInstruction: MODE_PROMPT_STYLE[mode],
+    departmentName,
+    benchName,
+    visiblePatients,
+  });
 
   const result = await model.generateContent(prompt);
   const text = result.response.text().trim();
@@ -179,6 +180,7 @@ async function getGeminiResponse(query: string, history: Message[], mode: Assist
 
 export default function AIAssistantPage() {
   const { user } = useAuth();
+  const { activeDepartment, activeBench } = useDepartment();
   const [mode, setMode] = useState<AssistantMode>('learn');
   const firstName = user?.name?.split(' ')[0];
   const [messages, setMessages] = useState<Message[]>([
@@ -205,7 +207,8 @@ export default function AIAssistantPage() {
     setInput('');
     setIsTyping(true);
     try {
-      const geminiResponse = await getGeminiResponse(text, nextMessages, mode);
+      const visiblePatients = PATIENTS.filter(patient => isDepartmentVisible(user, patient.departmentTags.join(' ')));
+      const geminiResponse = await getGeminiResponse(text, nextMessages, mode, activeDepartment.name, activeBench.name, visiblePatients);
       const response = geminiResponse || getAIResponse(text);
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: response, timestamp: new Date() }]);
     } catch {

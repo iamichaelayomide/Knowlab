@@ -22,19 +22,19 @@ function getNavItems(role: string, base: string): { section: string; items: NavI
       {
         section: 'CORE',
         items: [
-          { label: 'Dashboard', icon: <LayoutDashboard size={16} />, path: `${base}/dashboard` },
-          { label: 'SOPs', icon: <FileText size={16} />, path: `${base}/sops` },
-          { label: 'Tests', icon: <FlaskConical size={16} />, path: `${base}/tests` },
-          { label: 'Job Aids', icon: <BookOpen size={16} />, path: `${base}/job-aids` },
-          { label: 'Training', icon: <GraduationCap size={16} />, path: `${base}/training` },
+          { label: 'Dashboard', icon: <LayoutDashboard size={18} />, path: `${base}/dashboard` },
+          { label: 'SOPs', icon: <FileText size={18} />, path: `${base}/sops` },
+          { label: 'Tests', icon: <FlaskConical size={18} />, path: `${base}/tests` },
+          { label: 'Job Aids', icon: <BookOpen size={18} />, path: `${base}/job-aids` },
+          { label: 'Training', icon: <GraduationCap size={18} />, path: `${base}/training` },
         ],
       },
       {
         section: 'WORKSPACE',
         items: [
-          { label: 'AI Assistant', icon: <Sparkles size={16} />, path: `${base}/ai-assistant` },
-          { label: 'Alerts', icon: <Bell size={16} />, path: `${base}/alerts` },
-          { label: 'Settings', icon: <Settings size={16} />, path: `${base}/settings` },
+          { label: 'AI Assistant', icon: <Sparkles size={18} />, path: `${base}/ai-assistant` },
+          { label: 'Alerts', icon: <Bell size={18} />, path: `${base}/alerts` },
+          { label: 'Settings', icon: <Settings size={18} />, path: `${base}/settings` },
         ],
       },
     ];
@@ -190,9 +190,9 @@ export default function AppShell() {
   );
 
   return (
-    <div className="flex h-screen bg-[#eef4ff] overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden transition-colors duration-200">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-[264px] flex-shrink-0 bg-[#f7faff] border-r border-[#d3def5] h-full overflow-hidden">
+      <aside className="hidden lg:flex flex-col w-[272px] flex-shrink-0 bg-card border-r border-border h-full overflow-hidden transition-colors duration-200">
         <SidebarContent />
       </aside>
 
@@ -200,7 +200,7 @@ export default function AppShell() {
       {mobileSidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/30" onClick={() => setMobileSidebarOpen(false)} />
-          <aside className="relative w-[264px] bg-[#f7faff] border-r border-[#d3def5] h-full overflow-hidden z-10">
+          <aside className="relative w-[272px] bg-card border-r border-border h-full overflow-hidden z-10 transition-colors duration-200">
             <button
               className="absolute top-4 right-4 text-[#73839f] p-1"
               onClick={() => setMobileSidebarOpen(false)}
@@ -215,7 +215,7 @@ export default function AppShell() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header */}
-        <header className="bg-[rgba(247,250,255,0.95)] border-b border-[#d3def5] h-[68px] flex items-center px-6 gap-4 flex-shrink-0 backdrop-blur-sm">
+        <header className="bg-card/95 border-b border-border h-[68px] flex items-center px-4 sm:px-6 gap-4 flex-shrink-0 backdrop-blur-sm transition-colors duration-200">
           <button
             className="lg:hidden text-[#475a7d] p-1"
             onClick={() => setMobileSidebarOpen(true)}
@@ -245,7 +245,7 @@ export default function AppShell() {
           <div className="flex items-center gap-2">
             <NavLink
               to={`${base}/alerts`}
-              className="relative bg-white border border-[#d3def5] rounded-[14px] px-3 py-2 text-[#11203b] text-[14px] font-medium hover:bg-[#f4f8ff] transition-colors flex items-center gap-2"
+              className="relative safe-button bg-card border border-border rounded-[14px] px-3 py-2 text-foreground text-sm font-medium hover:bg-accent transition-colors flex items-center gap-2"
             >
               <Bell size={14} />
               Alerts
