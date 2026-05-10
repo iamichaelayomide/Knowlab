@@ -1,3 +1,77 @@
-@import './fonts.css';
-@import './tailwind.css';
-@import './theme.css';
+/* src/styles/index.css */
+:root{
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 32px;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+
+  --bg: #f6f7fb;
+  --card-bg: #fff;
+  --muted: #73839f;
+  --primary: #1c5eff;
+  --danger: #b14343;
+  --border: #dbe7f6;
+  --text: #11203b;
+  --shadow: 0 6px 18px rgba(10,10,10,0.06);
+
+  --max-width: 1280px;
+}
+
+/* predictable box-sizing */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* page base */
+html { font-size: 16px; }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* responsive typography */
+h1 { font-size: clamp(1.25rem, 1.2vw + 1rem, 2rem); margin:0; }
+h2 { font-size: clamp(1rem, 0.9vw + 0.8rem, 1.5rem); margin:0; }
+p, span, button, input { font-size: clamp(0.9rem, 0.6vw + 0.7rem, 1rem); }
+
+/* card utilities */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  padding: var(--space-md);
+  overflow: hidden;
+}
+
+/* text wrapping (prevents spill) */
+.break-word { word-break: break-word; overflow-wrap: anywhere; }
+
+/* truncation utilities for small cards */
+.truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* layout helpers — grid for main area */
+.app-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-lg);
+}
+
+/* responsive scaling of radii & shadows on small screens */
+@media (max-width: 700px) {
+  :root {
+    --radius-md: 12px;
+    --space-lg: 20px;
+  }
+}

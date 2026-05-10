@@ -117,6 +117,14 @@ export default function AppShell() {
     navigate('/login');
   };
 
+  // helper to ensure icons inherit color
+  const renderIcon = (icon: React.ReactNode) => {
+    if (React.isValidElement(icon)) {
+      return React.cloneElement(icon as React.ReactElement, { className: 'flex-shrink-0 text-current' });
+    }
+    return icon;
+  };
+
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
@@ -147,15 +155,15 @@ export default function AppShell() {
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-3.5 py-3 rounded-[18px] text-[14px] font-medium transition-colors ${
                       isActive
-                        ? 'bg-[#e3edff] text-[#1c5eff]'
-                        : 'text-[#475a7d] hover:bg-[#eef4ff] hover:text-[#1c5eff]'
+                        ? 'bg-[#e3edff] text-[var(--primary)]'
+                        : 'text-[#475a7d] hover:bg-[#eef4ff] hover:text-[var(--primary)]'
                     }`
                   }
                 >
-                  {item.icon}
+                  {renderIcon(item.icon)}
                   <span className="flex-1">{item.label}</span>
                   {item.label === 'Alerts' && unreadAlerts > 0 && (
-                    <span className="bg-[#b14343] text-white text-[11px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                    <span className="bg-[var(--danger)] text-white text-[11px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
                       {unreadAlerts}
                     </span>
                   )}
@@ -244,19 +252,34 @@ export default function AppShell() {
             </div>
           </div>
 
+          {/* Header controls (alerts + cloud + others) */}
           <div className="flex items-center gap-2">
+            {/* Alerts first */}
             <NavLink
               to={`${base}/alerts`}
               className="relative safe-button bg-card border border-border rounded-[14px] px-3 py-2 text-foreground text-sm font-medium hover:bg-accent transition-colors flex items-center gap-2"
             >
-              <Bell size={14} />
-              Alerts
+              <Bell size={14} className="text-current" />
+              <span className="hidden sm:inline">Alerts</span>
               {unreadAlerts > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#b14343] text-white text-[10px] rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-0.5">
+                <span className="absolute -top-1 -right-1 bg-[var(--danger)] text-white text-[10px] rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-0.5">
                   {unreadAlerts}
                 </span>
               )}
             </NavLink>
+
+            {/* Cloud sync — visually grouped with Alerts */}
+            <button
+              onClick={() => { /* TODO: cloud sync handler */ }}
+              title="Cloud sync"
+              className="safe-button bg-card border border-border rounded-[14px] px-3 py-2 text-sm font-medium hover:bg-accent transition-colors flex items-center gap-2"
+              style={{ alignItems: 'center' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" className="text-[#2e7d32]">
+                <path fill="currentColor" d="M19.35 10.04A7 7 0 0 0 5 9a5 5 0 0 0 0 10h13a4 4 0 0 0 1.35-8.96z" />
+              </svg>
+              <span className="hidden sm:inline">Cloud Sync</span>
+            </button>
           </div>
         </header>
 
