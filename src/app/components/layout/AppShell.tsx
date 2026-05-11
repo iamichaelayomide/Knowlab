@@ -59,47 +59,47 @@ function getNavItems(role: string, base: string): { section: string; items: NavI
           { label: 'My Staff', icon: <Users size={18} />, path: `${base}/staff` },
           { label: 'CAPA Items', icon: <ShieldAlert size={18} />, path: `${base}/capa` },
           { label: 'Alerts', icon: <Bell size={18} />, path: `${base}/alerts` },
-          { label: 'Settings', icon: <Settings size={18} />, path: `${base}/settings` },
         ],
       },
+      
     ];
   }
-  // HOD
   return [
-    {
-      section: 'OVERVIEW',
-      items: [
-        { label: 'Dashboard', icon: <LayoutDashboard size={18} />, path: `${base}/dashboard` },
-        { label: 'Staff', icon: <Users size={18} />, path: `${base}/staff` },
-        { label: 'Training', icon: <GraduationCap size={18} />, path: `${base}/training` },
-        { label: 'QC Overview', icon: <ClipboardList size={18} />, path: `${base}/qc` },
-        { label: 'Results Entry', icon: <FlaskConical size={18} />, path: `${base}/results-entry` },
-        { label: 'Reports', icon: <BarChart2 size={18} />, path: `${base}/reports` },
-      ],
-    },
-    {
-      section: 'MANAGEMENT',
-      items: [
-        { label: 'CAPA', icon: <ShieldAlert size={18} />, path: `${base}/capa` },
-        { label: 'Alerts', icon: <Bell size={18} />, path: `${base}/alerts` },
-        { label: 'Settings', icon: <Settings size={18} />, path: `${base}/settings` },
-      ],
-    },
-  ];
+  {
+    section: 'OVERVIEW',
+    items: [
+      { label: 'Dashboard', icon: <LayoutDashboard size={18} />, path: `${base}/dashboard` },
+      { label: 'Staff', icon: <Users size={18} />, path: `${base}/staff` },
+      { label: 'Training', icon: <GraduationCap size={18} />, path: `${base}/training` },
+      { label: 'QC Overview', icon: <ClipboardList size={18} />, path: `${base}/qc` },
+      { label: 'Results Entry', icon: <FlaskConical size={18} />, path: `${base}/results-entry` },
+      { label: 'Reports', icon: <BarChart2 size={18} />, path: `${base}/reports` },
+    ],
+  },
+  {
+    section: 'SOP GOVERNANCE',
+    items: [
+      { label: 'SOPs', icon: <FileText size={18} />, path: `${base}/sops` },
+      { label: 'SOP Validation', icon: <FileText size={18} />, path: `${base}/sop-validation` },
+      { label: 'Tests', icon: <FlaskConical size={18} />, path: `${base}/tests` },
+    ],
+  },
+  {
+    section: 'MANAGEMENT',
+    items: [
+      { label: 'CAPA', icon: <ShieldAlert size={18} />, path: `${base}/capa` },
+      { label: 'Alerts', icon: <Bell size={18} />, path: `${base}/alerts` },
+      { label: 'AI Assistant', icon: <Sparkles size={18} />, path: `${base}/ai-assistant` },
+      { label: 'Settings', icon: <Settings size={18} />, path: `${base}/settings` },
+    ],
+  },
+];
 }
-
 function roleBase(role: string) {
   if (role === 'staff') return '/staff';
   if (role === 'supervisor') return '/supervisor';
   return '/hod';
 }
-
-function roleLabel(role: string) {
-  if (role === 'staff') return 'Staff workspace';
-  if (role === 'supervisor') return 'Supervisor workspace';
-  return 'HOD workspace';
-}
-
 export default function AppShell() {
   const { user, logout } = useAuth();
   const { activeDepartment, activeBench } = useDepartment();
@@ -129,12 +129,12 @@ export default function AppShell() {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 pt-6 pb-4">
-        <div className="bg-[#1c5eff] rounded-[18px] size-[44px] flex items-center justify-center flex-shrink-0">
+        <div className="bg-[var(--primary)] rounded-[18px] size-[44px] flex items-center justify-center flex-shrink-0">
           <span className="text-white font-bold text-[13px]">LK</span>
         </div>
         <div>
-          <div className="text-[#11203b] font-semibold text-[15px] leading-tight">Knowlab</div>
-          <div className="text-[#73839f] text-[12px]">{roleLabel(user.role)}</div>
+          <div className="text-[var(--foreground)] font-semibold text-[15px] leading-tight">Knowlab</div>
+          <div className="text-[var(--muted)] text-[12px]">{roleLabel(user.role)}</div>
         </div>
       </div>
 
@@ -145,7 +145,7 @@ export default function AppShell() {
       <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-5">
         {navSections.map(section => (
           <div key={section.section}>
-            <p className="text-[#73839f] font-semibold text-[11px] tracking-[1.98px] px-2 mb-2">{section.section}</p>
+            <p className="text-[var(--muted)] font-semibold text-[11px] tracking-[1.98px] px-2 mb-2">{section.section}</p>
             <div className="space-y-1">
               {section.items.map(item => (
                 <NavLink
@@ -155,7 +155,7 @@ export default function AppShell() {
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-3.5 py-3 rounded-[18px] text-[14px] font-medium transition-colors ${
                       isActive
-                        ? 'bg-[#e3edff] text-[var(--primary)]'
+                        ? 'bg-black text-white'
                         : 'text-[#475a7d] hover:bg-[#eef4ff] hover:text-[var(--primary)]'
                     }`
                   }
@@ -176,22 +176,13 @@ export default function AppShell() {
 
       {/* User profile + logout */}
       <div className="px-3 pb-5">
-        <div className="bg-white border border-[#d3def5] rounded-[18px] p-3.5 flex items-center gap-3">
-          <div
-            className="rounded-full size-[40px] flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0"
-            style={{ backgroundColor: user.color }}
-          >
-            {user.initials}
-          </div>
+        <div className="bg-[var(--card)] rounded-[14px] border border-[var(--border)] p-3 flex items-center gap-3">
+          <div className="size-[40px] rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: user.color }}>{user.initials}</div>
           <div className="flex-1 min-w-0">
-            <div className="text-[#11203b] font-semibold text-[13px] truncate">{user.name}</div>
-            <div className="text-[#73839f] text-[11px] truncate">{user.unit}</div>
+            <div className="text-[var(--foreground)] font-medium text-[14px] truncate">{user.name}</div>
+            <div className="text-[var(--muted)] text-[12px] truncate">{roleLabel(user.role)} · {user.unit}</div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="text-[#73839f] hover:text-[#b14343] transition-colors p-1"
-            title="Log out"
-          >
+          <button onClick={handleLogout} className="text-[var(--muted)] hover:text-[var(--foreground)]">
             <LogOut size={16} />
           </button>
         </div>
@@ -200,93 +191,47 @@ export default function AppShell() {
   );
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden transition-colors duration-200">
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-[272px] flex-shrink-0 bg-card border-r border-border h-full overflow-hidden transition-colors duration-200">
-        <SidebarContent />
-      </aside>
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <div className="flex">
+        <aside className="w-[260px] hidden md:block h-screen fixed left-0 top-0">
+          <div className="h-full">
+            {SidebarContent()}
+          </div>
+        </aside>
 
-      {/* Mobile Sidebar Overlay */}
-      {mobileSidebarOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileSidebarOpen(false)} />
-          <aside className="relative w-[272px] bg-card border-r border-border h-full overflow-hidden z-10 transition-colors duration-200">
-            <button
-              className="absolute top-4 right-4 text-[#73839f] p-1"
-              onClick={() => setMobileSidebarOpen(false)}
-            >
-              <X size={20} />
-            </button>
-            <SidebarContent />
-          </aside>
+        <div className="flex-1 md:ml-[260px]">
+          <header className="h-[72px] flex items-center justify-between px-4 border-b border-[var(--border)] bg-transparent">
+            <div className="flex items-center gap-3">
+              <button onClick={() => setMobileSidebarOpen(true)} className="md:hidden p-2 rounded-md">
+                <Menu size={20} />
+              </button>
+              <div className="hidden md:block">
+                <div className="text-sm font-semibold">{activeDepartment.shortName} · {activeBench.shortName}</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button className="p-2 rounded-full bg-[var(--card)] border border-[var(--border)]">{/* theme toggle placeholder */}
+                <Layers size={16} />
+              </button>
+              <NavLink to={`${base}/alerts`} className="p-2 rounded-full bg-[var(--card)] border border-[var(--border)]">
+                <Bell size={16} />
+              </NavLink>
+            </div>
+          </header>
+
+          <main className="p-4">
+            <Outlet />
+          </main>
         </div>
-      )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header */}
-        <header className="bg-card/95 border-b border-border h-[68px] flex items-center px-4 sm:px-6 gap-4 flex-shrink-0 backdrop-blur-sm transition-colors duration-200">
-          <button
-            className="lg:hidden text-[#475a7d] p-1"
-            onClick={() => setMobileSidebarOpen(true)}
-          >
-            <Menu size={20} />
-          </button>
-
-          {/* Dept + Bench breadcrumb */}
-          <div className="flex items-center gap-2 flex-1">
-            <div
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] text-[12px] font-semibold"
-              style={{ backgroundColor: activeDepartment.color + '18', color: activeDepartment.color }}
-            >
-              <Layers size={12} />
-              {activeDepartment.shortName}
-            </div>
-            <ChevronRight size={12} className="hidden sm:block text-[#c5d0e4]" />
-            <div className="hidden sm:flex items-center gap-1.5 bg-[#eef4ff] text-[#475a7d] text-[12px] font-medium px-2.5 py-1 rounded-[10px]">
-              <span
-                className="inline-block size-[6px] rounded-full flex-shrink-0"
-                style={{ backgroundColor: activeBench.color }}
-              />
-              {activeBench.name}
-            </div>
+        {/* mobile sidebar sheet */}
+        {mobileSidebarOpen && (
+          <div className="fixed inset-0 z-50 md:hidden">
+            <div className="absolute inset-0 bg-black/40" onClick={() => setMobileSidebarOpen(false)} />
+            <div className="absolute left-0 top-0 bottom-0 w-[80%] bg-[var(--card)] shadow-lg overflow-y-auto">{SidebarContent()}</div>
           </div>
-
-          {/* Header controls (alerts + cloud + others) */}
-          <div className="flex items-center gap-2">
-            {/* Alerts first */}
-            <NavLink
-              to={`${base}/alerts`}
-              className="relative safe-button bg-card border border-border rounded-[14px] px-3 py-2 text-foreground text-sm font-medium hover:bg-accent transition-colors flex items-center gap-2"
-            >
-              <Bell size={14} className="text-current" />
-              <span className="hidden sm:inline">Alerts</span>
-              {unreadAlerts > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[var(--danger)] text-white text-[10px] rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-0.5">
-                  {unreadAlerts}
-                </span>
-              )}
-            </NavLink>
-
-            {/* Cloud sync — visually grouped with Alerts */}
-            <button
-              onClick={() => { /* TODO: cloud sync handler */ }}
-              title="Cloud sync"
-              className="safe-button bg-card border border-border rounded-[14px] px-3 py-2 text-sm font-medium hover:bg-accent transition-colors flex items-center gap-2"
-              style={{ alignItems: 'center' }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" className="text-[#2e7d32]">
-                <path fill="currentColor" d="M19.35 10.04A7 7 0 0 0 5 9a5 5 0 0 0 0 10h13a4 4 0 0 0 1.35-8.96z" />
-              </svg>
-              <span className="hidden sm:inline">Cloud Sync</span>
-            </button>
-          </div>
-        </header>
-
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto">
-          <Outlet />
-        </main>
+        )}
       </div>
     </div>
   );
