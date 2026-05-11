@@ -94,19 +94,12 @@ function getNavItems(role: string, base: string): { section: string; items: NavI
     ],
   },
 ];
-
+}
 function roleBase(role: string) {
   if (role === 'staff') return '/staff';
   if (role === 'supervisor') return '/supervisor';
   return '/hod';
 }
-
-function roleLabel(role: string) {
-  if (role === 'staff') return 'Staff workspace';
-  if (role === 'supervisor') return 'Supervisor workspace';
-  return 'HOD workspace';
-}
-
 export default function AppShell() {
   const { user, logout } = useAuth();
   const { activeDepartment, activeBench } = useDepartment();
